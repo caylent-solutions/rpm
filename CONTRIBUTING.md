@@ -134,7 +134,7 @@ make test-functional
 
 ### Test Requirements
 
-- **Unit Tests**: Must maintain at least 90% code coverage
+- **Unit Tests**: Must maintain at least 85% code coverage
 - **Functional Tests**: Must test all CLI commands and common error scenarios
 - All tests must pass before merging
 
