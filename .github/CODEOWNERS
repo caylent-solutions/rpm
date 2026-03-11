@@ -1,0 +1,6 @@
+# CODEOWNERS — RPM CLI Repository
+#
+# Defines code ownership for pull request review requirements.
+
+# All files owned by the primary maintainer
+/ @matt-dresden-caylent
