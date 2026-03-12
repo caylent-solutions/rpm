@@ -46,11 +46,7 @@ def _is_version_constraint(rev_spec: str) -> bool:
     # Range constraints: comma-separated specifiers (e.g. ">=1.0.0,<2.0.0").
     if "," in last_component:
         parts = last_component.split(",")
-        return any(
-            part.lstrip().startswith(op)
-            for part in parts
-            for op in _PEP440_OPERATORS
-        )
+        return any(part.lstrip().startswith(op) for part in parts for op in _PEP440_OPERATORS)
 
     return False
 
@@ -121,8 +117,7 @@ def resolve_version(url: str, rev_spec: str) -> str:
 
     if not versions:
         print(
-            f"Error: No parseable version tags found under "
-            f"'{prefix or 'refs/tags'}' for {url}",
+            f"Error: No parseable version tags found under '{prefix or 'refs/tags'}' for {url}",
             file=sys.stderr,
         )
         sys.exit(1)

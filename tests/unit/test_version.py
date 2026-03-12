@@ -155,9 +155,7 @@ class TestResolveVersionPrefixedConstraint:
         tags = ["refs/tags/1.0.0", "refs/tags/1.5.0", "refs/tags/2.0.0"]
         with patch("rpm_cli.version.subprocess.run") as mock_run:
             mock_run.return_value = _mock_ls_remote(tags)
-            result = resolve_version(
-                "https://example.com/repo.git", "refs/tags/>=1.0.0,<2.0.0"
-            )
+            result = resolve_version("https://example.com/repo.git", "refs/tags/>=1.0.0,<2.0.0")
             assert result == "refs/tags/1.5.0"
 
     def test_namespaced_prefix(self) -> None:
