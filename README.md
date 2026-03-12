@@ -210,7 +210,7 @@ The `.rpmenv` file is a shell-compatible `KEY=VALUE` configuration file that dri
 | Variable | Required | Purpose |
 |---|---|---|
 | `REPO_URL` | Yes | Git URL of the repo tool fork |
-| `REPO_REV` | Yes | Repo tool version (exact tag or PEP 440 specifier) |
+| `REPO_REV` | Yes | Repo tool version — branch, exact tag, or PEP 440 specifier (e.g. `~=1.0.0`) |
 | `GITBASE` | Yes | Base Git URL for `repo envsubst` (e.g., `https://github.com/your-org/`) |
 | `CLAUDE_MARKETPLACES_DIR` | Conditional | Directory for marketplace symlinks (required when `RPM_MARKETPLACE_INSTALL=true`) |
 | `RPM_MARKETPLACE_INSTALL` | No | Boolean toggle for marketplace lifecycle (default: `false`) |
@@ -222,7 +222,7 @@ Sources are auto-discovered from `RPM_SOURCE_<name>_URL` variable patterns and p
 | Variable | Required | Purpose |
 |---|---|---|
 | `RPM_SOURCE_<name>_URL` | Yes | Git URL for the named source's manifest repository |
-| `RPM_SOURCE_<name>_REVISION` | Yes | Branch or tag to track for the named source |
+| `RPM_SOURCE_<name>_REVISION` | Yes | Branch, exact tag, or PEP 440 constraint (e.g. `refs/tags/~=1.1.0`) for the named source |
 | `RPM_SOURCE_<name>_PATH` | Yes | Path to the entry-point manifest XML for the named source |
 
 ### Environment Variables
@@ -612,22 +612,39 @@ The `<` character must be escaped as `&lt;` in XML attribute values:
          revision="refs/tags/my-package/>=1.0.0,&lt;2.0.0" />
 ```
 
-### REPO_REV Version Resolution
+### PEP 440 Version Resolution in .rpmenv
 
-The CLI also supports PEP 440 specifiers for the `REPO_REV` variable in `.rpmenv`, used to resolve the repo tool version:
+The CLI supports PEP 440 constraint syntax in both `REPO_REV` and `RPM_SOURCE_<name>_REVISION` in `.rpmenv`. Constraints are resolved against available git tags before being passed to the underlying tools.
 
-| Specifier | Meaning |
-|---|---|
-| `~=1.0.0` | Compatible release (`>=1.0.0, <1.1.0`) |
-| `>=1.0.0,<2.0.0` | Version range |
-| `==1.2.3` | Exact version |
-| `>=1.0.0` | Minimum version |
-| `*` | Latest available |
-| `v2.0.0` | Exact tag/branch (passthrough) |
+#### Supported Operators
 
-Plain strings without PEP 440 operators are returned unchanged (branch/tag passthrough).
+| Operator | Syntax | Meaning |
+|---|---|---|
+| Compatible release | `~=1.2.0` | `>=1.2.0, <1.3.0` |
+| Range | `>=1.0.0,<2.0.0` | Any version in range |
+| Exact | `==1.2.3` | Only 1.2.3 |
+| Minimum | `>=1.0.0` | 1.0.0 or higher |
+| Exclusion | `!=1.0.1` | Any version except 1.0.1 |
+| Wildcard | `*` | Latest available |
 
-For details, see [docs/version-resolution.md](docs/version-resolution.md).
+Plain strings without PEP 440 operators pass through unchanged.
+
+#### Prefixed Constraints (RPM_SOURCE_\<name\>_REVISION)
+
+Source revisions support an optional `refs/tags/` prefix. This is recommended because the resolved value is passed to `repo init -b`, which accepts full ref paths:
+
+```properties
+# Resolves to refs/tags/1.1.2 — works directly with repo init -b
+RPM_SOURCE_build_REVISION=refs/tags/~=1.1.0
+
+# Namespaced — only considers tags under that path
+RPM_SOURCE_build_REVISION=refs/tags/dev/python/my-lib/~=1.2.0
+
+# Also supported — resolves against all tags
+RPM_SOURCE_build_REVISION=~=1.1.0
+```
+
+For full details, see [docs/version-resolution.md](docs/version-resolution.md).
 
 ### Absolute Linkfile Destinations
 

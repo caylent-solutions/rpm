@@ -23,20 +23,22 @@ for the full variable table.
 # No explicit source list is needed — names are extracted from _URL keys
 # and processed in alphabetical order (build-tools, then marketplace).
 
-# Build tools source
+# Build tools source — pinned to exact tag
 RPM_SOURCE_build_tools_URL=https://github.com/org/rpm-build-tools.git
-RPM_SOURCE_build_tools_REVISION=v2.0.0
+RPM_SOURCE_build_tools_REVISION=refs/tags/2.0.0
 RPM_SOURCE_build_tools_PATH=repo-specs/meta.xml
 
-# Marketplace source
+# Marketplace source — compatible release constraint (>=1.1.0, <1.2.0)
 RPM_SOURCE_marketplace_URL=https://github.com/org/rpm-marketplace.git
-RPM_SOURCE_marketplace_REVISION=main
+RPM_SOURCE_marketplace_REVISION=refs/tags/~=1.1.0
 RPM_SOURCE_marketplace_PATH=repo-specs/common/example/development/python/make/argparse/cli/meta.xml
 
 # Global variables available to all sources
 GITBASE=https://github.com/org/
 CLAUDE_MARKETPLACES_DIR=${HOME}/.claude-marketplaces
 ```
+
+`RPM_SOURCE_<name>_REVISION` accepts a branch name, an exact tag ref, or a PEP 440 constraint. When a constraint is used, the CLI resolves it against available tags before passing the result to `repo init -b`. Using the `refs/tags/` prefix is recommended — it scopes resolution to tags and produces a full ref path compatible with `repo init`. See [version-resolution.md](version-resolution.md) for all supported operators and syntax.
 
 Sources are auto-discovered from `RPM_SOURCE_<name>_URL` variable patterns
 and processed in alphabetical order by name. Environment variables override
