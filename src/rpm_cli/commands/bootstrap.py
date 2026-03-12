@@ -27,12 +27,12 @@ def register(subparsers) -> None:
             "configuration file with placeholder values.\n\n"
             "Use 'rpm bootstrap list' to see available runners."
         ),
-        epilog="Examples:\n  rpm bootstrap list\n  rpm bootstrap make\n  rpm bootstrap gradle --output-dir my-project",
+        epilog="Examples:\n  rpm bootstrap list\n  rpm bootstrap make\n  rpm bootstrap gradle --output-dir my-project\n  rpm bootstrap rpm",
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     parser.add_argument(
         "runner",
-        help="Runner template name (e.g. make, gradle) or 'list' to show available runners",
+        help="Runner template name (e.g. make, gradle, rpm) or 'list' to show available runners",
     )
     parser.add_argument(
         "--output-dir",

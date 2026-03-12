@@ -26,9 +26,11 @@ my-manifest-repo/
 ├── catalog/                         # Optional: task runner templates for rpm bootstrap
 │   ├── make/
 │   │   └── Makefile
-│   └── gradle/
-│       ├── build.gradle
-│       └── rpm-bootstrap.gradle
+│   ├── gradle/
+│   │   ├── build.gradle
+│   │   └── rpm-bootstrap.gradle
+│   └── rpm/
+│       └── rpm-readme.md            # Getting-started guide (.rpmenv + readme only)
 ├── examples/                        # Optional: example bootstrapped projects
 └── README.md
 ```
@@ -120,11 +122,17 @@ A manifest repository can also serve as a remote catalog for `rpm bootstrap`. Pl
 ```text
 catalog/
 ├── make/
-│   └── Makefile
-└── gradle/
-    ├── build.gradle
-    └── rpm-bootstrap.gradle
+│   ├── Makefile
+│   └── rpm-readme.md
+├── gradle/
+│   ├── build.gradle
+│   ├── rpm-bootstrap.gradle
+│   └── rpm-readme.md
+└── rpm/
+    └── rpm-readme.md
 ```
+
+Each runner directory includes an `rpm-readme.md` with prerequisites, setup instructions, and a `.rpmenv` variable reference. The `rpm/` runner produces only `.rpmenv` and the readme -- no task runner wrapper files -- for users who invoke the RPM CLI directly.
 
 Users can then bootstrap projects using your catalog:
 

@@ -35,7 +35,13 @@ rpm bootstrap gradle
 rpm bootstrap make
 ```
 
-This creates the task runner files and a `.rpmenv` with placeholder values. Use `--output-dir` to specify a different target directory. Use `--catalog-source '<git_url>@<ref>'` or the `RPM_CATALOG_SOURCE` environment variable to fetch templates from a remote catalog repo (ref can be a branch, tag, or `latest` which resolves to the highest semver tag).
+**For projects without a task runner:**
+
+```bash
+rpm bootstrap rpm
+```
+
+This creates the task runner files (if applicable) and a `.rpmenv` with placeholder values. The `rpm` runner generates only `.rpmenv` for users who want to invoke the RPM CLI directly without a task runner wrapper. Use `--output-dir` to specify a different target directory. Use `--catalog-source '<git_url>@<ref>'` or the `RPM_CATALOG_SOURCE` environment variable to fetch templates from a remote catalog repo (ref can be a branch, tag, or `latest` which resolves to the highest semver tag).
 
 ### 2. Customize `.rpmenv`
 

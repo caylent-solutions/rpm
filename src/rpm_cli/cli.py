@@ -5,7 +5,7 @@ Provides the top-level ``rpm`` command with subcommands:
   - ``rpm clean <rpmenv-path>`` -- Full teardown: uninstall, remove dirs
   - ``rpm validate xml [--repo-root PATH]`` -- Validate manifest XML files
   - ``rpm validate marketplace [--repo-root PATH]`` -- Validate marketplace XML manifests
-  - ``rpm bootstrap <runner>`` -- Scaffold a new RPM project
+  - ``rpm bootstrap <runner>`` -- Scaffold a new RPM project (make, gradle, or rpm)
   - ``rpm bootstrap list`` -- List available task runner templates
 """
 

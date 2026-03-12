@@ -12,6 +12,7 @@ The `rpm bootstrap` command scaffolds a new project with the correct task runner
 rpm bootstrap list      # List available runner templates
 rpm bootstrap gradle    # Generates .rpmenv, rpm-bootstrap.gradle, build.gradle
 rpm bootstrap make      # Generates .rpmenv, Makefile
+rpm bootstrap rpm       # Generates .rpmenv only (no task runner files)
 ```
 
 Options:
