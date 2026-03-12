@@ -24,7 +24,7 @@ The package structure depends on the task runner ecosystem:
 
 - **Gradle packages** — contain `.gradle` scripts that are auto-applied by `rpm-bootstrap.gradle`
 - **Make packages** — contain `Makefile` files that are auto-included by the bootstrap `Makefile`
-- **Generic packages** — contain any files (scripts, configs, templates) accessed via `.packages/<name>/`
+- **Generic packages** — contain any files (scripts, configs, templates) accessed via `.packages/<name>/` (used with the `rpm` runner or any custom workflow)
 
 ## Versioning
 

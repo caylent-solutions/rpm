@@ -82,7 +82,7 @@ Organizations have quality automation scattered across teams -- build convention
 
 **Core Purpose:**
 - **Platform Dependency Management** -- Centralize and version your DevOps automation, dependencies, and standards
-- **Flexible Overlay** -- Works alongside your preferred task runners (Make, npm, Gradle, Maven) and dependency managers
+- **Flexible Overlay** -- Works alongside your preferred task runners (Make, npm, Gradle, Maven) and dependency managers, or standalone with no task runner at all
 - **Team Standards** -- Share tested, versioned automation, tasks, and approaches across teams dynamically
 - **Tool Agnostic** -- Adapts to your workflow, not the other way around
 
@@ -122,6 +122,7 @@ RPM works directly from the command line. No task runner is needed.
 ```bash
 rpm bootstrap make              # Generate .rpmenv and a Makefile wrapper
 rpm bootstrap gradle            # Generate .rpmenv and Gradle wrapper files
+rpm bootstrap rpm               # Generate .rpmenv only (no task runner)
 rpm bootstrap list              # See all available runner templates
 ```
 
@@ -182,6 +183,7 @@ Scaffolds a new RPM project with task runner files and a `.rpmenv` template.
 rpm bootstrap list                      # List available runner templates
 rpm bootstrap make                      # Scaffold a Make project
 rpm bootstrap gradle                    # Scaffold a Gradle project
+rpm bootstrap rpm                       # Scaffold with no task runner (.rpmenv only)
 rpm bootstrap gradle --output-dir proj  # Scaffold into proj/
 rpm bootstrap make --catalog-source 'https://github.com/org/repo.git@main'
 ```

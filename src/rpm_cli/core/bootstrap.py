@@ -30,7 +30,7 @@ def bootstrap_runner(runner: str, output_dir: pathlib.Path, catalog_dir: pathlib
     existing files.
 
     Args:
-        runner: Name of the runner template (e.g. ``make``, ``gradle``).
+        runner: Name of the runner template (e.g. ``make``, ``gradle``, ``rpm``).
         output_dir: Target directory for the bootstrapped files.
         catalog_dir: Path to the catalog directory.
 
@@ -48,7 +48,7 @@ def bootstrap_runner(runner: str, output_dir: pathlib.Path, catalog_dir: pathlib
         )
         sys.exit(1)
 
-    runner_files = [f.name for f in runner_dir.iterdir() if f.is_file()]
+    runner_files = [f.name for f in runner_dir.iterdir() if f.is_file() and f.name != ".gitkeep"]
     all_files = runner_files + [".rpmenv"]
 
     _check_no_conflicts(all_files, output_dir)
@@ -56,7 +56,7 @@ def bootstrap_runner(runner: str, output_dir: pathlib.Path, catalog_dir: pathlib
     output_dir.mkdir(parents=True, exist_ok=True)
 
     for src_file in runner_dir.iterdir():
-        if src_file.is_file():
+        if src_file.is_file() and src_file.name != ".gitkeep":
             shutil.copy2(src_file, output_dir / src_file.name)
 
     rpmenv_content = _generate_rpmenv_template()
@@ -101,9 +101,10 @@ def _generate_rpmenv_template() -> str:
 RPM_CLI_URL=<RPM_CLI_URL>
 RPM_CLI_REV=<RPM_CLI_REV>
 
-# Repo Tool (fork with envsubst support)
-REPO_URL=<REPO_URL>
-REPO_REV=<REPO_REV>
+# Repo Tool (required: rpm-git-repo with envsubst + PEP 440 support)
+# Currently only available as a branch; will be published to PyPI as a tagged release.
+REPO_URL=https://github.com/caylent-solutions/rpm-git-repo.git
+REPO_REV=feat/initial-rpm-git-repo
 
 # Shared env vars for envsubst (resolved by 'repo envsubst' in remote.xml)
 GITBASE=<GITBASE>
@@ -153,7 +154,12 @@ def _print_next_steps(
         print("  2. Run: make rpmConfigure")
     elif runner == "gradle":
         print("  2. Run: ./gradlew rpmConfigure")
+    elif runner == "rpm":
+        print("  2. Run: rpm configure .rpmenv")
     else:
         print("  2. Run: rpm configure .rpmenv")
 
-    print("  3. Commit .rpmenv and the task runner files to your repository")
+    if runner == "rpm":
+        print("  3. Commit .rpmenv to your repository")
+    else:
+        print("  3. Commit .rpmenv and the task runner files to your repository")

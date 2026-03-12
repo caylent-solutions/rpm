@@ -62,6 +62,48 @@ class TestRpmVersion:
 
 
 @pytest.mark.functional
+class TestRpmBootstrapList:
+    def test_bootstrap_list_shows_all_runners(self) -> None:
+        result = _run_rpm("bootstrap", "list")
+        assert result.returncode == 0
+        assert "gradle" in result.stdout
+        assert "make" in result.stdout
+        assert "rpm" in result.stdout
+
+    def test_bootstrap_list_alphabetical_order(self) -> None:
+        result = _run_rpm("bootstrap", "list")
+        assert result.returncode == 0
+        lines = [
+            line.strip() for line in result.stdout.splitlines() if line.strip() and line.strip() != "Available runners:"
+        ]
+        assert lines == ["gradle", "make", "rpm"]
+
+
+@pytest.mark.functional
+class TestRpmBootstrapRpm:
+    def test_bootstrap_rpm_creates_rpmenv_and_readme(self, tmp_path) -> None:
+        output_dir = tmp_path / "test-project"
+        result = _run_rpm("bootstrap", "rpm", "--output-dir", str(output_dir))
+        assert result.returncode == 0
+        assert (output_dir / ".rpmenv").is_file()
+        assert (output_dir / "rpm-readme.md").is_file()
+        created_files = sorted(f.name for f in output_dir.iterdir())
+        assert created_files == [".rpmenv", "rpm-readme.md"]
+
+    def test_bootstrap_rpm_output_mentions_rpm_configure(self, tmp_path) -> None:
+        output_dir = tmp_path / "test-project"
+        result = _run_rpm("bootstrap", "rpm", "--output-dir", str(output_dir))
+        assert result.returncode == 0
+        assert "rpm configure .rpmenv" in result.stdout
+
+    def test_bootstrap_rpm_conflict_on_existing_rpmenv(self, tmp_path) -> None:
+        (tmp_path / ".rpmenv").write_text("existing")
+        result = _run_rpm("bootstrap", "rpm", "--output-dir", str(tmp_path))
+        assert result.returncode == 1
+        assert "already exist" in result.stderr
+
+
+@pytest.mark.functional
 class TestRpmBadSubcommand:
     def test_no_subcommand_exits_2(self) -> None:
         result = _run_rpm()
