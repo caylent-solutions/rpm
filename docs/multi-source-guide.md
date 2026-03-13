@@ -31,14 +31,23 @@ treating everything in between as the source name. The name has no semantic
 meaning to the CLI; it is purely organizational.
 
 **The CLI treats all sources identically.** There is no distinction between
-"build" and "marketplace" source types at the processing level. Names like
-`build` and `marketplaces` are conventions chosen by the team for
-readability — what determines a source's behavior is the **manifest
-content**, not the source name. A source produces build packages when its
-manifest contains `<project>` entries pointing to build package
-repositories. A source produces marketplace plugins when its manifest
-contains `<project>` entries with `<linkfile>` elements that create
-symlinks into `${CLAUDE_MARKETPLACES_DIR}`.
+"build" and "marketplace" source types at the processing level. What
+determines a source's behavior is the **manifest content**, not the source
+name. A source produces build packages when its manifest contains
+`<project>` entries pointing to build package repositories. A source
+produces marketplace plugins when its manifest contains `<project>` entries
+with `<linkfile>` elements that create symlinks into
+`${CLAUDE_MARKETPLACES_DIR}`.
+
+**Recommended naming convention:** Prefix source names with `build` for
+build package sources and `marketplaces` for Claude Code plugin sources
+(e.g., `RPM_SOURCE_build_*`, `RPM_SOURCE_marketplaces_*`). This naming
+convention is recommended because it allows humans and AI agents to
+immediately understand the purpose of each source when reading a `.rpmenv`
+file, without needing to inspect the manifest content. When multiple
+sources serve the same concern, append a hyphenated qualifier
+(e.g., `build-core`, `build-infra`, `marketplaces-core`,
+`marketplaces-team`).
 
 **Use hyphens to create descriptive, multi-word source names.** Hyphens
 keep the three-field structure (`RPM_SOURCE_` + `<name>` + `_SUFFIX`)
