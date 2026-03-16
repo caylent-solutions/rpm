@@ -120,15 +120,13 @@ RPM works directly from the command line. No task runner is needed.
 **1. Bootstrap a project:**
 
 ```bash
-rpm bootstrap make              # Generate .rpmenv and a Makefile wrapper
-rpm bootstrap gradle            # Generate .rpmenv and Gradle wrapper files
-rpm bootstrap rpm               # Generate .rpmenv only (no task runner)
-rpm bootstrap list              # See all available runner templates
+rpm bootstrap make              # Copy .rpmenv, Makefile, and readme
+rpm bootstrap gradle            # Copy .rpmenv, Gradle files, and readme
+rpm bootstrap rpm               # Copy .rpmenv and readme (no task runner)
+rpm bootstrap list              # See all available catalog entry packages
 ```
 
-**2. Edit `.rpmenv`** and replace all `<PLACEHOLDER>` values with your project's configuration (manifest URLs, Git base URL, source definitions).
-
-**3. Configure (sync all packages):**
+**2. Configure (sync all packages):**
 
 ```bash
 rpm configure .rpmenv
@@ -144,11 +142,11 @@ rpm clean .rpmenv
 
 This removes all synced packages, RPM state directories, and optionally uninstalls marketplace plugins.
 
-**Important:** All synced files in `.packages/` and `.rpm/` are ephemeral and should not be committed. Only commit your task runner bootstrap files and `.rpmenv` to your repository.
+**Important:** All synced files in `.packages/` and `.rpm/` are ephemeral and should not be committed. Only commit the catalog entry files and `.rpmenv` to your repository.
 
 ### Usage with Task Runners (Optional)
 
-The `rpm bootstrap` command generates task runner wrappers that delegate to the CLI. These are optional conveniences -- the CLI works standalone.
+The `rpm bootstrap` command copies all files from a catalog entry into your project directory, including a pre-configured `.rpmenv`. The Make and Gradle entries provide wrapper targets that delegate to the CLI:
 
 **Make:**
 
@@ -164,7 +162,7 @@ make rpmClean        # Delegates to: rpm clean .rpmenv
 ./gradlew rpmClean        # Delegates to: rpm clean .rpmenv
 ```
 
-Use `--output-dir DIR` to bootstrap into a different directory. Use `--catalog-source '<git_url>@<ref>'` or the `RPM_CATALOG_SOURCE` environment variable to fetch templates from a remote catalog repository (ref can be a branch, tag, or `latest` which resolves to the highest semver tag).
+Use `--output-dir DIR` to bootstrap into a different directory. Use `--catalog-source '<git_url>@<ref>'` or the `RPM_CATALOG_SOURCE` environment variable to fetch catalog entry packages from a remote catalog repository (ref can be a branch, tag, or `latest` which resolves to the highest semver tag). The `.rpmenv` shipped with each catalog entry is pre-configured by the catalog author, so no placeholder editing is required.
 
 ---
 
@@ -177,13 +175,13 @@ rpm --version                           # Show version
 
 ### rpm bootstrap
 
-Scaffolds a new RPM project with task runner files and a `.rpmenv` template.
+Scaffolds a new RPM project from a catalog entry package, including a pre-configured `.rpmenv`.
 
 ```bash
-rpm bootstrap list                      # List available runner templates
+rpm bootstrap list                      # List available catalog entry packages
 rpm bootstrap make                      # Scaffold a Make project
 rpm bootstrap gradle                    # Scaffold a Gradle project
-rpm bootstrap rpm                       # Scaffold with no task runner (.rpmenv only)
+rpm bootstrap rpm                       # Scaffold standalone (.rpmenv and readme only)
 rpm bootstrap gradle --output-dir proj  # Scaffold into proj/
 rpm bootstrap make --catalog-source 'https://github.com/org/repo.git@main'
 ```
@@ -377,7 +375,7 @@ After all sources are synced, RPM aggregates their packages into a single `.pack
 ```text
 project/
   .rpmenv                           # Configuration (committed)
-  Makefile                          # Task runner (committed, optional)
+  ...                               # Other catalog entry files, if any (committed)
   .rpm/                             # RPM state (gitignored)
     sources/
       build/                        # Isolated source workspace

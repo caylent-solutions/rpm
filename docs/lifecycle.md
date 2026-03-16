@@ -43,7 +43,7 @@ symlinks ensures the CLI can resolve paths during removal.
 ```text
 project/
   .rpmenv                           # Configuration (committed)
-  Makefile                          # Task runner (committed)
+  Makefile                          # Catalog entry file (committed)
   .rpm/                             # RPM state (gitignored)
     sources/
       build/                        # Source workspace

@@ -1,6 +1,6 @@
-# RPM -- Gradle Task Runner
+# RPM -- Gradle Catalog Entry Package
 
-Getting started with RPM using Gradle as your task runner. The generated `build.gradle` and `rpm-bootstrap.gradle` wrap the RPM CLI and auto-apply Gradle scripts from synced packages.
+Getting started with RPM using Gradle. The `build.gradle` and `rpm-bootstrap.gradle` wrap the RPM CLI and auto-apply Gradle scripts from synced packages.
 
 ---
 
@@ -26,15 +26,13 @@ gradle wrapper
 
 This creates `gradlew`, `gradlew.bat`, and `gradle/wrapper/` in the project directory. You only need to run this once per environment.
 
-### 2. Edit `.rpmenv`
-
-Replace all `<PLACEHOLDER>` values with your project's configuration. See the `.rpmenv` Variable Reference section below for details on each variable.
-
-### 3. Customize `build.gradle`
+### 2. Customize `build.gradle`
 
 Replace the project-specific section at the bottom of `build.gradle` with your own `group` and `version`. RPM provides plugins via synced packages but does not manage dependency versions -- each project owns its version pins and BOM imports.
 
-### 4. Configure (sync all packages)
+### 3. Configure (sync all packages)
+
+The `.rpmenv` file is pre-configured from the catalog entry package. Run configure to sync all packages:
 
 ```bash
 ./gradlew rpmConfigure
@@ -42,7 +40,7 @@ Replace the project-specific section at the bottom of `build.gradle` with your o
 
 This delegates to `rpm configure .rpmenv`, which syncs all packages to `.packages/` and updates `.gitignore`.
 
-### 5. Verify
+### 4. Verify
 
 ```bash
 ./gradlew tasks
@@ -87,8 +85,6 @@ rpm clean .rpmenv
 
 | Variable | Required | Purpose |
 |---|---|---|
-| `RPM_CLI_URL` | No | Git URL of the RPM CLI repository. Informational -- records which CLI version the project uses. |
-| `RPM_CLI_REV` | No | Git revision (tag or branch) of the RPM CLI. Informational -- records which CLI version the project uses. |
 | `REPO_URL` | Yes | Git URL of the [rpm-git-repo](https://github.com/caylent-solutions/rpm-git-repo) tool. Must be `https://github.com/caylent-solutions/rpm-git-repo.git` -- no other repo tool or fork is supported. Used by `rpm configure` to install the repo tool via pipx. |
 | `REPO_REV` | Yes | rpm-git-repo version. Currently use `feat/initial-rpm-git-repo` (the only available branch). Once published to PyPI, use a tagged release or PEP 440 specifier (e.g., `~=2.0.0`, `>=2.0.0,<3.0.0`, `*`). |
 | `GITBASE` | Yes | Base Git URL for your organization (e.g., `https://github.com/your-org/`). Used by `repo envsubst` to resolve `${GITBASE}` placeholders in manifest XML files. |
@@ -105,7 +101,7 @@ Sources are auto-discovered from `RPM_SOURCE_<name>_URL` patterns and processed 
 | `RPM_SOURCE_<name>_REVISION` | Yes | Branch, tag, or PEP 440 constraint to track for this source's manifest repository. |
 | `RPM_SOURCE_<name>_PATH` | Yes | Path to the entry-point manifest XML file within the manifest repository (e.g., `repo-specs/build/meta.xml`). |
 
-You can define multiple sources. Uncomment the `marketplaces` or `tools` blocks in `.rpmenv` or add your own.
+You can define multiple sources. Add new source blocks in `.rpmenv` as needed.
 
 ---
 
@@ -143,7 +139,7 @@ def PKG_DIR = project.ext.get('_rpmCurrentPkgDir')
 
 ## Adding Sources
 
-Uncomment or add source blocks in `.rpmenv`:
+Add source blocks in `.rpmenv`:
 
 ```properties
 RPM_SOURCE_tools_URL=https://github.com/your-org/tools-manifests.git

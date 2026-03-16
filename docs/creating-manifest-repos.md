@@ -23,14 +23,19 @@ my-manifest-repo/
 │                       ├── build-meta.xml          # Entry-point manifest
 │                       ├── packages.xml            # Package declarations
 │                       └── claude-marketplaces.xml  # Optional: marketplace packages
-├── catalog/                         # Optional: task runner templates for rpm bootstrap
+├── catalog/                         # Optional: catalog entry packages for rpm bootstrap
 │   ├── make/
-│   │   └── Makefile
+│   │   ├── .rpmenv                  # Pre-configured for this catalog entry
+│   │   ├── Makefile
+│   │   └── rpm-readme.md
 │   ├── gradle/
+│   │   ├── .rpmenv                  # Pre-configured for this catalog entry
 │   │   ├── build.gradle
-│   │   └── rpm-bootstrap.gradle
+│   │   ├── rpm-bootstrap.gradle
+│   │   └── rpm-readme.md
 │   └── rpm/
-│       └── rpm-readme.md            # Getting-started guide (.rpmenv + readme only)
+│       ├── .rpmenv                  # Pre-configured for this catalog entry
+│       └── rpm-readme.md
 ├── examples/                        # Optional: example bootstrapped projects
 └── README.md
 ```
@@ -117,22 +122,27 @@ This hierarchy is not required — a flat structure with a single `packages.xml`
 
 ## Providing a Remote Catalog
 
-A manifest repository can also serve as a remote catalog for `rpm bootstrap`. Place task runner templates in a `catalog/` directory at the repository root:
+A manifest repository can also serve as a remote catalog for `rpm bootstrap`. Place catalog entry packages in a `catalog/` directory at the repository root:
 
 ```text
 catalog/
 ├── make/
+│   ├── .rpmenv
 │   ├── Makefile
 │   └── rpm-readme.md
 ├── gradle/
+│   ├── .rpmenv
 │   ├── build.gradle
 │   ├── rpm-bootstrap.gradle
 │   └── rpm-readme.md
 └── rpm/
+    ├── .rpmenv
     └── rpm-readme.md
 ```
 
-Each runner directory includes an `rpm-readme.md` with prerequisites, setup instructions, and a `.rpmenv` variable reference. The `rpm/` runner produces only `.rpmenv` and the readme -- no task runner wrapper files -- for users who invoke the RPM CLI directly.
+Each catalog entry package directory includes a pre-configured `.rpmenv` with source URLs and paths pointing to manifests in the repository, plus an `rpm-readme.md` with getting-started instructions. The `rpm/` entry provides `.rpmenv` and the readme only -- no task runner wrapper files -- for users who invoke the RPM CLI directly.
+
+When users bootstrap with your catalog, they get a fully configured `.rpmenv` and can run `rpm configure` immediately without editing placeholders.
 
 Users can then bootstrap projects using your catalog:
 
