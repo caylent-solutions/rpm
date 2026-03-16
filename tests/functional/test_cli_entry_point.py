@@ -63,7 +63,7 @@ class TestRpmVersion:
 
 @pytest.mark.functional
 class TestRpmBootstrapList:
-    def test_bootstrap_list_shows_all_runners(self) -> None:
+    def test_bootstrap_list_shows_all_packages(self) -> None:
         result = _run_rpm("bootstrap", "list")
         assert result.returncode == 0
         assert "gradle" in result.stdout
@@ -74,7 +74,9 @@ class TestRpmBootstrapList:
         result = _run_rpm("bootstrap", "list")
         assert result.returncode == 0
         lines = [
-            line.strip() for line in result.stdout.splitlines() if line.strip() and line.strip() != "Available runners:"
+            line.strip()
+            for line in result.stdout.splitlines()
+            if line.strip() and line.strip() != "Available packages:"
         ]
         assert lines == ["gradle", "make", "rpm"]
 

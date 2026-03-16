@@ -1,6 +1,6 @@
-# RPM -- Make Task Runner
+# RPM -- Make Catalog Entry Package
 
-Getting started with RPM using Make as your task runner. The generated Makefile wraps the RPM CLI and auto-includes targets from synced packages.
+Getting started with RPM using Make. The Makefile wraps the RPM CLI and auto-includes targets from synced packages.
 
 ---
 
@@ -15,11 +15,9 @@ The RPM CLI is already installed (it just ran `rpm bootstrap` to create this fil
 
 ## Setup
 
-### 1. Edit `.rpmenv`
+### 1. Configure (sync all packages)
 
-Replace all `<PLACEHOLDER>` values with your project's configuration. See the `.rpmenv` Variable Reference section below for details on each variable.
-
-### 2. Configure (sync all packages)
+The `.rpmenv` file is pre-configured from the catalog entry package. Run configure to sync all packages:
 
 ```bash
 make rpmConfigure
@@ -27,7 +25,7 @@ make rpmConfigure
 
 This delegates to `rpm configure .rpmenv`, which syncs all packages to `.packages/` and updates `.gitignore`.
 
-### 3. Verify
+### 2. Verify
 
 ```bash
 make help
@@ -66,8 +64,6 @@ rpm clean .rpmenv
 
 | Variable | Required | Purpose |
 |---|---|---|
-| `RPM_CLI_URL` | No | Git URL of the RPM CLI repository. Informational -- records which CLI version the project uses. |
-| `RPM_CLI_REV` | No | Git revision (tag or branch) of the RPM CLI. Informational -- records which CLI version the project uses. |
 | `REPO_URL` | Yes | Git URL of the [rpm-git-repo](https://github.com/caylent-solutions/rpm-git-repo) tool. Must be `https://github.com/caylent-solutions/rpm-git-repo.git` -- no other repo tool or fork is supported. Used by `rpm configure` to install the repo tool via pipx. |
 | `REPO_REV` | Yes | rpm-git-repo version. Currently use `feat/initial-rpm-git-repo` (the only available branch). Once published to PyPI, use a tagged release or PEP 440 specifier (e.g., `~=2.0.0`, `>=2.0.0,<3.0.0`, `*`). |
 | `GITBASE` | Yes | Base Git URL for your organization (e.g., `https://github.com/your-org/`). Used by `repo envsubst` to resolve `${GITBASE}` placeholders in manifest XML files. |
@@ -84,7 +80,7 @@ Sources are auto-discovered from `RPM_SOURCE_<name>_URL` patterns and processed 
 | `RPM_SOURCE_<name>_REVISION` | Yes | Branch, tag, or PEP 440 constraint to track for this source's manifest repository. |
 | `RPM_SOURCE_<name>_PATH` | Yes | Path to the entry-point manifest XML file within the manifest repository (e.g., `repo-specs/build/meta.xml`). |
 
-You can define multiple sources. Uncomment the `marketplaces` or `tools` blocks in `.rpmenv` or add your own.
+You can define multiple sources. Add new source blocks in `.rpmenv` as needed.
 
 ---
 
@@ -100,7 +96,7 @@ The `Makefile` reads `.rpmenv` for configuration and auto-includes all `Makefile
 
 ## Adding Sources
 
-Uncomment or add source blocks in `.rpmenv`:
+Add source blocks in `.rpmenv`:
 
 ```properties
 RPM_SOURCE_tools_URL=https://github.com/your-org/tools-manifests.git

@@ -5,8 +5,8 @@ Provides the top-level ``rpm`` command with subcommands:
   - ``rpm clean <rpmenv-path>`` -- Full teardown: uninstall, remove dirs
   - ``rpm validate xml [--repo-root PATH]`` -- Validate manifest XML files
   - ``rpm validate marketplace [--repo-root PATH]`` -- Validate marketplace XML manifests
-  - ``rpm bootstrap <runner>`` -- Scaffold a new RPM project (make, gradle, or rpm)
-  - ``rpm bootstrap list`` -- List available task runner templates
+  - ``rpm bootstrap <package>`` -- Scaffold a new RPM project from a catalog entry package
+  - ``rpm bootstrap list`` -- List available catalog entry packages
 """
 
 import argparse

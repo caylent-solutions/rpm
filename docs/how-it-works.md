@@ -2,17 +2,17 @@
 
 Technical deep-dive into RPM internals. For a high-level overview, see [RPM Guide](rpm-guide.md).
 
-RPM supports multiple task runners. The sections below cover both the **Gradle bootstrap** (for Gradle/Spring Boot projects) and the **Python-based lifecycle** (for Make projects and multi-source configurations).
+RPM supports multiple catalog entry packages. The sections below cover both the **Gradle bootstrap** (for Gradle/Spring Boot projects) and the **Python-based lifecycle** (for Make projects and multi-source configurations).
 
 ## Bootstrap
 
-The `rpm bootstrap` command scaffolds a new project with the correct task runner files and a `.rpmenv` configuration template. It generates all necessary files for the chosen ecosystem:
+The `rpm bootstrap` command scaffolds a new project by copying all files from a catalog entry package, including a pre-configured `.rpmenv`:
 
 ```bash
-rpm bootstrap list      # List available runner templates
-rpm bootstrap gradle    # Generates .rpmenv, rpm-bootstrap.gradle, build.gradle
-rpm bootstrap make      # Generates .rpmenv, Makefile
-rpm bootstrap rpm       # Generates .rpmenv only (no task runner files)
+rpm bootstrap list      # List available catalog entry packages
+rpm bootstrap gradle    # Copies .rpmenv, rpm-bootstrap.gradle, build.gradle, rpm-readme.md
+rpm bootstrap make      # Copies .rpmenv, Makefile, rpm-readme.md
+rpm bootstrap rpm       # Copies .rpmenv, rpm-readme.md (no task runner files)
 ```
 
 Options:
@@ -20,7 +20,7 @@ Options:
 - `--output-dir DIR` — target directory for bootstrapped files (default: current directory)
 - `--catalog-source SOURCE` — remote catalog as `<git_url>@<ref>` where ref is a branch, tag, or `latest` (resolves to highest semver tag). Overrides the `RPM_CATALOG_SOURCE` environment variable. When neither flag nor env var is set, the bundled catalog shipped with the CLI package is used.
 
-After bootstrapping, edit `.rpmenv` and replace all `<PLACEHOLDER>` values with your project's configuration. The generated `.rpmenv` includes `RPM_SOURCE_<name>_URL`, `RPM_SOURCE_<name>_REVISION`, and `RPM_SOURCE_<name>_PATH` variables for defining manifest sources.
+The `.rpmenv` shipped with each catalog entry package is pre-configured by the catalog author. Users of the bundled catalog get example values pointing to `caylent-private-rpm`; users of a remote catalog get values specific to their organization's manifest repository.
 
 ## Gradle Bootstrap Flow
 

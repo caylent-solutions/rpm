@@ -21,7 +21,7 @@ The `rpm` CLI installs the repo tool automatically during `rpm configure`. Both 
 
 ### 1. Bootstrap Your Project
 
-Use `rpm bootstrap` to generate the task runner files and `.rpmenv` configuration:
+Use `rpm bootstrap` to copy catalog entry package files (including a pre-configured `.rpmenv`) into your project:
 
 **For Gradle projects:**
 
@@ -41,23 +41,20 @@ rpm bootstrap make
 rpm bootstrap rpm
 ```
 
-This creates the task runner files (if applicable) and a `.rpmenv` with placeholder values. The `rpm` runner generates only `.rpmenv` for users who want to invoke the RPM CLI directly without a task runner wrapper. Use `--output-dir` to specify a different target directory. Use `--catalog-source '<git_url>@<ref>'` or the `RPM_CATALOG_SOURCE` environment variable to fetch templates from a remote catalog repo (ref can be a branch, tag, or `latest` which resolves to the highest semver tag).
+This copies all files from the catalog entry package into the target directory. The `.rpmenv` is pre-configured by the catalog author -- no placeholder editing required. Use `--output-dir` to specify a different target directory. Use `--catalog-source '<git_url>@<ref>'` or the `RPM_CATALOG_SOURCE` environment variable to fetch catalog entry packages from a remote catalog repo (ref can be a branch, tag, or `latest` which resolves to the highest semver tag).
 
-### 2. Customize `.rpmenv`
+### 2. Review `.rpmenv` (Optional)
 
-Edit `.rpmenv` and replace all `<PLACEHOLDER>` values with your project's
-configuration. Set `GITBASE` to the GitHub organization hosting the packages
-and configure your sources. See the
-[.rpmenv variable reference](../README.md#rpmenv-variable-reference) for
-the full list of supported variables.
+The `.rpmenv` file is pre-configured from the catalog entry package. If you are using the bundled catalog, the `.rpmenv` contains example values pointing to `caylent-private-rpm`. You may want to update the source URLs and paths to point to your organization's manifest repository.
 
-All `.rpmenv` values can be overridden by environment variables of the same name
-(useful for CI/CD pipelines).
+If you are using a remote catalog (`--catalog-source` or `RPM_CATALOG_SOURCE`), the `.rpmenv` should already contain the correct values for your organization.
+
+All `.rpmenv` values can be overridden by environment variables of the same name (useful for CI/CD pipelines).
 
 ### 3. Customize `build.gradle` (Gradle only)
 
 Replace the template's project-specific section with your own. RPM provides
-plugins but does NOT manage dependency versions — each project owns its version
+plugins but does NOT manage dependency versions -- each project owns its version
 pins and BOM imports. See
 the [RPM README](../README.md) for a detailed `build.gradle` example.
 
@@ -90,7 +87,7 @@ rpm configure .rpmenv
 
 ## Existing Project Migration
 
-For existing projects, follow the same steps above but adapt your existing build configuration to include RPM's task runner files alongside your current setup.
+For existing projects, follow the same steps above but adapt your existing build configuration to include RPM's catalog entry files alongside your current setup.
 
 ## Troubleshooting
 
@@ -99,7 +96,7 @@ For existing projects, follow the same steps above but adapt your existing build
 Python 3 must be available on PATH before running `rpmConfigure`.
 
 - **DevContainer:** Python is provided by the devcontainer Python feature.
-- **CI/CD:** Add a Python installation step before running your task runner.
+- **CI/CD:** Add a Python installation step before running your build tool.
 - **Local:** Install Python 3 via your system package manager.
 
 ### `rpmConfigure` fails with "pipx is not installed"
