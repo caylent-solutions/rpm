@@ -53,6 +53,7 @@ A standalone Python CLI for managing versioned DevOps automation packages via de
   - [PEP 440 Version Constraints in Manifests](#pep-440-version-constraints-in-manifests)
   - [PEP 440 Version Resolution in .rpmenv](#pep-440-version-resolution-in-rpmenv)
   - [Absolute Linkfile Destinations](#absolute-linkfile-destinations)
+- [SSH Authentication Setup](#ssh-authentication-setup)
 - [Developer Setup](#developer-setup)
   - [Prerequisites](#prerequisites-1)
   - [Install from Source](#install-from-source)
@@ -106,6 +107,7 @@ Ensure the same testing, linting, security scanning, and deployment automation a
 - Python 3.11+
 - [pipx](https://pipx.pypa.io/) on PATH
 - Git
+- If authenticating with Git via SSH, see [SSH Authentication Setup](#ssh-authentication-setup)
 
 ### Install the RPM CLI
 
@@ -713,6 +715,33 @@ For full details, see [docs/version-resolution.md](docs/version-resolution.md).
 ### Absolute Linkfile Destinations
 
 Standard `repo` restricts `<linkfile dest>` to relative paths within the workspace. The fork accepts absolute paths after `envsubst` expansion, enabling marketplace symlinks to directories outside the project (e.g., `${CLAUDE_MARKETPLACES_DIR}/...`).
+
+---
+
+## SSH Authentication Setup
+
+RPM uses HTTPS Git URLs internally. If you authenticate with GitHub via SSH instead of HTTPS tokens, configure Git to rewrite HTTPS URLs to SSH globally:
+
+```bash
+git config --global url."git@github.com:".insteadOf "https://github.com/"
+```
+
+This tells Git to use SSH for all `github.com` requests, which RPM's `git clone`, `git ls-remote`, and `repo` commands will then use automatically.
+
+**Note:** The `--global` flag is required. Using `--local` will not work because RPM uses the `repo` tool under the hood, which operates in its own working directories with their own local Git configuration.
+
+For other Git hosts, adjust the URL accordingly:
+
+```bash
+git config --global url."git@gitlab.com:".insteadOf "https://gitlab.com/"
+git config --global url."git@bitbucket.org:".insteadOf "https://bitbucket.org/"
+```
+
+To verify the configuration:
+
+```bash
+git config --global --get-regexp url
+```
 
 ---
 
