@@ -6,9 +6,20 @@ Getting started with RPM using the CLI directly. This is the simplest setup -- y
 
 ## Prerequisites
 
+- Python 3.11+
+- [pipx](https://pipx.pypa.io/) on PATH
+- [uv](https://docs.astral.sh/uv/) -- Python package installer
 - Git
 
 The RPM CLI is already installed (it just ran `rpm bootstrap` to create this file).
+
+> **SSH Users:** RPM uses HTTPS Git URLs internally. If you authenticate with GitHub via SSH, configure Git to rewrite HTTPS URLs to SSH globally:
+>
+> ```bash
+> git config --global url."git@github.com:".insteadOf "https://github.com/"
+> ```
+>
+> The `--global` flag is required -- `--local` will not work because RPM uses the `repo` tool under the hood, which operates in its own working directories with their own local Git configuration. For other Git hosts, adjust the URL accordingly (e.g., `git@gitlab.com:` for GitLab).
 
 ---
 
@@ -64,7 +75,7 @@ rpm validate marketplace
 | Variable | Required | Purpose |
 |---|---|---|
 | `REPO_URL` | Yes | Git URL of the [rpm-git-repo](https://github.com/caylent-solutions/rpm-git-repo) tool. Must be `https://github.com/caylent-solutions/rpm-git-repo.git` -- no other repo tool or fork is supported. Used by `rpm configure` to install the repo tool via pipx. |
-| `REPO_REV` | Yes | rpm-git-repo version. Currently use `feat/initial-rpm-git-repo` (the only available branch). Once published to PyPI, use a tagged release or PEP 440 specifier (e.g., `~=2.0.0`, `>=2.0.0,<3.0.0`, `*`). |
+| `REPO_REV` | Yes | rpm-git-repo version (branch or tag). Use `main` for the latest. Once tagged releases are available, use a PEP 440 specifier (e.g., `~=2.0.0`, `>=2.0.0,<3.0.0`, `*`). |
 | `GITBASE` | Yes | Base Git URL for your organization (e.g., `https://github.com/your-org/`). Used by `repo envsubst` to resolve `${GITBASE}` placeholders in manifest XML files. |
 | `CLAUDE_MARKETPLACES_DIR` | Conditional | Directory for marketplace plugin symlinks. Required when `RPM_MARKETPLACE_INSTALL=true`. Typically `${HOME}/.claude-marketplaces`. |
 | `RPM_MARKETPLACE_INSTALL` | No | Set to `true` to enable the marketplace plugin install/uninstall lifecycle during configure and clean. Default: `false`. When `false`, marketplace-related operations are skipped entirely. |
@@ -141,4 +152,4 @@ Then add a marketplace source and re-run `rpm configure .rpmenv`. When `RPM_MARK
 - **`rpm: command not found`** -- Reinstall the RPM CLI: `pipx install rpm-cli`
 - **`rpm configure` fails with ".rpmenv not found"** -- Pass the path: `rpm configure .rpmenv`
 - **`repo envsubst` fails** -- Ensure `GITBASE` is set in `.rpmenv` and is a valid URL ending with `/`
-- **Authentication errors during sync** -- Ensure `git` can authenticate with your Git hosting provider (SSH keys or credential helper)
+- **Authentication errors during sync** -- If you use SSH for Git auth, ensure the HTTPS-to-SSH rewrite is configured globally: `git config --global url."git@github.com:".insteadOf "https://github.com/"`. If you use HTTPS, ensure your credential helper is configured.
