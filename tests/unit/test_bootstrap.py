@@ -26,10 +26,10 @@ class TestListPackages:
         packages = list_packages(catalog_dir)
         assert packages == sorted(packages)
 
-    def test_only_contains_rpm(self) -> None:
+    def test_contains_expected_packages(self) -> None:
         catalog_dir = _get_bundled_catalog_dir()
         packages = list_packages(catalog_dir)
-        assert packages == ["rpm"]
+        assert packages == ["example-gradle", "example-make", "rpm"]
 
 
 @pytest.mark.unit
