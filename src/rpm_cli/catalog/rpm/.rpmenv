@@ -3,7 +3,7 @@
 
 # Repo Tool (fork with envsubst support)
 REPO_URL=https://github.com/caylent-solutions/rpm-git-repo.git
-REPO_REV=feat/initial-rpm-git-repo
+REPO_REV=main
 
 # Shared env vars for envsubst (resolved by 'repo envsubst' in remote.xml)
 GITBASE=<YOUR_GIT_ORG_BASE_URL>
