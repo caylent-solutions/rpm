@@ -2,7 +2,38 @@
 
 
 
+## v0.8.0 (2026-03-31)
+
+### Feature
+
+* feat: install rpm-git-repo from PyPI by default with optional git override (#30)
+
+* feat: install rpm-git-repo from PyPI by default with optional git override
+
+- Default behavior: rpm configure installs rpm-git-repo from PyPI if not
+  already present. No REPO_URL or REPO_REV needed in .rpmenv.
+- Git override: set both REPO_URL and REPO_REV to install from a git URL
+  (for testing unreleased versions). Partial config fails fast.
+- Marketplace validator glob: changed from claude-marketplaces.xml to
+  *-marketplace.xml to match the current naming convention.
+- Centralized constants: extracted all module-level constants into
+  src/rpm_cli/constants.py to eliminate hardcoded values in source files.
+- Coverage threshold: raised CI and pre-push gate from 85% to 90%.
+- Added grm alias to .devcontainer/project-setup.sh for bash and zsh.
+- Cleaned .claude/settings.json (removed user-level permissions).
+- Updated all documentation for optional REPO_URL/REPO_REV and
+  *-marketplace.xml naming convention.
+
+* fix: add trailing newline to .claude/settings.json
+
+Pre-commit end-of-file-fixer requires a trailing newline. ([`65db2ff`](https://github.com/caylent-solutions/rpm/commit/65db2ffc718b5b52b5ac9c98da508f921d52da8e))
+
+
 ## v0.7.2 (2026-03-25)
+
+### Chore
+
+* chore(release): 0.7.2 ([`57dadcf`](https://github.com/caylent-solutions/rpm/commit/57dadcf65f19db90783854531f433f7078ffa101))
 
 ### Fix
 
@@ -13,6 +44,12 @@
 - Update REPO_REV description: feat/initial-rpm-git-repo branch no longer
   exists, use main
 - Improve troubleshooting SSH guidance with specific command ([`740d512`](https://github.com/caylent-solutions/rpm/commit/740d512a75bd73ec6384988529c12fb9f0082b44))
+
+### Unknown
+
+* Merge pull request #28 from caylent-solutions/release-0.7.2
+
+Release 0.7.2 ([`8ed40b3`](https://github.com/caylent-solutions/rpm/commit/8ed40b33bd45978f054976b35bb332e6daf64739))
 
 
 ## v0.7.1 (2026-03-25)
