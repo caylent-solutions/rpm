@@ -76,4 +76,3 @@ Ensure `GITBASE` is set in `.kanon` and is a valid URL ending with `/`.
 ### `repo sync` fails with authentication errors
 
 Ensure `git` can authenticate with the Git hosting provider for your package repositories (SSH keys or credential helper).
-
