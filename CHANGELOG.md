@@ -2,6 +2,33 @@
 
 
 
+## v1.0.1 (2026-04-13)
+
+### Fix
+
+* fix: remove stale Gradle and Make task runner references (#36)
+
+* fix: remove stale Gradle and Make task runner references
+
+Remove all Gradle and Make encapsulation content from docs and code.
+Kanon is a standalone CLI tool — kanon-bootstrap.gradle, build.gradle
+wrappers, Makefile targets wrapping kanon, _rpmCurrentPkgDir,
+_rpmProp, and rpm-manifest.properties are no longer documented.
+
+Generic task runner integration remains as an optional concept.
+
+* fix: re-enable CodeQL and fix end-of-file lint errors
+
+- Restores CodeQL triggers and release gate dependency
+- Fixes trailing newline in docs/how-it-works.md and docs/setup-guide.md
+  (end-of-file-fixer pre-commit hook)
+
+The stale CodeQL overlay base database (cached in GitHub Actions cache
+from pre-rename &#39;rpm&#39; runs with /work/rpm/rpm workspace path) was
+deleted via gh cache delete, allowing fresh analysis under the correct
+kanon workspace path. ([`4f802cf`](https://github.com/caylent-solutions/kanon/commit/4f802cf4c853dadf0c3f99c15692a2f86c3457c4))
+
+
 ## v1.0.0 (2026-04-13)
 
 ### Breaking
@@ -35,6 +62,8 @@ Install with: pipx install kanon-cli ([`f1434a1`](https://github.com/caylent-sol
 
 ### Chore
 
+* chore(release): 1.0.0 ([`7f540f6`](https://github.com/caylent-solutions/kanon/commit/7f540f65afbb4d0632316bf68560d6e819a19c3c))
+
 * chore: fix CI after repo rename (#34)
 
 - Set FORCE_JAVASCRIPT_ACTIONS_TO_NODE24 in main-validation to address
@@ -42,6 +71,12 @@ Install with: pipx install kanon-cli ([`f1434a1`](https://github.com/caylent-sol
 - Temporarily remove CodeQL from release pipeline and disable automatic
   triggers (overlay cache references stale /work/rpm/rpm workspace path
   after repo rename; will re-enable in follow-up PR after first release) ([`54c661c`](https://github.com/caylent-solutions/kanon/commit/54c661c8b75548bf302c73e45ca65a9ba4beb04f))
+
+### Unknown
+
+* Merge pull request #35 from caylent-solutions/release-1.0.0
+
+Release 1.0.0 ([`d8edc13`](https://github.com/caylent-solutions/kanon/commit/d8edc13f989945f810fc3aa1799e3d6ccaecf815))
 
 
 ## v0.8.0 (2026-03-31)
