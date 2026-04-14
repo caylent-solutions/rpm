@@ -2,7 +2,33 @@
 
 
 
+## v1.0.3 (2026-04-14)
+
+### Chore
+
+* chore: rename stale rpm test method and fixture names (#40)
+
+- test_returns_rpm → test_returns_kanon
+- test_only_contains_rpm → test_only_contains_kanon
+- rpm-lint fixture → test-lint ([`d710cad`](https://github.com/caylent-solutions/kanon/commit/d710cada20133f3dd8e19fab5d0f3504cbfc7d12))
+
+### Fix
+
+* fix: accept prefixed PEP 440 constraints in marketplace validator (#41)
+
+The _is_valid_revision() validator now accepts refs/tags/&lt;path&gt;/&lt;constraint&gt;
+format (e.g., refs/tags/claude-tools/history/&gt;=0.2.0,&lt;1.0.0) in addition
+to the existing bare constraint and exact tag formats.
+
+Also expands XML escaping documentation in README with full special
+character table. ([`6541141`](https://github.com/caylent-solutions/kanon/commit/65411413a976439e2358e8fcaf01d0c022ff95ba))
+
+
 ## v1.0.2 (2026-04-14)
+
+### Chore
+
+* chore(release): 1.0.2 ([`0d22272`](https://github.com/caylent-solutions/kanon/commit/0d22272512180950e2216aee929ebe112e5293dc))
 
 ### Fix
 
@@ -15,6 +41,12 @@
 - Fix clean.py: same exception handling as install
 - Add docs/integration-testing.md: comprehensive integration test plan
   with local file:// fixtures for reproducible testing ([`4d6c8f7`](https://github.com/caylent-solutions/kanon/commit/4d6c8f7946343a54362e8c505620e409a058fa27))
+
+### Unknown
+
+* Merge pull request #39 from caylent-solutions/release-1.0.2
+
+Release 1.0.2 ([`c75f3ad`](https://github.com/caylent-solutions/kanon/commit/c75f3ad38866afcf3528d686a09a96531b9d41dc))
 
 
 ## v1.0.1 (2026-04-13)
