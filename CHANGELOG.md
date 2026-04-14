@@ -2,7 +2,26 @@
 
 
 
+## v1.0.2 (2026-04-14)
+
+### Fix
+
+* fix: resolve @latest catalog resolution and clean up error output (#38)
+
+- Fix catalog.py: strip refs/tags/ prefix from @latest version
+  resolution so git clone --branch accepts the resolved tag name
+- Fix install.py: catch FileNotFoundError/ValueError from
+  parse_kanonenv() and print clean error message instead of traceback
+- Fix clean.py: same exception handling as install
+- Add docs/integration-testing.md: comprehensive integration test plan
+  with local file:// fixtures for reproducible testing ([`4d6c8f7`](https://github.com/caylent-solutions/kanon/commit/4d6c8f7946343a54362e8c505620e409a058fa27))
+
+
 ## v1.0.1 (2026-04-13)
+
+### Chore
+
+* chore(release): 1.0.1 ([`e8ca1b8`](https://github.com/caylent-solutions/kanon/commit/e8ca1b8b5c2724ec532b7784476803d830feb8d0))
 
 ### Fix
 
@@ -27,6 +46,12 @@ The stale CodeQL overlay base database (cached in GitHub Actions cache
 from pre-rename &#39;rpm&#39; runs with /work/rpm/rpm workspace path) was
 deleted via gh cache delete, allowing fresh analysis under the correct
 kanon workspace path. ([`4f802cf`](https://github.com/caylent-solutions/kanon/commit/4f802cf4c853dadf0c3f99c15692a2f86c3457c4))
+
+### Unknown
+
+* Merge pull request #37 from caylent-solutions/release-1.0.1
+
+Release 1.0.1 ([`e5a3124`](https://github.com/caylent-solutions/kanon/commit/e5a3124d1f00fe630f83605ac3c7c7658eebe133))
 
 
 ## v1.0.0 (2026-04-13)
