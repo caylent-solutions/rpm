@@ -17,7 +17,7 @@ import select
 import subprocess
 import sys
 
-import platform_utils
+from . import platform_utils
 
 
 active = False

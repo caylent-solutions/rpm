@@ -26,7 +26,7 @@ import sys
 import tempfile
 import time
 
-import platform_utils
+from . import platform_utils
 
 
 # Env var to implicitly turn on tracing.

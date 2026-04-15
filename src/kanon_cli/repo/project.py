@@ -29,37 +29,37 @@ import time
 from typing import List, NamedTuple
 import urllib.parse
 
-from color import Coloring
-from error import DownloadError
-from error import GitAuthError
-from error import GitError
-from error import ManifestInvalidPathError
-from error import ManifestInvalidRevisionError
-from error import ManifestParseError
-from error import NoManifestException
-from error import RepoError
-from error import UploadError
-import fetch
-import version_constraints
-from git_command import git_require
-from git_command import GitCommand
-from git_config import GetSchemeFromUrl
-from git_config import GetUrlCookieFile
-from git_config import GitConfig
-from git_config import IsId
-from git_refs import GitRefs
-from git_refs import HEAD
-from git_refs import R_HEADS
-from git_refs import R_M
-from git_refs import R_PUB
-from git_refs import R_TAGS
-from git_refs import R_WORKTREE_M
-import git_superproject
-from git_trace2_event_log import EventLog
-import platform_utils
-import progress
-from repo_logging import RepoLogger
-from repo_trace import Trace
+from .color import Coloring
+from .error import DownloadError
+from .error import GitAuthError
+from .error import GitError
+from .error import ManifestInvalidPathError
+from .error import ManifestInvalidRevisionError
+from .error import ManifestParseError
+from .error import NoManifestException
+from .error import RepoError
+from .error import UploadError
+from . import fetch
+from . import version_constraints
+from .git_command import git_require
+from .git_command import GitCommand
+from .git_config import GetSchemeFromUrl
+from .git_config import GetUrlCookieFile
+from .git_config import GitConfig
+from .git_config import IsId
+from .git_refs import GitRefs
+from .git_refs import HEAD
+from .git_refs import R_HEADS
+from .git_refs import R_M
+from .git_refs import R_PUB
+from .git_refs import R_TAGS
+from .git_refs import R_WORKTREE_M
+from . import git_superproject
+from .git_trace2_event_log import EventLog
+from . import platform_utils
+from . import progress
+from .repo_logging import RepoLogger
+from .repo_trace import Trace
 
 
 logger = RepoLogger(__file__)

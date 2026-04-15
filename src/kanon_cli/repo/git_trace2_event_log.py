@@ -1,6 +1,6 @@
-from git_command import GetEventTargetPath
-from git_command import RepoSourceVersion
-from git_trace2_event_log_base import BaseEventLog
+from .git_command import GetEventTargetPath
+from .git_command import RepoSourceVersion
+from .git_trace2_event_log_base import BaseEventLog
 
 
 class EventLog(BaseEventLog):

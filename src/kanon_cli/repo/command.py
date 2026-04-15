@@ -18,11 +18,11 @@ import optparse
 import os
 import re
 
-from error import InvalidProjectGroupsError
-from error import NoSuchProjectError
-from error import RepoExitError
-from event_log import EventLog
-import progress
+from .error import InvalidProjectGroupsError
+from .error import NoSuchProjectError
+from .error import RepoExitError
+from .event_log import EventLog
+from . import progress
 
 
 # Are we generating man-pages?

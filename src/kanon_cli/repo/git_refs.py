@@ -14,8 +14,8 @@
 
 import os
 
-import platform_utils
-from repo_trace import Trace
+from . import platform_utils
+from .repo_trace import Trace
 
 
 HEAD = "HEAD"

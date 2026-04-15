@@ -26,14 +26,14 @@ from typing import Union
 import urllib.error
 import urllib.request
 
-from error import GitError
-from error import UploadError
-from git_command import GitCommand
-from git_refs import R_CHANGES
-from git_refs import R_HEADS
-from git_refs import R_TAGS
-import platform_utils
-from repo_trace import Trace
+from .error import GitError
+from .error import UploadError
+from .git_command import GitCommand
+from .git_refs import R_CHANGES
+from .git_refs import R_HEADS
+from .git_refs import R_TAGS
+from . import platform_utils
+from .repo_trace import Trace
 
 
 # Prefix that is prepended to all the keys of SyncAnalysisState's data

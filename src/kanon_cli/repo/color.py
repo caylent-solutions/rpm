@@ -15,7 +15,7 @@
 import os
 import sys
 
-import pager
+from . import pager
 
 
 COLORS = {

@@ -18,8 +18,8 @@ import sys
 import traceback
 import urllib.parse
 
-from error import HookError
-from git_refs import HEAD
+from .error import HookError
+from .git_refs import HEAD
 
 
 # The API we've documented to hook authors.  Keep in sync with repo-hooks.md.

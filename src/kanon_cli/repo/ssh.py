@@ -24,9 +24,9 @@ import sys
 import tempfile
 import time
 
-from git_command import git
-import platform_utils
-from repo_trace import Trace
+from .git_command import git
+from . import platform_utils
+from .repo_trace import Trace
 
 
 PROXY_PATH = os.path.join(os.path.dirname(__file__), "git_ssh")

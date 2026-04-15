@@ -27,7 +27,7 @@ Spec references:
 from packaging.specifiers import InvalidSpecifier, SpecifierSet
 from packaging.version import InvalidVersion, Version
 
-import error
+from . import error
 
 # PEP 440 constraint operators that can appear at the start of a version
 # specifier. Order matters: two-character operators must be checked before

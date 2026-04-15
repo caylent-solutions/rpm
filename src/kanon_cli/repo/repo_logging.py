@@ -16,8 +16,8 @@
 
 import logging
 
-from color import Coloring
-from error import RepoExitError
+from .color import Coloring
+from .error import RepoExitError
 
 
 SEPARATOR = "=" * 80

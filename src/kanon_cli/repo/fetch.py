@@ -19,7 +19,7 @@ import sys
 from urllib.parse import urlparse
 from urllib.request import urlopen
 
-from error import RepoExitError
+from .error import RepoExitError
 
 
 class FetchFileError(RepoExitError):

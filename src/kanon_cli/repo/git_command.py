@@ -20,16 +20,16 @@ import subprocess
 import sys
 from typing import Any, Optional
 
-from error import GitError
-from error import RepoExitError
-from git_refs import HEAD
-from git_trace2_event_log_base import BaseEventLog
-import platform_utils
-from repo_logging import RepoLogger
-from repo_trace import IsTrace
-from repo_trace import REPO_TRACE
-from repo_trace import Trace
-from wrapper import Wrapper
+from .error import GitError
+from .error import RepoExitError
+from .git_refs import HEAD
+from .git_trace2_event_log_base import BaseEventLog
+from . import platform_utils
+from .repo_logging import RepoLogger
+from .repo_trace import IsTrace
+from .repo_trace import REPO_TRACE
+from .repo_trace import Trace
+from .wrapper import Wrapper
 
 
 GIT = "git"

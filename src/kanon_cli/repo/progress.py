@@ -22,7 +22,7 @@ try:
 except ImportError:
     import dummy_threading as _threading
 
-from repo_trace import IsTraceToStderr
+from .repo_trace import IsTraceToStderr
 
 
 _TTY = sys.stderr.isatty()

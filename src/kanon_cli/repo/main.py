@@ -34,7 +34,7 @@ import textwrap
 import time
 import urllib.request
 
-from repo_logging import RepoLogger
+from .repo_logging import RepoLogger
 
 
 try:
@@ -42,35 +42,35 @@ try:
 except ImportError:
     kerberos = None
 
-from color import SetDefaultColoring
-from command import InteractiveCommand
-from command import MirrorSafeCommand
-from editor import Editor
-from error import DownloadError
-from error import InvalidProjectGroupsError
-from error import ManifestInvalidRevisionError
-from error import ManifestParseError
-from error import NoManifestException
-from error import NoSuchProjectError
-from error import RepoChangedException
-from error import RepoError
-from error import RepoExitError
-from error import RepoUnhandledExceptionError
-from error import SilentRepoExitError
-import event_log
-from git_command import user_agent
-from git_config import RepoConfig
-from git_trace2_event_log import EventLog
-from manifest_xml import RepoClient
-from pager import RunPager
-from pager import TerminatePager
-from repo_trace import SetTrace
-from repo_trace import SetTraceToStderr
-from repo_trace import Trace
-from subcmds import all_commands
-from subcmds.version import Version
-from wrapper import Wrapper
-from wrapper import WrapperPath
+from .color import SetDefaultColoring
+from .command import InteractiveCommand
+from .command import MirrorSafeCommand
+from .editor import Editor
+from .error import DownloadError
+from .error import InvalidProjectGroupsError
+from .error import ManifestInvalidRevisionError
+from .error import ManifestParseError
+from .error import NoManifestException
+from .error import NoSuchProjectError
+from .error import RepoChangedException
+from .error import RepoError
+from .error import RepoExitError
+from .error import RepoUnhandledExceptionError
+from .error import SilentRepoExitError
+from . import event_log
+from .git_command import user_agent
+from .git_config import RepoConfig
+from .git_trace2_event_log import EventLog
+from .manifest_xml import RepoClient
+from .pager import RunPager
+from .pager import TerminatePager
+from .repo_trace import SetTrace
+from .repo_trace import SetTraceToStderr
+from .repo_trace import Trace
+from .subcmds import all_commands
+from .subcmds.version import Version
+from .wrapper import Wrapper
+from .wrapper import WrapperPath
 
 
 logger = RepoLogger(__file__)

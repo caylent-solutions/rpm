@@ -18,8 +18,8 @@ import subprocess
 import sys
 import tempfile
 
-from error import EditorError
-import platform_utils
+from .error import EditorError
+from . import platform_utils
 
 
 class Editor:

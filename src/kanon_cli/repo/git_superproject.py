@@ -30,10 +30,10 @@ import time
 from typing import NamedTuple
 import urllib.parse
 
-from git_command import git_require
-from git_command import GitCommand
-from git_config import RepoConfig
-from git_refs import GitRefs
+from .git_command import git_require
+from .git_command import GitCommand
+from .git_config import RepoConfig
+from .git_refs import GitRefs
 
 
 _SUPERPROJECT_GIT_NAME = "superproject.git"
