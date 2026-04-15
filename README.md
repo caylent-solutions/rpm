@@ -781,6 +781,7 @@ src/kanon_cli/
   commands/            # Subcommand implementations (bootstrap, install, clean, validate)
   core/                # Core logic (install, clean, kanon parsing, version resolution)
   catalog/             # Bundled catalog (fallback templates for kanon bootstrap)
+  repo/                # Embedded repo tool (migration scaffold)
 tests/                 # Unit and functional tests
 docs/                  # Configuration, lifecycle, version resolution documentation
 pyproject.toml         # Package config (hatchling build, entry point: kanon)
