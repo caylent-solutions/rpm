@@ -1,12 +1,11 @@
 """Tests verifying the kanon_cli.repo package directory structure exists."""
 
 import importlib
-import pathlib
 
 import pytest
 
+from tests.unit.repo.conftest import REPO_ROOT
 
-REPO_ROOT = pathlib.Path(__file__).parents[3]
 SRC_KANON_CLI = REPO_ROOT / "src" / "kanon_cli"
 
 

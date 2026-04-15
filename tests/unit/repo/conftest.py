@@ -12,6 +12,12 @@ import sys
 
 import pytest
 
+REPO_ROOT = pathlib.Path(__file__).parents[3]
+"""Root of the kanon repository (3 levels up from tests/unit/repo/)."""
+
+TARGET_DIR = REPO_ROOT / "src" / "kanon_cli" / "repo"
+"""Target directory where rpm-git-repo source files are copied."""
+
 
 def get_rpm_source_dir(subdirectory: str | None = None) -> pathlib.Path:
     """Return the rpm-git-repo source directory from the RPM_GIT_REPO_PATH env var.

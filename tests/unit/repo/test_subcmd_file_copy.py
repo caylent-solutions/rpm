@@ -1,17 +1,17 @@
 """Tests verifying the 28 subcmd Python source files are copied to src/kanon_cli/repo/subcmds/."""
 
 import hashlib
-import pathlib
 
 import pytest
 
-from tests.unit.repo.conftest import get_rpm_source_dir
-from tests.unit.repo.conftest import ruff_format_source
-from tests.unit.repo.conftest import strip_noqa_annotations
+from tests.unit.repo.conftest import (
+    TARGET_DIR,
+    get_rpm_source_dir,
+    ruff_format_source,
+    strip_noqa_annotations,
+)
 
-
-REPO_ROOT = pathlib.Path(__file__).parents[3]
-TARGET_DIR = REPO_ROOT / "src" / "kanon_cli" / "repo" / "subcmds"
+SUBCMD_TARGET_DIR = TARGET_DIR / "subcmds"
 
 SUBCMD_PYTHON_FILES = [
     "__init__.py",
@@ -65,7 +65,7 @@ def _normalize_source(content: bytes) -> bytes:
 @pytest.mark.parametrize("filename", SUBCMD_PYTHON_FILES)
 def test_subcmd_python_files_exist(filename: str) -> None:
     """Verify each of the 28 subcmd Python files exists under src/kanon_cli/repo/subcmds/."""
-    target = TARGET_DIR / filename
+    target = SUBCMD_TARGET_DIR / filename
     assert target.is_file(), (
         f"Expected file {target} to exist but it does not. "
         f"Copy {filename} from rpm-git-repo/subcmds/ to src/kanon_cli/repo/subcmds/."
@@ -88,7 +88,7 @@ def test_subcmd_python_files_content_matches_source(filename: str) -> None:
     """
     source_dir = get_rpm_source_dir("subcmds")
     source_file = source_dir / filename
-    target_file = TARGET_DIR / filename
+    target_file = SUBCMD_TARGET_DIR / filename
 
     assert source_file.is_file(), (
         f"Source file {source_file} does not exist. Verify RPM_GIT_REPO_PATH={source_dir.parent!r} is correct."

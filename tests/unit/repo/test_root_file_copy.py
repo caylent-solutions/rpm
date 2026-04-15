@@ -1,18 +1,16 @@
 """Tests verifying the 25 root Python source files are copied to src/kanon_cli/repo/."""
 
 import hashlib
-import pathlib
 import re
 
 import pytest
 
-from tests.unit.repo.conftest import get_rpm_source_dir
-from tests.unit.repo.conftest import ruff_format_source
-from tests.unit.repo.conftest import strip_noqa_annotations
-
-
-REPO_ROOT = pathlib.Path(__file__).parents[3]
-TARGET_DIR = REPO_ROOT / "src" / "kanon_cli" / "repo"
+from tests.unit.repo.conftest import (
+    TARGET_DIR,
+    get_rpm_source_dir,
+    ruff_format_source,
+    strip_noqa_annotations,
+)
 
 ROOT_PYTHON_FILES = [
     "color.py",
