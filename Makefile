@@ -2,7 +2,7 @@ SHELL := /bin/bash
 .SHELLFLAGS := -euo pipefail -c
 .DEFAULT_GOAL := help
 
-.PHONY: help install install-dev lint lint-check format format-check check test test-unit test-functional test-cov validate clean build distcheck publish pre-commit-check install-hooks coverage-json
+.PHONY: help install install-dev lint lint-check format format-check check test test-unit test-integration test-functional test-cov validate clean build distcheck publish pre-commit-check install-hooks coverage-json security-scan
 
 help: ## Show available targets
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
@@ -33,6 +33,12 @@ test: ## Run full test suite with coverage
 
 test-unit: ## Run unit tests only
 	uv run pytest -m unit
+
+test-integration: ## Run integration tests only
+	uv run pytest -m integration
+
+security-scan: ## Run security scan with bandit (high severity, high confidence, excludes vendored repo submodule)
+	uv run bandit -r src/kanon_cli/ -x src/kanon_cli/repo -lll -iii
 
 test-functional: SMOKE_TEST_TIMEOUT ?= 300
 test-functional: ## Run functional tests only
