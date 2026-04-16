@@ -604,26 +604,28 @@ class _LinkFile:
                 )
             dest = _SafeExpandPath(self.topdir, self.dest)
             # Entity contains a wild card.
+            # Bug 20: raise instead of log-and-continue when dest is a file.
             if os.path.exists(dest) and not platform_utils.isdir(dest):
-                logger.error(
-                    "Link error: src with wildcard, %s must be a directory",
-                    dest,
+                raise ManifestInvalidPathError(
+                    f"Link error: glob src requires a directory destination, but {dest!r} is an existing file"
                 )
-            else:
-                for absSrcFile in glob.glob(src):
-                    # Create a releative path from source dir to destination
-                    # dir.
-                    absSrcDir = os.path.dirname(absSrcFile)
-                    relSrcDir = os.path.relpath(absSrcDir, dest)
+            # Bug 19: check that the source directory exists before globbing.
+            src_dir = os.path.dirname(src)
+            if not os.path.exists(src_dir):
+                raise ManifestInvalidPathError(f"Link error: glob src directory does not exist: {src_dir!r}")
+            for absSrcFile in glob.glob(src):
+                # Create a relative path from source dir to destination dir.
+                absSrcDir = os.path.dirname(absSrcFile)
+                relSrcDir = os.path.relpath(absSrcDir, dest)
 
-                    # Get the source file name.
-                    srcFile = os.path.basename(absSrcFile)
+                # Get the source file name.
+                srcFile = os.path.basename(absSrcFile)
 
-                    # Now form the final full paths to srcFile. They will be
-                    # absolute for the desintaiton and relative for the source.
-                    absDest = os.path.join(dest, srcFile)
-                    relSrc = os.path.join(relSrcDir, srcFile)
-                    self.__linkIt(relSrc, absDest)
+                # Now form the final full paths to srcFile. They will be
+                # absolute for the destination and relative for the source.
+                absDest = os.path.join(dest, srcFile)
+                relSrc = os.path.join(relSrcDir, srcFile)
+                self.__linkIt(relSrc, absDest)
 
 
 class RemoteSpec:

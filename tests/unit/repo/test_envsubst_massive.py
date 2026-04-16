@@ -79,37 +79,49 @@ def test_execute_multiple_files():
 
 
 @pytest.mark.unit
-def test_envsubst():
-    """Test EnvSubst method."""
+def test_envsubst(tmp_path):
+    """Test EnvSubst method reads file and calls parseString.
+
+    Updated from minidom.parse to minidom.parseString after Bug 18 fix:
+    EnvSubst now reads the file content first, then parses the string.
+    """
+    xml_content = '<?xml version="1.0" encoding="UTF-8"?>\n<manifest/>\n'
+    test_file = tmp_path / "test.xml"
+    test_file.write_text(xml_content, encoding="utf-8")
+
     cmd = _make_cmd()
 
-    with mock.patch("xml.dom.minidom.parse") as mock_parse:
+    with mock.patch("xml.dom.minidom.parseString") as mock_parse_string:
         mock_doc = mock.MagicMock()
-        mock_parse.return_value = mock_doc
+        mock_parse_string.return_value = mock_doc
 
         with mock.patch.object(cmd, "search_replace_placeholders"):
             with mock.patch("os.rename"):
                 with mock.patch.object(cmd, "save"):
-                    cmd.EnvSubst("/tmp/test.xml")
+                    cmd.EnvSubst(str(test_file))
 
-                    mock_parse.assert_called_once_with("/tmp/test.xml")
+                    mock_parse_string.assert_called_once_with(xml_content.encode("utf-8"))
 
 
 @pytest.mark.unit
-def test_envsubst_creates_backup():
-    """Test EnvSubst creates backup file."""
+def test_envsubst_creates_backup(tmp_path):
+    """Test EnvSubst creates backup file.
+
+    Updated to use a real file path so the open() call in EnvSubst succeeds
+    before the mocked os.rename is checked.
+    """
+    xml_content = '<?xml version="1.0" encoding="UTF-8"?>\n<manifest/>\n'
+    test_file = tmp_path / "test.xml"
+    test_file.write_text(xml_content, encoding="utf-8")
+    test_file_str = str(test_file)
+
     cmd = _make_cmd()
 
-    with mock.patch("xml.dom.minidom.parse") as mock_parse:
-        mock_doc = mock.MagicMock()
-        mock_parse.return_value = mock_doc
+    with mock.patch("os.rename") as mock_rename:
+        with mock.patch.object(cmd, "save"):
+            cmd.EnvSubst(test_file_str)
 
-        with mock.patch.object(cmd, "search_replace_placeholders"):
-            with mock.patch("os.rename") as mock_rename:
-                with mock.patch.object(cmd, "save"):
-                    cmd.EnvSubst("/tmp/test.xml")
-
-                    mock_rename.assert_called_once_with("/tmp/test.xml", "/tmp/test.xml.bak")
+            mock_rename.assert_called_once_with(test_file_str, test_file_str + ".bak")
 
 
 @pytest.mark.unit

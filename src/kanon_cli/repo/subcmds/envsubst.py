@@ -17,7 +17,6 @@ import logging
 import os
 import re
 from xml.dom import minidom
-from xml.dom.minidom import parseString
 from xml.parsers.expat import ExpatError
 
 from ..command import Command
@@ -28,6 +27,11 @@ _LOG = logging.getLogger(__name__)
 # Regex that matches any ${VAR_NAME} pattern remaining after expandvars().
 # A match indicates that VAR_NAME was not defined in the environment.
 _UNRESOLVED_PATTERN = re.compile(r"\$\{([A-Za-z_][A-Za-z0-9_]*)\}")
+
+# Regex that matches nested ${...${...}...} patterns where an inner ${...}
+# appears inside an outer ${...}. expandvars() cannot resolve these patterns
+# and leaves them unchanged. Each match captures the full nested pattern text.
+_NESTED_VAR_PATTERN = re.compile(r"\$\{[^}$]*\$\{[^}]*\}[^}$]*\}")
 
 
 def _collect_unresolved_vars(doc):
@@ -53,6 +57,27 @@ def _collect_unresolved_vars(doc):
             for match in _UNRESOLVED_PATTERN.finditer(elem.firstChild.nodeValue):
                 unresolved.add(match.group(1))
     return unresolved
+
+
+def _warn_nested_vars(content, infile):
+    """Scan raw file content for nested ${...${...}...} patterns and warn.
+
+    Nested variable references such as ${VAR_${INNER}} cannot be resolved by
+    os.path.expandvars(). Each occurrence is logged as a WARNING including the
+    full pattern text so the user can identify which references need attention.
+
+    The tool does not attempt to resolve nested variables.
+
+    Args:
+        content: Raw text content of the file (before or after substitution).
+        infile: Path to the file being processed, included in each warning.
+    """
+    for match in _NESTED_VAR_PATTERN.finditer(content):
+        _LOG.warning(
+            "Nested variable reference %s in %s -- expandvars() cannot resolve nested patterns",
+            match.group(0),
+            infile,
+        )
 
 
 class Envsubst(Command, MirrorSafeCommand):
@@ -98,9 +123,14 @@ variables with values.
     def EnvSubst(self, infile):
         """Substitute environment variables in the given XML manifest file.
 
-        After substitution, scans the resulting document for any remaining
-        ${VAR} patterns and logs a WARNING for each unresolved variable name,
-        including the filename so the user can diagnose the missing variable.
+        Reads the raw file content and scans for nested ${...${...}...}
+        patterns, logging a WARNING for each occurrence (Bug 16). Then parses
+        the XML, performs variable substitution via expandvars(), and scans for
+        any remaining ${VAR} patterns (undefined variables), logging a WARNING
+        per unresolved variable name.
+
+        Saves the modified document using string-based line filtering instead of
+        a second XML parse (Bug 18 fix).
 
         Args:
             infile: Path to the XML manifest file to process.
@@ -109,8 +139,14 @@ variables with values.
             A set of variable name strings that were left unresolved, or an
             empty set if all variables were resolved (or parsing failed).
         """
+        with open(infile, encoding="utf-8") as fh:
+            raw_content = fh.read()
+
+        # Bug 16: detect nested ${...${...}...} patterns before substitution.
+        _warn_nested_vars(raw_content, infile)
+
         try:
-            doc = minidom.parse(infile)
+            doc = minidom.parseString(raw_content.encode("utf-8"))
         except ExpatError as exc:
             _LOG.error("Skipping %s: malformed XML -- %s", infile, exc)
             return set()
@@ -126,15 +162,17 @@ variables with values.
         return unresolved
 
     def save(self, outfile, doc):
-        """Save the modified XML document with comments and the XML header."""
+        """Save the modified XML document using string-based line filtering.
 
-        def pretty_print(data):
-            return "\n".join(
-                [line for line in parseString(data).toprettyxml(indent=" " * 2).split("\n") if line.strip()]
-            )
-
+        Serializes the DOM to pretty-printed XML via toprettyxml(), then filters
+        blank lines using string manipulation. This replaces the previous
+        double-parse approach that re-parsed the output with parseString() just
+        to remove empty lines (Bug 18 fix).
+        """
+        pretty_xml = doc.toprettyxml(indent=" " * 2)
+        filtered = "\n".join(line for line in pretty_xml.splitlines() if line.strip())
         with open(outfile, "wb") as f:
-            f.write(str.encode(pretty_print(doc.toprettyxml(encoding="utf-8"))))
+            f.write(filtered.encode("utf-8"))
 
     def search_replace_placeholders(self, doc):
         """Replace ${PLACEHOLDER} in texts and attributes with values."""

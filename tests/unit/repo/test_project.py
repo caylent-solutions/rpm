@@ -1548,8 +1548,17 @@ class TestLinkFileClassExtended:
                 dest_file = os.path.join(dest_dir, f"file{i}.txt")
                 assert os.path.islink(dest_file)
 
-    def test_link_wildcard_dest_not_directory_logs_error(self):
-        """Test _Link with wildcard when dest is not a directory logs error."""
+    def test_link_wildcard_dest_not_directory_raises_error(self):
+        """Test _Link with wildcard when dest is not a directory raises an error.
+
+        Bug 20 fix: when the glob destination is an existing file (not a
+        directory), _Link() must raise ManifestInvalidPathError instead of
+        logging and continuing silently.
+        """
+        import pytest
+
+        from kanon_cli.repo.error import ManifestInvalidPathError
+
         with tempfile.TemporaryDirectory() as tmpdir:
             worktree = os.path.join(tmpdir, "worktree")
             topdir = os.path.join(tmpdir, "topdir")
@@ -1561,13 +1570,17 @@ class TestLinkFileClassExtended:
             with open(src_file, "w") as f:
                 f.write("content")
 
-            # Create dest as file
+            # Create dest as file -- triggers Bug 20 condition
             dest_file = os.path.join(topdir, "destfile")
             with open(dest_file, "w") as f:
                 f.write("existing")
 
             lf = project._LinkFile(worktree, "*.txt", topdir, "destfile")
-            lf._Link()  # Should log error but not raise
+            with pytest.raises(ManifestInvalidPathError) as exc_info:
+                lf._Link()
+            assert dest_file in str(exc_info.value) or "destfile" in str(exc_info.value), (
+                f"Expected error message to include dest path, got: {exc_info.value!r}"
+            )
 
 
 @pytest.mark.unit

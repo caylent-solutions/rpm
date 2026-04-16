@@ -79,6 +79,14 @@ Key attributes:
 - `remote` — name of the remote defined in `remote.xml`
 - `revision` — Git ref to checkout (tag, branch, or PEP 440 constraint)
 
+> **Platform path separator note (Bug 17):** Manifest `path`, `src`, and `dest`
+> attribute values use forward slashes (`/`) as path separators regardless of
+> the host operating system. Some internal path operations in the sync engine
+> use `os.sep` or `pathlib`, which may produce backslashes on Windows. If you
+> encounter path-related issues on Windows, use `pathlib.Path` or
+> `os.path.join()` in any custom tooling that processes manifest paths rather
+> than hard-coding `/` separators.
+
 ## Entry-Point Manifests (meta.xml / build-meta.xml)
 
 An entry-point manifest ties everything together with `<include>` tags:
