@@ -1405,25 +1405,34 @@ class TestLinkFileClassExtended:
         assert lf.topdir == "/topdir"
         assert lf.dest == "dest.txt"
 
-    def test_link_handles_oserror(self):
-        """Test _Link handles OSError gracefully."""
+    def test_link_raises_oserror_with_context(self):
+        """Test _Link propagates OSError with source and destination context.
+
+        The old behavior silently swallowed OSError. The fix requires that any
+        OSError from symlink creation propagates to the caller with path context.
+        """
         with tempfile.TemporaryDirectory() as tmpdir:
             worktree = os.path.join(tmpdir, "worktree")
             topdir = os.path.join(tmpdir, "topdir")
             os.makedirs(worktree)
             os.makedirs(topdir)
 
-            # Create source file
             src_file = os.path.join(worktree, "src.txt")
             with open(src_file, "w") as f:
                 f.write("content")
 
             lf = project._LinkFile(worktree, "src.txt", topdir, "dest.txt")
 
-            # Mock symlink to raise OSError
             with mock.patch("kanon_cli.repo.platform_utils.symlink", side_effect=OSError("Link failed")):
-                # Should not raise, just log error
-                lf._Link()
+                with pytest.raises(OSError) as exc_info:
+                    lf._Link()
+
+            assert "src.txt" in str(exc_info.value), (
+                f"Error message must include the source path. Got: {exc_info.value!r}"
+            )
+            assert "dest.txt" in str(exc_info.value), (
+                f"Error message must include the destination path. Got: {exc_info.value!r}"
+            )
 
     def test_link_removes_existing_file_before_linking(self):
         """Test _Link removes existing file before creating symlink."""

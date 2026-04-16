@@ -459,8 +459,8 @@ class _LinkFile:
                     if not platform_utils.isdir(dest_dir):
                         os.makedirs(dest_dir)
                 platform_utils.symlink(relSrc, absDest)
-            except OSError:
-                logger.error("error: Cannot link file %s to %s", relSrc, absDest)
+            except OSError as e:
+                raise OSError(f"Cannot link file {relSrc!r} to {absDest!r}: {e}") from e
 
     def _LinkWithExclude(self, absSrc, absDest):
         """Create per-child symlinks, skipping excluded and repo-internal entries.
