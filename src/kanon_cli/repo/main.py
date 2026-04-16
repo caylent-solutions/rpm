@@ -20,7 +20,7 @@ People shouldn't run this directly; instead, they should use the `repo` wrapper
 which takes care of execing this entry point.
 """
 
-__version__ = "1.2.0"
+__version__ = "2.0.0"
 
 import getpass
 import json
