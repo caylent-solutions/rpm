@@ -30,6 +30,7 @@ import time
 from typing import List, NamedTuple
 import urllib.parse
 
+from .. import constants as kanon_constants
 from .color import Coloring
 from .error import DownloadError
 from .error import GitAuthError
@@ -104,6 +105,69 @@ RETRY_JITTER_PERCENT = float(os.environ.get("KANON_RETRY_JITTER_PERCENT", "0.1")
 # Whether to use alternates.  Switching back and forth is *NOT* supported.
 # TODO(vapier): Remove knob once behavior is verified.
 _ALTERNATES = os.environ.get("REPO_USE_ALTERNATES") == "1"
+
+
+def _run_ls_remote_with_retry(remote_url):
+    """Run git ls-remote with exponential backoff retry on transient failures.
+
+    Reads retry configuration from environment variables:
+    - KANON_GIT_RETRY_COUNT: maximum number of attempts (default 3)
+    - KANON_GIT_RETRY_DELAY: base delay in seconds before first retry (default 1)
+
+    Authentication errors (stderr containing "Authentication" or "Permission
+    denied") are not retried -- they fail immediately to avoid credential
+    lockouts.
+
+    Each retry attempt is logged at WARNING level with the attempt number and
+    the reason (stderr text) from the previous failure.
+
+    Args:
+        remote_url: The remote URL to pass to git ls-remote.
+
+    Returns:
+        CompletedProcess from a successful subprocess.run call.
+
+    Raises:
+        ManifestInvalidRevisionError: If all retry attempts fail, or if an
+            authentication error is detected on any attempt.
+    """
+    retry_count = int(os.environ.get(kanon_constants.GIT_RETRY_COUNT_ENV_VAR, kanon_constants.GIT_RETRY_COUNT_DEFAULT))
+    base_delay = int(os.environ.get(kanon_constants.GIT_RETRY_DELAY_ENV_VAR, kanon_constants.GIT_RETRY_DELAY_DEFAULT))
+
+    last_result = None
+    for attempt in range(1, retry_count + 1):
+        result = subprocess.run(
+            ["git", "ls-remote", "--tags", remote_url],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        if result.returncode == 0:
+            return result
+
+        stderr_text = result.stderr or ""
+        if any(pattern in stderr_text for pattern in kanon_constants.GIT_AUTH_ERROR_PATTERNS):
+            raise ManifestInvalidRevisionError(
+                "failed to list remote tags from %s: authentication error -- %s" % (remote_url, stderr_text.strip())
+            )
+
+        last_result = result
+        if attempt < retry_count:
+            delay = base_delay * (2 ** (attempt - 1))
+            logger.warning(
+                "git ls-remote attempt %d/%d failed (%s), retrying in %ds",
+                attempt,
+                retry_count,
+                stderr_text.strip() or "non-zero exit",
+                delay,
+            )
+            time.sleep(delay)
+
+    stderr_text = (last_result.stderr or "").strip() if last_result else ""
+    raise ManifestInvalidRevisionError(
+        "failed to list remote tags from %s after %d attempts: %s"
+        % (remote_url, retry_count, stderr_text or "non-zero exit")
+    )
 
 
 def _lwrite(path, content):
@@ -1515,9 +1579,12 @@ class Project:
 
         Does nothing if revisionExpr is not a constraint.
 
+        git ls-remote is retried up to KANON_GIT_RETRY_COUNT times on transient
+        failures with exponential backoff. Authentication errors are not retried.
+
         Raises:
             ManifestInvalidRevisionError: If the constraint cannot be
-                resolved (ls-remote fails or no matching tags).
+                resolved (ls-remote fails after all retries or no matching tags).
         """
         if self.revisionExpr is None:
             return
@@ -1525,17 +1592,12 @@ class Project:
             return
 
         remote_url = self.remote.url
-        ls_result = subprocess.run(
-            ["git", "ls-remote", "--tags", remote_url],
-            capture_output=True,
-            text=True,
-            check=False,
-        )
-        if ls_result.returncode != 0:
+        try:
+            ls_result = _run_ls_remote_with_retry(remote_url)
+        except ManifestInvalidRevisionError as exc:
             raise ManifestInvalidRevisionError(
-                "revision %s in %s not found: "
-                "failed to list remote tags from %s" % (self.revisionExpr, self.name, remote_url)
-            )
+                "revision %s in %s not found: %s" % (self.revisionExpr, self.name, exc)
+            ) from exc
         available_tags = []
         for line in ls_result.stdout.strip().splitlines():
             parts = line.split("\t", 1)
