@@ -62,6 +62,7 @@ from .git_command import user_agent
 from .git_config import RepoConfig
 from .git_trace2_event_log import EventLog
 from .manifest_xml import RepoClient
+from . import pager as _pager_module
 from .pager import RunPager
 from .pager import TerminatePager
 from .repo_trace import SetTrace
@@ -69,6 +70,7 @@ from .repo_trace import SetTraceToStderr
 from .repo_trace import Trace
 from .subcmds import all_commands
 from .subcmds.version import Version
+from .wrapper import EMBEDDED_WRAPPER_VERSION
 from .wrapper import Wrapper
 from .wrapper import WrapperPath
 
@@ -776,7 +778,8 @@ def _Main(argv):
     _PruneOptions(argv, opt)
     opt, argv = opt.parse_args(argv)
 
-    _CheckWrapperVersion(opt.wrapper_version, opt.wrapper_path)
+    if not _pager_module.EMBEDDED:
+        _CheckWrapperVersion(opt.wrapper_version, opt.wrapper_path)
     _CheckRepoDir(opt.repodir)
 
     Version.wrapper_version = opt.wrapper_version
@@ -941,12 +944,11 @@ def run_from_args(argv: list[str], *, repo_dir: str) -> None:
         )
 
     repo_dir_str = str(repo_dir)
-    wrapper_version = ".".join(str(x) for x in Wrapper().VERSION)
     user_argv = list(argv)
 
     internal_argv = [
         f"--repo-dir={repo_dir_str}",
-        f"--wrapper-version={wrapper_version}",
+        f"--wrapper-version={EMBEDDED_WRAPPER_VERSION}",
         f"--wrapper-path={__file__}",
         "--",
     ] + user_argv
@@ -966,6 +968,10 @@ def run_from_args(argv: list[str], *, repo_dir: str) -> None:
         raise _ExecvIntercepted(path, list(args))
 
     os.execv = _intercepting_execv
+    # Signal to pager.py and forall.py that this invocation is running in
+    # library mode. Prevents os.execvp from replacing the calling process and
+    # ensures signal handlers are saved/restored around command execution.
+    _pager_module.EMBEDDED = True
     try:
         retries_remaining = max_retries
         while True:
@@ -993,6 +999,7 @@ def run_from_args(argv: list[str], *, repo_dir: str) -> None:
                 continue
             break
     finally:
+        _pager_module.EMBEDDED = False
         os.execv = original_execv
         # Restore os.environ: remove keys added and reset changed values.
         keys_to_remove = [k for k in list(os.environ) if k not in environ_snapshot]

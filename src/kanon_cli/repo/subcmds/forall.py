@@ -264,6 +264,11 @@ without iterating through the remaining projects.
                     raise Exception("Aborting due to previous error")
             return rc
 
+        # Snapshot all signal handlers before execution so they can be restored
+        # after the command completes or raises. This prevents signal handling
+        # state from leaking into the calling process when running as a library.
+        saved_handlers = {sig: signal.getsignal(sig) for sig in signal.Signals}
+
         try:
             config = self.manifest.manifestProject.config
             with self.ParallelContext():
@@ -288,6 +293,18 @@ without iterating through the remaining projects.
                 e,
             )
             rc = getattr(e, "errno", 1)
+        finally:
+            # Restore all signal handlers to their pre-execution state so that
+            # the calling process is not left with altered signal handling.
+            for sig, handler in saved_handlers.items():
+                try:
+                    signal.signal(sig, handler)
+                except (OSError, ValueError):
+                    # Some signals (e.g. SIGKILL, SIGSTOP) cannot be caught or
+                    # reset on all platforms. Skip them silently -- there is no
+                    # action to take since the OS enforces their behavior.
+                    pass
+
         if rc != 0:
             sys.exit(rc)
 

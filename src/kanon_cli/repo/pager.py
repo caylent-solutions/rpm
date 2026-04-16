@@ -25,6 +25,12 @@ pager_process = None
 old_stdout = None
 old_stderr = None
 
+# When True the process is running as an embedded library (not a standalone CLI).
+# _BecomePager checks this flag and skips os.execvp so that the calling process
+# is not replaced by the pager program. Set by run_from_args() before invoking
+# repo commands; reset to False in the finally block.
+EMBEDDED: bool = False
+
 
 def RunPager(globalConfig):
     if not os.isatty(0) or not os.isatty(1):
@@ -116,6 +122,11 @@ def _BecomePager(pager):
     # ready works around a long-standing bug in popularly
     # available versions of 'less', a better 'more'.
     _a, _b, _c = select.select([0], [], [0])
+
+    # When running as an embedded library, skip process replacement so the
+    # calling process is not hijacked by the pager program.
+    if EMBEDDED:
+        return
 
     # This matches the behavior of git, which sets $LESS to `FRX` if it is not
     # set. See:
