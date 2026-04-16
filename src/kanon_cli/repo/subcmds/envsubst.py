@@ -13,12 +13,16 @@
 # limitations under the License.
 
 import glob
+import logging
 import os
 from xml.dom import minidom
 from xml.dom.minidom import parseString
+from xml.parsers.expat import ExpatError
 
 from ..command import Command
 from ..command import MirrorSafeCommand
+
+_LOG = logging.getLogger(__name__)
 
 
 class Envsubst(Command, MirrorSafeCommand):
@@ -51,7 +55,11 @@ variables with values.
                 self.EnvSubst(file)
 
     def EnvSubst(self, infile):
-        doc = minidom.parse(infile)
+        try:
+            doc = minidom.parse(infile)
+        except ExpatError as exc:
+            _LOG.error("Skipping %s: malformed XML -- %s", infile, exc)
+            return
         self.search_replace_placeholders(doc)
         os.rename(infile, infile + ".bak")
         self.save(infile, doc)
