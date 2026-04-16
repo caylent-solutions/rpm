@@ -217,9 +217,11 @@ class TestVersionOutput:
         import tomllib
         from pathlib import Path
 
-        import main
+        from kanon_cli.repo import main
 
-        pyproject_path = Path(__file__).resolve().parents[2] / "pyproject.toml"
+        # This file is at tests/unit/repo/functional/test_features.py;
+        # parents[4] reaches the kanon repo root where pyproject.toml lives.
+        pyproject_path = Path(__file__).resolve().parents[4] / "pyproject.toml"
         with open(pyproject_path, "rb") as f:
             pyproject = tomllib.load(f)
         expected_version = pyproject["project"]["version"]

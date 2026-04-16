@@ -13,6 +13,7 @@ Spec Reference: Plan: Per-Repo Tooling — Test harness verification.
 
 import os
 import subprocess
+import sys
 import xml.etree.ElementTree as ET
 
 import pytest
@@ -77,7 +78,7 @@ def test_make_clean_removes_artifacts(repo_root, subprocess_timeout):
     """
     # Run a few unit tests to create cache artifacts
     setup_result = subprocess.run(
-        ["python3", "-m", "pytest", "-m", "unit", "-q", "--tb=short"],
+        [sys.executable, "-m", "pytest", "-m", "unit", "-q", "--tb=short"],
         cwd=repo_root,
         capture_output=True,
         text=True,

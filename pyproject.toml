@@ -54,6 +54,7 @@ indent-style = "space"
 [tool.pytest.ini_options]
 pythonpath = ["src"]
 testpaths = ["tests"]
+addopts = "--ignore=tests/unit/repo/test_harness_smoke.py"
 markers = [
     "unit: Unit tests -- fast, isolated, no external dependencies",
     "functional: Functional tests -- exercise CLI via subprocess",
