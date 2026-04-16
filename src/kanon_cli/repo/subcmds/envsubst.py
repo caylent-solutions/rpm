@@ -15,6 +15,7 @@
 import glob
 import logging
 import os
+import re
 from xml.dom import minidom
 from xml.dom.minidom import parseString
 from xml.parsers.expat import ExpatError
@@ -23,6 +24,35 @@ from ..command import Command
 from ..command import MirrorSafeCommand
 
 _LOG = logging.getLogger(__name__)
+
+# Regex that matches any ${VAR_NAME} pattern remaining after expandvars().
+# A match indicates that VAR_NAME was not defined in the environment.
+_UNRESOLVED_PATTERN = re.compile(r"\$\{([A-Za-z_][A-Za-z0-9_]*)\}")
+
+
+def _collect_unresolved_vars(doc):
+    """Return the set of variable names that remain unresolved in the document.
+
+    Scans all attribute values and text node values in the DOM for patterns
+    matching _UNRESOLVED_PATTERN and collects the variable names. A match
+    indicates expandvars() left the placeholder intact because the variable
+    was not defined in the environment.
+
+    Args:
+        doc: A minidom Document node after search_replace_placeholders() has run.
+
+    Returns:
+        A set of variable name strings (without the ${} delimiters).
+    """
+    unresolved = set()
+    for elem in doc.getElementsByTagName("*"):
+        for _key, value in elem.attributes.items():
+            for match in _UNRESOLVED_PATTERN.finditer(value):
+                unresolved.add(match.group(1))
+        if elem.firstChild and elem.firstChild.nodeType == elem.TEXT_NODE:
+            for match in _UNRESOLVED_PATTERN.finditer(elem.firstChild.nodeValue):
+                unresolved.add(match.group(1))
+    return unresolved
 
 
 class Envsubst(Command, MirrorSafeCommand):
@@ -53,20 +83,44 @@ variables with values.
             _LOG.warning("No files matched glob pattern: %s", self.path)
             return
 
+        all_unresolved = set()
         for file in files:
             print(file)
             if os.path.getsize(file) > 0:
-                self.EnvSubst(file)
+                unresolved = self.EnvSubst(file)
+                if unresolved:
+                    all_unresolved.update(unresolved)
+
+        if all_unresolved:
+            sorted_vars = sorted(all_unresolved)
+            print(f"Unresolved environment variables: {', '.join(sorted_vars)}")
 
     def EnvSubst(self, infile):
+        """Substitute environment variables in the given XML manifest file.
+
+        After substitution, scans the resulting document for any remaining
+        ${VAR} patterns and logs a WARNING for each unresolved variable name,
+        including the filename so the user can diagnose the missing variable.
+
+        Args:
+            infile: Path to the XML manifest file to process.
+
+        Returns:
+            A set of variable name strings that were left unresolved, or an
+            empty set if all variables were resolved (or parsing failed).
+        """
         try:
             doc = minidom.parse(infile)
         except ExpatError as exc:
             _LOG.error("Skipping %s: malformed XML -- %s", infile, exc)
-            return
+            return set()
         self.search_replace_placeholders(doc)
+        unresolved = _collect_unresolved_vars(doc)
+        for var_name in sorted(unresolved):
+            _LOG.warning("Unresolved variable ${%s} in %s", var_name, infile)
         os.rename(infile, infile + ".bak")
         self.save(infile, doc)
+        return unresolved
 
     def save(self, outfile, doc):
         """Save the modified XML document with comments and the XML header."""
