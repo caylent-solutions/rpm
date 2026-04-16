@@ -6,7 +6,7 @@ How to create a top-level manifest repository that orchestrates Kanon packages.
 
 A manifest repository is a Git repository that contains XML manifest files defining which packages to sync, from which repositories, at which versions. It acts as the central registry for an organization's automation packages.
 
-The Kanon CLI reads `.kanon` configurations that point to manifest files in these repositories. When `kanon install` runs, it uses the [repo tool](https://gerrit.googlesource.com/git-repo/) to clone and sync packages according to the manifest definitions.
+The Kanon CLI reads `.kanon` configurations that point to manifest files in these repositories. When `kanon install` runs, it uses the embedded repo tool to clone and sync packages according to the manifest definitions.
 
 ## Repository Structure
 
