@@ -21,6 +21,12 @@ repo_envsubst(repo_dir, env_vars)
     delegates to run_from_args() with ["envsubst"], and restores os.environ
     in a finally block (even on failure). Raises RepoCommandError on failure.
 
+repo_sync(repo_dir, *, groups, platform, jobs)
+    Clone and fetch all projects defined in the manifest. Delegates to
+    run_from_args() with ["sync", ...] arguments. Raises RepoCommandError if
+    .repo/ does not exist in repo_dir or if the underlying command fails.
+    Does not mutate sys.argv, os.environ, or signal handlers.
+
 RepoCommandError
     Exception raised when the underlying repo command exits with an error.
     Carries the integer exit_code from the original SystemExit.
@@ -110,4 +116,70 @@ def repo_envsubst(repo_dir: str, env_vars: dict[str, str]) -> None:
                 os.environ[k] = v
 
 
-__all__ = ["EMBEDDED", "RepoCommandError", "repo_envsubst", "run_from_args"]
+def repo_sync(
+    repo_dir: str,
+    *,
+    groups: list[str] | None = None,
+    platform: str | None = None,
+    jobs: int | None = None,
+) -> None:
+    """Clone and fetch all projects defined in the manifest.
+
+    Runs ``repo sync`` inside repo_dir to clone or fetch all projects listed
+    in the manifest. The manifest's group and platform constraints are resolved
+    based on the state stored by a prior ``repo init`` invocation.
+
+    Fails fast if repo_dir does not contain a .repo/ subdirectory -- this
+    indicates repo init has not been run in repo_dir and the sync command
+    cannot locate any manifest to process.
+
+    The function does not mutate sys.argv, os.environ, or signal handlers.
+    Any environment changes made by the underlying repo command are restored
+    in a finally block inside run_from_args(), so the calling process observes
+    no persistent state change regardless of whether the call succeeds or fails.
+
+    Args:
+        repo_dir: Path to the repository root directory that contains the
+            .repo/ subdirectory. Must be a directory in which ``repo init``
+            has already been run.
+        groups: Optional list of manifest group names to restrict which
+            projects are synced. These groups are recorded at ``repo init``
+            time and stored in the .repo/ directory; this parameter is
+            accepted for API completeness but sync itself uses the stored
+            group configuration.
+        platform: Optional platform filter (e.g., ``"linux"``, ``"darwin"``,
+            ``"all"``, ``"none"``) to restrict which projects are synced.
+            Accepted for API completeness; sync uses the stored platform
+            configuration from the prior ``repo init`` invocation.
+        jobs: Optional number of parallel jobs for network fetching and local
+            checkout. When None, the sync command uses the default derived
+            from the manifest's ``sync-j`` attribute or the CPU count.
+
+    Returns:
+        None on success (repo sync exits with code 0).
+
+    Raises:
+        RepoCommandError: When repo_dir does not contain a .repo/ subdirectory,
+            indicating that repo init has not been run in that directory.
+        RepoCommandError: When the underlying ``repo sync`` command exits with
+            a non-zero exit code. The exit_code attribute of the exception
+            carries the integer exit code from the underlying failure.
+    """
+    repo_dot_dir = os.path.join(repo_dir, ".repo")
+    if not os.path.isdir(repo_dot_dir):
+        raise RepoCommandError(
+            exit_code=1,
+            message=(
+                f"repo sync requires a repo checkout: {repo_dot_dir!r} does not exist. "
+                f"Run 'repo init' in {repo_dir!r} before calling repo_sync()."
+            ),
+        )
+
+    argv: list[str] = ["sync"]
+    if jobs is not None:
+        argv.append(f"--jobs={jobs}")
+
+    run_from_args(argv, repo_dir=repo_dot_dir)
+
+
+__all__ = ["EMBEDDED", "RepoCommandError", "repo_envsubst", "repo_sync", "run_from_args"]
