@@ -15,6 +15,12 @@ run_from_args(argv, *, repo_dir)
     during execution, but restores both in a finally block. See
     main.run_from_args for the full contract.
 
+repo_init(repo_dir, url, revision, manifest_path, repo_rev)
+    Initialize a repo client checkout in repo_dir. Temporarily changes the
+    working directory to repo_dir, delegates to run_from_args() with
+    ["--color=never", "init", ...] arguments, and restores the working
+    directory in a finally block. Raises RepoCommandError on failure.
+
 repo_envsubst(repo_dir, env_vars)
     Perform environment variable substitution in manifest XML files under
     <repo_dir>/.repo/manifests/. Temporarily injects env_vars into os.environ,
@@ -54,6 +60,68 @@ def __getattr__(name: str) -> object:
     if name == "EMBEDDED":
         return _pager_mod.EMBEDDED
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+
+
+def repo_init(
+    repo_dir: str,
+    url: str,
+    revision: str,
+    manifest_path: str,
+    repo_rev: str = "",
+) -> None:
+    """Initialize a repo client checkout in repo_dir.
+
+    Runs ``repo init`` inside repo_dir to configure the manifest URL,
+    branch, and manifest file path. Creates the .repo/ subdirectory in
+    repo_dir as a side effect of the underlying ``repo init`` command.
+
+    The function temporarily changes the working directory to repo_dir
+    before invoking run_from_args() and restores the original working
+    directory in a finally block so the calling process observes no
+    persistent directory change regardless of whether the call succeeds
+    or fails.
+
+    Args:
+        repo_dir: Path to the directory in which ``repo init`` should be
+            run. The .repo/ subdirectory will be created inside this directory.
+        url: Manifest repository URL (passed to ``repo init -u``).
+        revision: Branch or tag to use from the manifest repository
+            (passed to ``repo init -b``).
+        manifest_path: Relative path to the manifest XML file within the
+            manifest repository (passed to ``repo init -m``).
+        repo_rev: Optional repo tool version tag (passed to
+            ``repo init --repo-rev`` when non-empty).
+
+    Returns:
+        None on success (repo init exits with code 0).
+
+    Raises:
+        RepoCommandError: When the underlying ``repo init`` command exits
+            with a non-zero exit code. The exit_code attribute of the
+            exception carries the integer exit code from the underlying
+            failure.
+    """
+    repo_dot_dir = os.path.join(repo_dir, ".repo")
+    argv = [
+        "--color=never",
+        "init",
+        "--no-repo-verify",
+        "-u",
+        url,
+        "-b",
+        revision,
+        "-m",
+        manifest_path,
+    ]
+    if repo_rev:
+        argv.extend(["--repo-rev", repo_rev])
+
+    cwd_snapshot = os.getcwd()
+    try:
+        os.chdir(repo_dir)
+        run_from_args(argv, repo_dir=repo_dot_dir)
+    finally:
+        os.chdir(cwd_snapshot)
 
 
 def repo_envsubst(repo_dir: str, env_vars: dict[str, str]) -> None:
@@ -221,4 +289,4 @@ def repo_sync(
     run_from_args(argv, repo_dir=repo_dot_dir)
 
 
-__all__ = ["EMBEDDED", "RepoCommandError", "repo_envsubst", "repo_run", "repo_sync", "run_from_args"]
+__all__ = ["EMBEDDED", "RepoCommandError", "repo_envsubst", "repo_init", "repo_run", "repo_sync", "run_from_args"]
