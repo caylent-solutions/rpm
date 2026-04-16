@@ -6,9 +6,6 @@ scattered across source files.
 
 import re
 
-# -- Package identity --
-PYPI_REPO_TOOL_PACKAGE = "rpm-git-repo"
-
 # -- Marketplace validation --
 MARKETPLACE_DIR_PREFIX = "${CLAUDE_MARKETPLACES_DIR}/"
 MARKETPLACE_FILE_GLOB = "*-marketplace.xml"
