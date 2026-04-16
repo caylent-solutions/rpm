@@ -19,6 +19,7 @@ Contract under test:
 
 import os
 import pathlib
+import subprocess
 import sys
 from typing import NoReturn
 
@@ -33,11 +34,26 @@ from kanon_cli.repo import RepoCommandError
 # ---------------------------------------------------------------------------
 
 
+def _git(args: list[str], cwd: pathlib.Path) -> None:
+    """Run a git command in cwd, raising RuntimeError on non-zero exit."""
+    result = subprocess.run(
+        ["git"] + args,
+        cwd=str(cwd),
+        capture_output=True,
+        text=True,
+    )
+    if result.returncode != 0:
+        raise RuntimeError(f"git {args!r} failed in {cwd!r}:\n  stdout: {result.stdout!r}\n  stderr: {result.stderr!r}")
+
+
 def _make_repo_dir(tmp_path: pathlib.Path) -> str:
     """Create a minimal .repo directory and return the .repo path as a string.
 
     The returned path is the .repo subdirectory, matching the convention
     used by run_from_args() which expects repo_dir to be the .repo path.
+
+    Also creates .repo/repo/ as a minimal git repository with one tagged
+    commit, which is required by the 'version' subcommand to run git describe.
     """
     repo_dot_dir = tmp_path / ".repo"
     manifests_dir = repo_dot_dir / "manifests"
@@ -55,6 +71,18 @@ def _make_repo_dir(tmp_path: pathlib.Path) -> str:
 
     manifest_link = repo_dot_dir / "manifest.xml"
     manifest_link.symlink_to(manifest_path)
+
+    # The 'version' subcommand calls git describe HEAD inside .repo/repo/,
+    # so .repo/repo/ must be a git repository with at least one tagged commit.
+    repo_tool_dir = repo_dot_dir / "repo"
+    repo_tool_dir.mkdir(parents=True, exist_ok=True)
+    _git(["init", "-b", "main"], cwd=repo_tool_dir)
+    _git(["config", "user.email", "test@example.com"], cwd=repo_tool_dir)
+    _git(["config", "user.name", "Test"], cwd=repo_tool_dir)
+    (repo_tool_dir / "VERSION").write_text("1.0.0\n", encoding="utf-8")
+    _git(["add", "VERSION"], cwd=repo_tool_dir)
+    _git(["commit", "-m", "Initial commit"], cwd=repo_tool_dir)
+    _git(["tag", "-a", "v1.0.0", "-m", "Version 1.0.0"], cwd=repo_tool_dir)
 
     return str(repo_dot_dir)
 

@@ -21,6 +21,12 @@ repo_envsubst(repo_dir, env_vars)
     delegates to run_from_args() with ["envsubst"], and restores os.environ
     in a finally block (even on failure). Raises RepoCommandError on failure.
 
+repo_run(argv, *, repo_dir)
+    General-purpose dispatcher that accepts an arbitrary argv list and passes
+    it to run_from_args(). Returns the exit code (0 for success). Raises
+    RepoCommandError on failure or invalid subcommands. Does not mutate
+    sys.argv, os.environ, or signal handlers.
+
 repo_sync(repo_dir, *, groups, platform, jobs)
     Clone and fetch all projects defined in the manifest. Delegates to
     run_from_args() with ["sync", ...] arguments. Raises RepoCommandError if
@@ -116,6 +122,39 @@ def repo_envsubst(repo_dir: str, env_vars: dict[str, str]) -> None:
                 os.environ[k] = v
 
 
+def repo_run(argv: list[str], *, repo_dir: str) -> int:
+    """Dispatch an arbitrary repo subcommand from Python code.
+
+    A general-purpose dispatcher that accepts an arbitrary argv list and
+    passes it directly to run_from_args(). Returns the integer exit code
+    from the subcommand. Raises RepoCommandError when the subcommand fails
+    or the argv names an invalid subcommand.
+
+    The function does not mutate sys.argv, os.environ, or signal handlers.
+    run_from_args() intercepts os.execv and restores os.environ in a finally
+    block, so the calling process observes no persistent state change
+    regardless of whether the call succeeds or fails.
+
+    Args:
+        argv: The repo subcommand and its arguments (e.g., ["version"] or
+            ["sync", "--jobs=4"]). Must not include "repo" itself as the
+            leading element.
+        repo_dir: Path to the .repo directory for this invocation. Passed
+            directly to run_from_args(), which uses it to locate the manifest
+            without scanning the filesystem.
+
+    Returns:
+        0 when the repo command exits with code 0 (success).
+
+    Raises:
+        RepoCommandError: When the repo command exits with a non-zero exit
+            code or names an invalid subcommand. The exit_code attribute
+            contains the integer code from the underlying failure.
+    """
+    run_from_args(argv, repo_dir=repo_dir)
+    return 0
+
+
 def repo_sync(
     repo_dir: str,
     *,
@@ -182,4 +221,4 @@ def repo_sync(
     run_from_args(argv, repo_dir=repo_dot_dir)
 
 
-__all__ = ["EMBEDDED", "RepoCommandError", "repo_envsubst", "repo_sync", "run_from_args"]
+__all__ = ["EMBEDDED", "RepoCommandError", "repo_envsubst", "repo_run", "repo_sync", "run_from_args"]
