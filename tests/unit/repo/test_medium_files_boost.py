@@ -33,12 +33,12 @@ from unittest import mock
 
 import pytest
 
-import command
-import git_command
-import git_trace2_event_log_base
-import hooks
-import ssh
-from error import HookError
+from kanon_cli.repo import command
+from kanon_cli.repo import git_command
+from kanon_cli.repo import git_trace2_event_log_base
+from kanon_cli.repo import hooks
+from kanon_cli.repo import ssh
+from kanon_cli.repo.error import HookError
 
 
 # Helper for picklable function (used in multiprocessing tests)
@@ -63,7 +63,7 @@ class TestGitCallVersionTupleNone(unittest.TestCase):
             # Wrapper() returns a module; patch ParseGitVersion on that module
             mock_module = mock.MagicMock()
             mock_module.ParseGitVersion.return_value = None
-            with mock.patch("git_command.Wrapper", return_value=mock_module):
+            with mock.patch("kanon_cli.repo.git_command.Wrapper", return_value=mock_module):
                 with self.assertRaises(git_command.GitRequireError) as ctx:
                     call.version_tuple()
                 self.assertIn("unable to detect git version", str(ctx.exception))
@@ -113,7 +113,7 @@ class TestGetEventTargetPathEdgeCases(unittest.TestCase):
     def test_returns_none_when_empty_path(self):
         """GetEventTargetPath should return None when git config returns empty string."""
         git_command.GetEventTargetPath.cache_clear()
-        with mock.patch("git_command.GitCommand") as mock_cmd:
+        with mock.patch("kanon_cli.repo.git_command.GitCommand") as mock_cmd:
             instance = mock.MagicMock()
             instance.Wait.return_value = 0
             instance.stdout = "\n"
@@ -125,12 +125,12 @@ class TestGetEventTargetPathEdgeCases(unittest.TestCase):
     def test_logs_error_on_unexpected_return_code(self):
         """GetEventTargetPath should log error when git config returns unexpected exit code."""
         git_command.GetEventTargetPath.cache_clear()
-        with mock.patch("git_command.GitCommand") as mock_cmd:
+        with mock.patch("kanon_cli.repo.git_command.GitCommand") as mock_cmd:
             instance = mock.MagicMock()
             instance.Wait.return_value = 2
             instance.stderr = "fatal error"
             mock_cmd.return_value = instance
-            with mock.patch("git_command.logger") as mock_logger:
+            with mock.patch("kanon_cli.repo.git_command.logger") as mock_logger:
                 result = git_command.GetEventTargetPath()
                 mock_logger.error.assert_called_once()
         self.assertIsNone(result)
@@ -148,7 +148,7 @@ class TestUserAgentRepo(unittest.TestCase):
         mock_version.full = "2.40.0"
 
         with mock.patch.object(git_command.git, "version_tuple", return_value=mock_version):
-            with mock.patch("git_command.RepoSourceVersion", return_value="2.5"):
+            with mock.patch("kanon_cli.repo.git_command.RepoSourceVersion", return_value="2.5"):
                 result = ua.repo
         self.assertIn("git-repo/2.5", result)
         self.assertIn("git/2.40.0", result)
@@ -369,7 +369,7 @@ class TestGitCommandWithProject(unittest.TestCase):
 
         with mock.patch("subprocess.Popen", return_value=mock_process):
             with mock.patch.object(git_command.user_agent, "_git_ua", "test-ua"):
-                with mock.patch("platform_utils.isWindows", return_value=True):
+                with mock.patch("kanon_cli.repo.platform_utils.isWindows", return_value=True):
                     with mock.patch.object(os.path, "realpath", side_effect=lambda x: x):
                         cmd = git_command.GitCommand(
                             project,
@@ -456,7 +456,7 @@ class TestGitCommandIsTraceDebug(unittest.TestCase):
         git_command.LAST_GITDIR = None
         git_command.LAST_CWD = None
 
-        with mock.patch("git_command.IsTrace", return_value=True):
+        with mock.patch("kanon_cli.repo.git_command.IsTrace", return_value=True):
             git_command.GitCommand(
                 None,
                 ["status"],
@@ -471,7 +471,7 @@ class TestGitCommandIsTraceDebug(unittest.TestCase):
         git_command.LAST_GITDIR = "/old/gitdir"
         git_command.LAST_CWD = "/old/cwd"
 
-        with mock.patch("git_command.IsTrace", return_value=True):
+        with mock.patch("kanon_cli.repo.git_command.IsTrace", return_value=True):
             with mock.patch.object(os.path, "realpath", side_effect=lambda x: x):
                 git_command.GitCommand(
                     None,
@@ -488,7 +488,7 @@ class TestGitCommandIsTraceDebug(unittest.TestCase):
         git_command.LAST_GITDIR = None
         git_command.LAST_CWD = None
 
-        with mock.patch("git_command.IsTrace", return_value=True):
+        with mock.patch("kanon_cli.repo.git_command.IsTrace", return_value=True):
             git_command.GitCommand(
                 None,
                 ["status"],
@@ -501,7 +501,7 @@ class TestGitCommandIsTraceDebug(unittest.TestCase):
         git_command.LAST_GITDIR = None
         git_command.LAST_CWD = None
 
-        with mock.patch("git_command.IsTrace", return_value=True):
+        with mock.patch("kanon_cli.repo.git_command.IsTrace", return_value=True):
             git_command.GitCommand(
                 None,
                 ["status"],
@@ -584,7 +584,7 @@ class TestProxyManagerOpenUnlocked(unittest.TestCase):
         with multiprocessing.Manager() as manager:
             proxy = ssh.ProxyManager(manager)
             with mock.patch("tempfile.mkdtemp", return_value="/tmp/ssh-test"):
-                with mock.patch("ssh.version", return_value=(7, 0)):
+                with mock.patch("kanon_cli.repo.ssh.version", return_value=(7, 0)):
                     proxy.sock()
             with mock.patch.dict(os.environ, {"GIT_SSH": "/usr/bin/ssh"}):
                 result = proxy._open_unlocked("host.com")
@@ -595,7 +595,7 @@ class TestProxyManagerOpenUnlocked(unittest.TestCase):
         with multiprocessing.Manager() as manager:
             proxy = ssh.ProxyManager(manager)
             with mock.patch("tempfile.mkdtemp", return_value="/tmp/ssh-test"):
-                with mock.patch("ssh.version", return_value=(7, 0)):
+                with mock.patch("kanon_cli.repo.ssh.version", return_value=(7, 0)):
                     proxy.sock()
 
             mock_check = mock.MagicMock()
@@ -612,7 +612,7 @@ class TestProxyManagerOpenUnlocked(unittest.TestCase):
         with multiprocessing.Manager() as manager:
             proxy = ssh.ProxyManager(manager)
             with mock.patch("tempfile.mkdtemp", return_value="/tmp/ssh-test"):
-                with mock.patch("ssh.version", return_value=(7, 0)):
+                with mock.patch("kanon_cli.repo.ssh.version", return_value=(7, 0)):
                     proxy.sock()
 
             mock_check = mock.MagicMock()
@@ -632,7 +632,7 @@ class TestProxyManagerOpenUnlocked(unittest.TestCase):
                 return mock_master
 
             with mock.patch("subprocess.Popen", side_effect=popen_side_effect):
-                with mock.patch("ssh._get_git_protocol_version", return_value="2"):
+                with mock.patch("kanon_cli.repo.ssh._get_git_protocol_version", return_value="2"):
                     with mock.patch("time.sleep"):
                         result = proxy._open_unlocked("newhost.com")
             self.assertTrue(result)
@@ -642,7 +642,7 @@ class TestProxyManagerOpenUnlocked(unittest.TestCase):
         with multiprocessing.Manager() as manager:
             proxy = ssh.ProxyManager(manager)
             with mock.patch("tempfile.mkdtemp", return_value="/tmp/ssh-test"):
-                with mock.patch("ssh.version", return_value=(7, 0)):
+                with mock.patch("kanon_cli.repo.ssh.version", return_value=(7, 0)):
                     proxy.sock()
 
             mock_check = mock.MagicMock()
@@ -661,7 +661,7 @@ class TestProxyManagerOpenUnlocked(unittest.TestCase):
                 return mock_master
 
             with mock.patch("subprocess.Popen", side_effect=popen_side_effect):
-                with mock.patch("ssh._get_git_protocol_version", return_value="2"):
+                with mock.patch("kanon_cli.repo.ssh._get_git_protocol_version", return_value="2"):
                     with mock.patch("time.sleep"):
                         result = proxy._open_unlocked("newhost.com")
             self.assertFalse(result)
@@ -671,7 +671,7 @@ class TestProxyManagerOpenUnlocked(unittest.TestCase):
         with multiprocessing.Manager() as manager:
             proxy = ssh.ProxyManager(manager)
             with mock.patch("tempfile.mkdtemp", return_value="/tmp/ssh-test"):
-                with mock.patch("ssh.version", return_value=(7, 0)):
+                with mock.patch("kanon_cli.repo.ssh.version", return_value=(7, 0)):
                     proxy.sock()
 
             mock_check = mock.MagicMock()
@@ -687,7 +687,7 @@ class TestProxyManagerOpenUnlocked(unittest.TestCase):
                 raise OSError("Connection refused")
 
             with mock.patch("subprocess.Popen", side_effect=popen_side_effect):
-                with mock.patch("ssh._get_git_protocol_version", return_value="2"):
+                with mock.patch("kanon_cli.repo.ssh._get_git_protocol_version", return_value="2"):
                     result = proxy._open_unlocked("newhost.com")
             self.assertFalse(result)
             self.assertTrue(proxy._master_broken.value)
@@ -697,7 +697,7 @@ class TestProxyManagerOpenUnlocked(unittest.TestCase):
         with multiprocessing.Manager() as manager:
             proxy = ssh.ProxyManager(manager)
             with mock.patch("tempfile.mkdtemp", return_value="/tmp/ssh-test"):
-                with mock.patch("ssh.version", return_value=(7, 0)):
+                with mock.patch("kanon_cli.repo.ssh.version", return_value=(7, 0)):
                     proxy.sock()
 
             mock_check = mock.MagicMock()
@@ -717,7 +717,7 @@ class TestProxyManagerOpenUnlocked(unittest.TestCase):
         with multiprocessing.Manager() as manager:
             proxy = ssh.ProxyManager(manager)
             with mock.patch("tempfile.mkdtemp", return_value="/tmp/ssh-test"):
-                with mock.patch("ssh.version", return_value=(7, 0)):
+                with mock.patch("kanon_cli.repo.ssh.version", return_value=(7, 0)):
                     proxy.sock()
 
             mock_master = mock.MagicMock()
@@ -733,7 +733,7 @@ class TestProxyManagerOpenUnlocked(unittest.TestCase):
                 return mock_master
 
             with mock.patch("subprocess.Popen", side_effect=popen_side_effect):
-                with mock.patch("ssh._get_git_protocol_version", return_value="2"):
+                with mock.patch("kanon_cli.repo.ssh._get_git_protocol_version", return_value="2"):
                     with mock.patch("time.sleep"):
                         result = proxy._open_unlocked("host.com")
             self.assertTrue(result)
@@ -765,7 +765,7 @@ class TestSshSockPath(unittest.TestCase):
             with mock.patch("os.path.exists", return_value=False):
                 with mock.patch("tempfile.gettempdir", return_value="/var/tmp"):
                     with mock.patch("tempfile.mkdtemp", return_value="/var/tmp/ssh-test"):
-                        with mock.patch("ssh.version", return_value=(7, 0)):
+                        with mock.patch("kanon_cli.repo.ssh.version", return_value=(7, 0)):
                             path = proxy.sock()
             self.assertIn("/var/tmp/ssh-test", path)
 
@@ -1009,7 +1009,7 @@ class TestGcDeleteUnusedProjects(unittest.TestCase):
     """Cover gc.py delete_unused_projects method."""
 
     def _make_gc(self):
-        from subcmds.gc import Gc
+        from kanon_cli.repo.subcmds.gc import Gc
 
         gc = Gc.__new__(Gc)
         gc.repodir = "/fake/repodir"
@@ -1022,7 +1022,7 @@ class TestGcDeleteUnusedProjects(unittest.TestCase):
         project.gitdir = "/fake/repodir/projects/proj.git"
         project.objdir = "/fake/repodir/project-objects/proj.git"
 
-        with mock.patch("platform_utils.walk", return_value=[]):
+        with mock.patch("kanon_cli.repo.platform_utils.walk", return_value=[]):
             result = gc.delete_unused_projects([project], mock.MagicMock())
         self.assertEqual(result, 0)
 
@@ -1039,7 +1039,7 @@ class TestGcDeleteUnusedProjects(unittest.TestCase):
         opt = mock.MagicMock()
         opt.yes = False
 
-        with mock.patch("platform_utils.walk", return_value=walk_result):
+        with mock.patch("kanon_cli.repo.platform_utils.walk", return_value=walk_result):
             with mock.patch("builtins.input", return_value="n"):
                 result = gc.delete_unused_projects([project], opt)
         self.assertEqual(result, 1)
@@ -1059,9 +1059,9 @@ class TestGcDeleteUnusedProjects(unittest.TestCase):
         opt.quiet = False
         opt.dryrun = False
 
-        with mock.patch("platform_utils.walk", return_value=walk_result):
-            with mock.patch("platform_utils.rename"):
-                with mock.patch("platform_utils.rmtree"):
+        with mock.patch("kanon_cli.repo.platform_utils.walk", return_value=walk_result):
+            with mock.patch("kanon_cli.repo.platform_utils.rename"):
+                with mock.patch("kanon_cli.repo.platform_utils.rmtree"):
                     result = gc.delete_unused_projects([project], opt)
         self.assertEqual(result, 0)
 
@@ -1080,8 +1080,8 @@ class TestGcDeleteUnusedProjects(unittest.TestCase):
         opt.quiet = False
         opt.dryrun = True
 
-        with mock.patch("platform_utils.walk", return_value=walk_result):
-            with mock.patch("platform_utils.rename") as mock_rename:
+        with mock.patch("kanon_cli.repo.platform_utils.walk", return_value=walk_result):
+            with mock.patch("kanon_cli.repo.platform_utils.rename") as mock_rename:
                 result = gc.delete_unused_projects([project], opt)
         mock_rename.assert_not_called()
         self.assertEqual(result, 0)
@@ -1092,7 +1092,7 @@ class TestGcRepackProjects(unittest.TestCase):
     """Cover gc.py lines 169-280: repack_projects method."""
 
     def _make_gc(self):
-        from subcmds.gc import Gc
+        from kanon_cli.repo.subcmds.gc import Gc
 
         gc = Gc.__new__(Gc)
         gc.repodir = "/fake/repodir"
@@ -1135,11 +1135,11 @@ class TestGcRepackProjects(unittest.TestCase):
 
         with mock.patch("os.path.isdir", return_value=False):
             with mock.patch("os.mkdir"):
-                with mock.patch("platform_utils.rmtree"):
-                    with mock.patch("platform_utils.rename"):
-                        with mock.patch("platform_utils.walk", return_value=[]):
+                with mock.patch("kanon_cli.repo.platform_utils.rmtree"):
+                    with mock.patch("kanon_cli.repo.platform_utils.rename"):
+                        with mock.patch("kanon_cli.repo.platform_utils.walk", return_value=[]):
                             with mock.patch(
-                                "subcmds.gc.GitCommand",
+                                "kanon_cli.repo.subcmds.gc.GitCommand",
                                 return_value=mock_git_instance,
                             ):
                                 result = gc.repack_projects([project], opt)
@@ -1191,7 +1191,7 @@ class TestGcExecute(unittest.TestCase):
 
     def test_execute_calls_delete_and_repack(self):
         """Execute should call both delete_unused_projects and repack_projects."""
-        from subcmds.gc import Gc
+        from kanon_cli.repo.subcmds.gc import Gc
 
         gc = Gc.__new__(Gc)
         gc.repodir = "/fake/repodir"
@@ -1210,7 +1210,7 @@ class TestGcExecute(unittest.TestCase):
 
     def test_execute_no_repack(self):
         """Execute should skip repack when opt.repack is False."""
-        from subcmds.gc import Gc
+        from kanon_cli.repo.subcmds.gc import Gc
 
         gc = Gc.__new__(Gc)
         gc.repodir = "/fake/repodir"
@@ -1226,7 +1226,7 @@ class TestGcExecute(unittest.TestCase):
 
     def test_execute_returns_early_on_delete_error(self):
         """Execute should return early when delete_unused_projects returns non-zero."""
-        from subcmds.gc import Gc
+        from kanon_cli.repo.subcmds.gc import Gc
 
         gc = Gc.__new__(Gc)
         gc.repodir = "/fake/repodir"
@@ -1249,7 +1249,7 @@ class TestGcGeneratePromisorFiles(unittest.TestCase):
 
     def test_generate_promisor_files(self):
         """_generate_promisor_files should create .promisor files for .pack files."""
-        from subcmds.gc import Gc
+        from kanon_cli.repo.subcmds.gc import Gc
 
         gc = Gc.__new__(Gc)
 
@@ -1290,7 +1290,7 @@ class TestBaseEventLogUnicodeEncode(unittest.TestCase):
         with (
             mock.patch.dict.__class__.__setitem__
             if False
-            else mock.patch("git_trace2_event_log_base.BaseEventLog.__init__")
+            else mock.patch("kanon_cli.repo.git_trace2_event_log_base.BaseEventLog.__init__")
         ):
             # Test the actual code path by manually invoking with mock
             pass
@@ -1442,7 +1442,7 @@ class TestCommandExecuteInParallelWithProgress(unittest.TestCase):
 
     def test_progress_end_called_on_exception(self):
         """Progress.end should be called even when callback raises."""
-        import progress as progress_mod
+        from kanon_cli.repo import progress as progress_mod
 
         def test_func(x):
             return x
@@ -1506,7 +1506,7 @@ class TestCommandGetProjectsByPathDerived(unittest.TestCase):
 
     def test_get_projects_invalid_groups_error(self):
         """GetProjects should raise InvalidProjectGroupsError when groups don't match."""
-        from error import InvalidProjectGroupsError
+        from kanon_cli.repo.error import InvalidProjectGroupsError
 
         cmd = command.Command()
         mock_manifest = mock.MagicMock()
@@ -1553,7 +1553,7 @@ class TestGitCommandRepackWithExistingPackDir(unittest.TestCase):
 
     def test_repack_removes_existing_pack_dir(self):
         """repack_projects should remove existing tmp_repo_repack dir."""
-        from subcmds.gc import Gc
+        from kanon_cli.repo.subcmds.gc import Gc
 
         gc = Gc.__new__(Gc)
         gc.repodir = "/fake/repodir"
@@ -1576,12 +1576,12 @@ class TestGitCommandRepackWithExistingPackDir(unittest.TestCase):
         mock_git_instance.stdout = "objects\n"
 
         with mock.patch("os.path.isdir", return_value=True):
-            with mock.patch("platform_utils.rmtree") as mock_rmtree:
+            with mock.patch("kanon_cli.repo.platform_utils.rmtree") as mock_rmtree:
                 with mock.patch("os.mkdir"):
-                    with mock.patch("platform_utils.rename"):
-                        with mock.patch("platform_utils.walk", return_value=[]):
+                    with mock.patch("kanon_cli.repo.platform_utils.rename"):
+                        with mock.patch("kanon_cli.repo.platform_utils.walk", return_value=[]):
                             with mock.patch(
-                                "subcmds.gc.GitCommand",
+                                "kanon_cli.repo.subcmds.gc.GitCommand",
                                 return_value=mock_git_instance,
                             ):
                                 result = gc.repack_projects([project], opt)

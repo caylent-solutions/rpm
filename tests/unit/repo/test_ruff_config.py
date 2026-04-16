@@ -43,7 +43,7 @@ def test_ruff_catches_known_bad_python(repo_root):
     When: ruff check is run against it
     Then: ruff reports errors and exits non-zero
     """
-    bad_file = os.path.join(repo_root, "tests", "fixtures", "linter-test-bad.py")
+    bad_file = os.path.join(repo_root, "tests", "fixtures", "repo", "linter-test-bad.py")
     assert os.path.isfile(bad_file), f"Known-bad fixture must exist: {bad_file}"
     result = subprocess.run(
         ["ruff", "check", bad_file],

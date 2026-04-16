@@ -18,7 +18,7 @@ from unittest import mock
 
 import pytest
 
-from subcmds.branches import Branches, BranchColoring, BranchInfo
+from kanon_cli.repo.subcmds.branches import Branches, BranchColoring, BranchInfo
 
 
 def _make_cmd():

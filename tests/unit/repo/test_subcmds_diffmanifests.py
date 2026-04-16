@@ -16,7 +16,7 @@
 
 import pytest
 
-from subcmds import diffmanifests
+from kanon_cli.repo.subcmds import diffmanifests
 
 
 @pytest.mark.unit

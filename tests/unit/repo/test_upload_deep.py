@@ -18,13 +18,13 @@ from unittest import mock
 
 import pytest
 
-from error import GitError
-from error import UploadError
-from subcmds.upload import _die
-from subcmds.upload import _SplitEmails
-from subcmds.upload import _VerifyPendingCommits
-from subcmds.upload import Upload
-from subcmds.upload import UploadExitError
+from kanon_cli.repo.error import GitError
+from kanon_cli.repo.error import UploadError
+from kanon_cli.repo.subcmds.upload import _die
+from kanon_cli.repo.subcmds.upload import _SplitEmails
+from kanon_cli.repo.subcmds.upload import _VerifyPendingCommits
+from kanon_cli.repo.subcmds.upload import Upload
+from kanon_cli.repo.subcmds.upload import UploadExitError
 
 
 @pytest.mark.unit
@@ -759,7 +759,7 @@ class TestUploadGetMergeBranch:
         upload = Upload()
         project = mock.Mock()
 
-        with mock.patch("subcmds.upload.GitCommand") as mock_git:
+        with mock.patch("kanon_cli.repo.subcmds.upload.GitCommand") as mock_git:
             mock_process = mock.Mock()
             mock_process.stdout = "refs/heads/main"
             mock_process.Wait.return_value = 0
@@ -773,7 +773,7 @@ class TestUploadGetMergeBranch:
         upload = Upload()
         project = mock.Mock()
 
-        with mock.patch("subcmds.upload.GitCommand") as mock_git:
+        with mock.patch("kanon_cli.repo.subcmds.upload.GitCommand") as mock_git:
             mock_head_process = mock.Mock()
             mock_head_process.stdout = "current-branch"
             mock_head_process.Wait.return_value = 0
@@ -806,7 +806,7 @@ class TestUploadMultipleBranches:
         branch.date = "2024-01-01"
         branch.commits = ["c1"]
 
-        with mock.patch("subcmds.upload.Editor") as mock_editor:
+        with mock.patch("kanon_cli.repo.subcmds.upload.Editor") as mock_editor:
             mock_editor.EditString.return_value = "# No branches uncommented"
             with pytest.raises(UploadExitError, match="nothing uncommented"):
                 upload._MultipleBranches(opt, [(project, [branch])], ([], []))
@@ -825,7 +825,7 @@ class TestUploadMultipleBranches:
         branch.date = "2024-01-01"
         branch.commits = ["c1"]
 
-        with mock.patch("subcmds.upload.Editor") as mock_editor:
+        with mock.patch("kanon_cli.repo.subcmds.upload.Editor") as mock_editor:
             mock_editor.EditString.return_value = "project invalid-project/:"
             with pytest.raises(UploadExitError, match="not available"):
                 upload._MultipleBranches(opt, [(project, [branch])], ([], []))

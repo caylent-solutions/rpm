@@ -18,7 +18,7 @@ from unittest import mock
 
 import pytest
 
-from subcmds.start import Start, StartError, ExecuteOneResult
+from kanon_cli.repo.subcmds.start import Start, StartError, ExecuteOneResult
 
 
 def _make_cmd():
@@ -53,7 +53,7 @@ class TestStartCommand:
             mock_project.StartBranch.assert_called_once()
 
     @pytest.mark.unit
-    @mock.patch("subcmds.start.IsImmutable")
+    @mock.patch("kanon_cli.repo.subcmds.start.IsImmutable")
     def test_execute_one_immutable_revision_with_dest_branch(self, mock_is_immutable):
         """Test _ExecuteOne with immutable revision and dest_branch."""
         mock_project = mock.MagicMock()
@@ -72,7 +72,7 @@ class TestStartCommand:
             assert result.error is None
 
     @pytest.mark.unit
-    @mock.patch("subcmds.start.IsImmutable")
+    @mock.patch("kanon_cli.repo.subcmds.start.IsImmutable")
     def test_execute_one_immutable_revision_without_dest_branch(self, mock_is_immutable):
         """Test _ExecuteOne with immutable revision without dest_branch."""
         mock_project = mock.MagicMock()

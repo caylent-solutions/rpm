@@ -18,7 +18,7 @@ import optparse
 
 import pytest
 
-from subcmds import cherry_pick
+from kanon_cli.repo.subcmds import cherry_pick
 
 
 @pytest.mark.unit

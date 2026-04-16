@@ -21,9 +21,9 @@ import xml.dom.minidom
 
 import pytest
 
-import error
-import manifest_xml
-from manifest_xml import XmlBool, XmlInt, normalize_url
+from kanon_cli.repo import error
+from kanon_cli.repo import manifest_xml
+from kanon_cli.repo.manifest_xml import XmlBool, XmlInt, normalize_url
 
 
 def _load_manifest(tmp_path, xml_content):
@@ -822,7 +822,7 @@ class TestOverride(unittest.TestCase):
 
             # Override should work
             with mock.patch("os.path.isfile", return_value=True):
-                with mock.patch("manifest_xml.XmlManifest._Load"):
+                with mock.patch("kanon_cli.repo.manifest_xml.XmlManifest._Load"):
                     manifest.Override("other.xml")
 
 
@@ -855,7 +855,7 @@ class TestLink(unittest.TestCase):
 """)
 
             with mock.patch("os.path.isfile", return_value=True):
-                with mock.patch("manifest_xml.XmlManifest._Load"):
+                with mock.patch("kanon_cli.repo.manifest_xml.XmlManifest._Load"):
                     manifest.Link("other.xml")
 
             # Check that manifest file was created

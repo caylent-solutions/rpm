@@ -18,7 +18,7 @@ from unittest import mock
 
 import pytest
 
-from subcmds.stage import Stage, _AddI, _ProjectList
+from kanon_cli.repo.subcmds.stage import Stage, _AddI, _ProjectList
 
 
 def _make_cmd():
@@ -101,7 +101,7 @@ def test_interactive_no_dirty_projects():
 
     cmd.GetProjects.return_value = [clean_project]
 
-    with mock.patch("repo_logging.RepoLogger"):
+    with mock.patch("kanon_cli.repo.repo_logging.RepoLogger"):
         cmd.Execute(opt, [])
 
 
@@ -237,7 +237,7 @@ def test_interactive_select_by_index():
 
     with mock.patch("sys.stdin.readline", side_effect=["1\n", "q\n"]):
         with mock.patch("builtins.print"):
-            with mock.patch("subcmds.stage._AddI") as mock_add:
+            with mock.patch("kanon_cli.repo.subcmds.stage._AddI") as mock_add:
                 cmd.Execute(opt, [])
                 mock_add.assert_called_once_with(dirty_project)
 
@@ -278,7 +278,7 @@ def test_interactive_select_by_name():
 
     with mock.patch("sys.stdin.readline", side_effect=["myproject\n", "q\n"]):
         with mock.patch("builtins.print"):
-            with mock.patch("subcmds.stage._AddI") as mock_add:
+            with mock.patch("kanon_cli.repo.subcmds.stage._AddI") as mock_add:
                 cmd.Execute(opt, [])
                 mock_add.assert_called_once_with(dirty_project)
 
@@ -328,7 +328,7 @@ def test_addi():
     project = mock.MagicMock()
     project.name = "test_project"
 
-    with mock.patch("subcmds.stage.GitCommand") as mock_git:
+    with mock.patch("kanon_cli.repo.subcmds.stage.GitCommand") as mock_git:
         mock_cmd = mock.MagicMock()
         mock_git.return_value = mock_cmd
 

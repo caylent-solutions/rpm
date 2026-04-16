@@ -19,12 +19,12 @@ from unittest import mock
 
 import pytest
 
-import project
-from error import GitError
-from error import ManifestInvalidPathError
-from error import ManifestInvalidRevisionError
-from error import NoManifestException
-from project import LocalSyncFail
+from kanon_cli.repo import project
+from kanon_cli.repo.error import GitError
+from kanon_cli.repo.error import ManifestInvalidPathError
+from kanon_cli.repo.error import ManifestInvalidRevisionError
+from kanon_cli.repo.error import NoManifestException
+from kanon_cli.repo.project import LocalSyncFail
 
 
 @pytest.mark.unit
@@ -56,7 +56,7 @@ class TestLwrite:
         target = tmp_path / "test.txt"
         lock_file = tmp_path / "test.txt.lock"
 
-        with mock.patch("platform_utils.rename") as mock_rename:
+        with mock.patch("kanon_cli.repo.platform_utils.rename") as mock_rename:
             mock_rename.side_effect = OSError("Simulated error")
 
             with pytest.raises(OSError):
@@ -511,7 +511,7 @@ class TestProjectInit:
         manifest.is_multimanifest = True
         manifest.globalConfig = mock.MagicMock()
 
-        with mock.patch("project.Project._LoadUserIdentity"):
+        with mock.patch("kanon_cli.repo.project.Project._LoadUserIdentity"):
             proj = project.Project(
                 manifest=manifest,
                 name="test/project",
@@ -534,7 +534,7 @@ class TestProjectInit:
         manifest.is_multimanifest = False
         manifest.globalConfig = mock.MagicMock()
 
-        with mock.patch("project.Project._LoadUserIdentity"):
+        with mock.patch("kanon_cli.repo.project.Project._LoadUserIdentity"):
             with mock.patch.dict(os.environ, {"REPO_USE_ALTERNATES": "0"}):
                 proj = project.Project(
                     manifest=manifest,
@@ -577,7 +577,7 @@ class TestProjectMethods:
         }
         defaults.update(kwargs)
 
-        with mock.patch("project.Project._LoadUserIdentity"):
+        with mock.patch("kanon_cli.repo.project.Project._LoadUserIdentity"):
             proj = project.Project(**defaults)
         return proj
 
@@ -598,7 +598,7 @@ class TestProjectMethods:
         """Test SetRevision with an ID."""
         proj = self._make_project()
 
-        with mock.patch("project.IsId", return_value=True):
+        with mock.patch("kanon_cli.repo.project.IsId", return_value=True):
             proj.SetRevision("abcdef1234567890")
             assert proj.revisionId == "abcdef1234567890"
 
@@ -606,7 +606,7 @@ class TestProjectMethods:
         """Test SetRevision with a branch name."""
         proj = self._make_project()
 
-        with mock.patch("project.IsId", return_value=False):
+        with mock.patch("kanon_cli.repo.project.IsId", return_value=False):
             proj.SetRevision("feature-branch", revisionId="sha123")
 
         assert proj.revisionExpr == "feature-branch"
@@ -682,7 +682,7 @@ class TestProjectMethods:
         """Test PrintWorkTreeStatus when worktree is missing."""
         proj = self._make_project()
 
-        with mock.patch("platform_utils.isdir", return_value=False):
+        with mock.patch("kanon_cli.repo.platform_utils.isdir", return_value=False):
             proj.PrintWorkTreeStatus()
 
         captured = capsys.readouterr()
@@ -698,7 +698,7 @@ class TestProjectMethods:
         proj.work_git.GetHead = mock.MagicMock(return_value="1234567890abcdef")
         proj.IsRebaseInProgress = mock.MagicMock(return_value=False)
 
-        with mock.patch("platform_utils.isdir", return_value=True):
+        with mock.patch("kanon_cli.repo.platform_utils.isdir", return_value=True):
             result = proj.PrintWorkTreeStatus()
 
         assert result == "CLEAN"
@@ -712,7 +712,7 @@ class TestProjectMethods:
         proj.work_git.GetHead = mock.MagicMock(return_value="refs/heads/main")
         proj.IsRebaseInProgress = mock.MagicMock(return_value=False)
 
-        with mock.patch("platform_utils.isdir", return_value=True):
+        with mock.patch("kanon_cli.repo.platform_utils.isdir", return_value=True):
             result = proj.PrintWorkTreeStatus(quiet=True)
 
         assert result == "DIRTY"
@@ -729,7 +729,7 @@ class TestProjectMethods:
         proj.work_git.GetHead = mock.MagicMock(return_value="1234567890abcdef")
         proj.IsRebaseInProgress = mock.MagicMock(return_value=False)
 
-        with mock.patch("platform_utils.isdir", return_value=True):
+        with mock.patch("kanon_cli.repo.platform_utils.isdir", return_value=True):
             result = proj.PrintWorkTreeStatus()
 
         captured = capsys.readouterr()
@@ -744,7 +744,7 @@ class TestProjectMethods:
         proj.work_git.GetHead = mock.MagicMock(return_value="refs/heads/main")
         proj.IsRebaseInProgress = mock.MagicMock(return_value=True)
 
-        with mock.patch("platform_utils.isdir", return_value=True):
+        with mock.patch("kanon_cli.repo.platform_utils.isdir", return_value=True):
             result = proj.PrintWorkTreeStatus()
 
         captured = capsys.readouterr()
@@ -758,7 +758,7 @@ class TestProjectMethods:
         mock_git_cmd.Wait.return_value = 0
         mock_git_cmd.stdout = "diff output"
 
-        with mock.patch("project.GitCommand", return_value=mock_git_cmd):
+        with mock.patch("kanon_cli.repo.project.GitCommand", return_value=mock_git_cmd):
             result = proj.PrintWorkTreeDiff()
 
         assert result is True
@@ -767,7 +767,7 @@ class TestProjectMethods:
         """Test PrintWorkTreeDiff returns False on git error."""
         proj = self._make_project()
 
-        with mock.patch("project.GitCommand", side_effect=GitError("diff failed")):
+        with mock.patch("kanon_cli.repo.project.GitCommand", side_effect=GitError("diff failed")):
             result = proj.PrintWorkTreeDiff()
 
         assert result is False
@@ -780,7 +780,7 @@ class TestProjectMethods:
         mock_git_cmd.Wait.return_value = 0
         mock_git_cmd.stdout = None
 
-        with mock.patch("project.GitCommand", return_value=mock_git_cmd) as mock_cmd:
+        with mock.patch("kanon_cli.repo.project.GitCommand", return_value=mock_git_cmd) as mock_cmd:
             proj.PrintWorkTreeDiff(absolute_paths=True)
 
         # Check that absolute path options were added to command
@@ -851,7 +851,7 @@ class TestProjectGetCommitRevisionId:
         }
         defaults.update(kwargs)
 
-        with mock.patch("project.Project._LoadUserIdentity"):
+        with mock.patch("kanon_cli.repo.project.Project._LoadUserIdentity"):
             proj = project.Project(**defaults)
         return proj
 
@@ -905,7 +905,7 @@ class TestProjectUploadForReview:
         manifest.IsArchive = False
         manifest.globalConfig = mock.MagicMock()
 
-        with mock.patch("project.Project._LoadUserIdentity"):
+        with mock.patch("kanon_cli.repo.project.Project._LoadUserIdentity"):
             proj = project.Project(
                 manifest=manifest,
                 name="test/project",
@@ -955,7 +955,7 @@ class TestProjectUploadForReview:
 
     def test_upload_for_review_invalid_label(self):
         """Test UploadForReview raises error for invalid label syntax."""
-        from error import UploadError
+        from kanon_cli.repo.error import UploadError
 
         proj = self._make_project()
         proj.work_git.GetHead = mock.MagicMock(return_value="refs/heads/feature")
@@ -996,7 +996,7 @@ class TestProjectSyncMethods:
         }
         defaults.update(kwargs)
 
-        with mock.patch("project.Project._LoadUserIdentity"):
+        with mock.patch("kanon_cli.repo.project.Project._LoadUserIdentity"):
             proj = project.Project(**defaults)
         return proj
 
@@ -1058,7 +1058,7 @@ class TestProjectRemoteFetch:
         }
         defaults.update(kwargs)
 
-        with mock.patch("project.Project._LoadUserIdentity"):
+        with mock.patch("kanon_cli.repo.project.Project._LoadUserIdentity"):
             proj = project.Project(**defaults)
         return proj
 
@@ -1071,7 +1071,7 @@ class TestProjectRemoteFetch:
         mock_git_cmd.Wait.return_value = 1
         mock_git_cmd.stdout = "error: HTTP 429 Too Many Requests"
 
-        with mock.patch("project.GitCommand", return_value=mock_git_cmd):
+        with mock.patch("kanon_cli.repo.project.GitCommand", return_value=mock_git_cmd):
             with mock.patch("time.sleep"):
                 with mock.patch.object(proj, "GetRemote") as mock_get_remote:
                     mock_remote = mock.MagicMock()
@@ -1099,7 +1099,7 @@ class TestProjectGetUploadableBranches:
         manifest.IsArchive = False
         manifest.globalConfig = mock.MagicMock()
 
-        with mock.patch("project.Project._LoadUserIdentity"):
+        with mock.patch("kanon_cli.repo.project.Project._LoadUserIdentity"):
             proj = project.Project(
                 manifest=manifest,
                 name="test/project",
@@ -1179,7 +1179,7 @@ class TestProjectGetUploadableBranches:
         mock_branch.LocalMerge = "refs/remotes/origin/main"
         proj.config.GetBranch = mock.MagicMock(return_value=mock_branch)
 
-        with mock.patch("project.ReviewableBranch") as mock_rb_class:
+        with mock.patch("kanon_cli.repo.project.ReviewableBranch") as mock_rb_class:
             mock_rb = mock.MagicMock()
             mock_rb.commits = []
             mock_rb_class.return_value = mock_rb
@@ -1213,7 +1213,7 @@ class TestProjectVersionConstraints:
         }
         defaults.update(kwargs)
 
-        with mock.patch("project.Project._LoadUserIdentity"):
+        with mock.patch("kanon_cli.repo.project.Project._LoadUserIdentity"):
             proj = project.Project(**defaults)
         return proj
 
@@ -1276,7 +1276,7 @@ class TestMetaProject:
         manifest.repodir = "/tmp/test/.repo"
         manifest.globalConfig = mock.MagicMock()
 
-        with mock.patch("project.Project._LoadUserIdentity"):
+        with mock.patch("kanon_cli.repo.project.Project._LoadUserIdentity"):
             meta = project.MetaProject(
                 manifest=manifest,
                 name="manifests",
@@ -1298,7 +1298,7 @@ class TestProjectPrintWorkTreeStatusDetailed:
         manifest.IsArchive = False
         manifest.globalConfig = mock.MagicMock()
 
-        with mock.patch("project.Project._LoadUserIdentity"):
+        with mock.patch("kanon_cli.repo.project.Project._LoadUserIdentity"):
             proj = project.Project(
                 manifest=manifest,
                 name="test/project",
@@ -1329,7 +1329,7 @@ class TestProjectPrintWorkTreeStatusDetailed:
         proj.work_git.GetHead = mock.MagicMock(return_value="refs/heads/main")
         proj.IsRebaseInProgress = mock.MagicMock(return_value=False)
 
-        with mock.patch("platform_utils.isdir", return_value=True):
+        with mock.patch("kanon_cli.repo.platform_utils.isdir", return_value=True):
             result = proj.PrintWorkTreeStatus()
 
         captured = capsys.readouterr()
@@ -1360,7 +1360,7 @@ class TestProjectPrintWorkTreeStatusDetailed:
         proj.work_git.GetHead = mock.MagicMock(return_value="refs/heads/main")
         proj.IsRebaseInProgress = mock.MagicMock(return_value=False)
 
-        with mock.patch("platform_utils.isdir", return_value=True):
+        with mock.patch("kanon_cli.repo.platform_utils.isdir", return_value=True):
             result = proj.PrintWorkTreeStatus()
 
         captured = capsys.readouterr()
@@ -1377,7 +1377,7 @@ class TestProjectPrintWorkTreeStatusDetailed:
         proj.work_git.GetHead = mock.MagicMock(return_value="refs/heads/main")
         proj.IsRebaseInProgress = mock.MagicMock(return_value=False)
 
-        with mock.patch("platform_utils.isdir", return_value=True):
+        with mock.patch("kanon_cli.repo.platform_utils.isdir", return_value=True):
             result = proj.PrintWorkTreeStatus()
 
         captured = capsys.readouterr()
@@ -1397,7 +1397,7 @@ class TestProjectSyncLocalHalf:
         manifest.topdir = "/tmp/test-topdir"
         manifest.globalConfig = mock.MagicMock()
 
-        with mock.patch("project.Project._LoadUserIdentity"):
+        with mock.patch("kanon_cli.repo.project.Project._LoadUserIdentity"):
             proj = project.Project(
                 manifest=manifest,
                 name="test/project",
@@ -1436,7 +1436,7 @@ class TestProjectWorktreeMethods:
         manifest.topdir = "/tmp/test-topdir"
         manifest.globalConfig = mock.MagicMock()
 
-        with mock.patch("project.Project._LoadUserIdentity"):
+        with mock.patch("kanon_cli.repo.project.Project._LoadUserIdentity"):
             proj = project.Project(
                 manifest=manifest,
                 name="test/project",
@@ -1454,10 +1454,10 @@ class TestProjectWorktreeMethods:
         """Test Exists property."""
         proj = self._make_project()
 
-        with mock.patch("platform_utils.isdir", return_value=True):
+        with mock.patch("kanon_cli.repo.platform_utils.isdir", return_value=True):
             assert proj.Exists is True
 
-        with mock.patch("platform_utils.isdir", return_value=False):
+        with mock.patch("kanon_cli.repo.platform_utils.isdir", return_value=False):
             assert proj.Exists is False
 
     def test_project_current_branch_none(self):
@@ -1517,7 +1517,7 @@ class TestProjectGetBranches:
         manifest.IsArchive = False
         manifest.globalConfig = mock.MagicMock()
 
-        with mock.patch("project.Project._LoadUserIdentity"):
+        with mock.patch("kanon_cli.repo.project.Project._LoadUserIdentity"):
             proj = project.Project(
                 manifest=manifest,
                 name="test/project",
@@ -1544,7 +1544,7 @@ class TestProjectMatchesGroups:
         manifest.default_groups = ["default"]
         manifest.globalConfig = mock.MagicMock()
 
-        with mock.patch("project.Project._LoadUserIdentity"):
+        with mock.patch("kanon_cli.repo.project.Project._LoadUserIdentity"):
             proj = project.Project(
                 manifest=manifest,
                 name="test/project",
@@ -1595,7 +1595,7 @@ class TestProjectUncommitedFiles:
         manifest.IsArchive = False
         manifest.globalConfig = mock.MagicMock()
 
-        with mock.patch("project.Project._LoadUserIdentity"):
+        with mock.patch("kanon_cli.repo.project.Project._LoadUserIdentity"):
             proj = project.Project(
                 manifest=manifest,
                 name="test/project",
@@ -1663,7 +1663,7 @@ class TestProjectWasPublished:
         manifest.IsArchive = False
         manifest.globalConfig = mock.MagicMock()
 
-        with mock.patch("project.Project._LoadUserIdentity"):
+        with mock.patch("kanon_cli.repo.project.Project._LoadUserIdentity"):
             proj = project.Project(
                 manifest=manifest,
                 name="test/project",
@@ -1717,7 +1717,7 @@ class TestProjectCleanPublishedCache:
         manifest.IsArchive = False
         manifest.globalConfig = mock.MagicMock()
 
-        with mock.patch("project.Project._LoadUserIdentity"):
+        with mock.patch("kanon_cli.repo.project.Project._LoadUserIdentity"):
             proj = project.Project(
                 manifest=manifest,
                 name="test/project",

@@ -18,7 +18,7 @@ from unittest import mock
 
 import pytest
 
-from subcmds.overview import Overview
+from kanon_cli.repo.subcmds.overview import Overview
 
 
 def _make_cmd():

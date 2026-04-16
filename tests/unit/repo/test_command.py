@@ -21,9 +21,9 @@ from unittest import mock
 
 import pytest
 
-import command
-import progress
-from error import NoSuchProjectError
+from kanon_cli.repo import command
+from kanon_cli.repo import progress
+from kanon_cli.repo.error import NoSuchProjectError
 
 
 @pytest.mark.unit
@@ -52,7 +52,7 @@ class TestUsageError(unittest.TestCase):
 
     def test_usage_error_is_repo_exit_error(self):
         """Test that UsageError inherits from RepoExitError."""
-        from error import RepoExitError
+        from kanon_cli.repo.error import RepoExitError
 
         err = command.UsageError()
         self.assertIsInstance(err, RepoExitError)
@@ -1089,14 +1089,14 @@ class TestPagedCommand(unittest.TestCase):
 
     def test_paged_command_want_pager(self):
         """Test that PagedCommand.WantPager returns True."""
-        from command import PagedCommand
+        from kanon_cli.repo.command import PagedCommand
 
         cmd = PagedCommand()
         self.assertTrue(cmd.WantPager(None))
 
     def test_paged_command_inherits_from_command(self):
         """Test that PagedCommand inherits from Command."""
-        from command import PagedCommand
+        from kanon_cli.repo.command import PagedCommand
 
         cmd = PagedCommand()
         self.assertIsInstance(cmd, command.Command)

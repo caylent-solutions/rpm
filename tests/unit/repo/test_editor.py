@@ -20,7 +20,7 @@ from unittest import mock
 
 import pytest
 
-from editor import Editor
+from kanon_cli.repo.editor import Editor
 
 
 class EditorTestCase(unittest.TestCase):
@@ -154,7 +154,7 @@ class EditStringTests(EditorTestCase):
                     with mock.patch("subprocess.Popen") as mock_popen:
                         mock_popen.return_value.wait.return_value = 0
                         with mock.patch("builtins.open", mock.mock_open(read_data=b"result")):
-                            with mock.patch("platform_utils.remove"):
+                            with mock.patch("kanon_cli.repo.platform_utils.remove"):
                                 Editor.EditString("data")
                                 mock_mkstemp.assert_called_once()
 
@@ -167,7 +167,7 @@ class EditStringTests(EditorTestCase):
                     with mock.patch("subprocess.Popen") as mock_popen:
                         mock_popen.return_value.wait.return_value = 0
                         with mock.patch("builtins.open", mock.mock_open(read_data=b"result")):
-                            with mock.patch("platform_utils.remove"):
+                            with mock.patch("kanon_cli.repo.platform_utils.remove"):
                                 Editor.EditString("test data")
                                 call_args = mock_write.call_args[0]
                                 self.assertEqual(call_args[0], 999)
@@ -182,7 +182,7 @@ class EditStringTests(EditorTestCase):
                     with mock.patch("subprocess.Popen") as mock_popen:
                         mock_popen.return_value.wait.return_value = 0
                         with mock.patch("builtins.open", mock.mock_open(read_data=b"result")):
-                            with mock.patch("platform_utils.remove"):
+                            with mock.patch("kanon_cli.repo.platform_utils.remove"):
                                 Editor.EditString("data")
                                 mock_close.assert_called_with(999)
 
@@ -195,9 +195,9 @@ class EditStringTests(EditorTestCase):
                     with mock.patch("subprocess.Popen") as mock_popen:
                         mock_popen.return_value.wait.return_value = 0
                         with mock.patch("builtins.open", mock.mock_open(read_data=b"result")):
-                            with mock.patch("platform_utils.remove"):
+                            with mock.patch("kanon_cli.repo.platform_utils.remove"):
                                 with mock.patch(
-                                    "platform_utils.isWindows",
+                                    "kanon_cli.repo.platform_utils.isWindows",
                                     return_value=False,
                                 ):
                                     Editor.EditString("data")
@@ -216,7 +216,7 @@ class EditStringTests(EditorTestCase):
                             "builtins.open",
                             mock.mock_open(read_data=b"edited result"),
                         ):
-                            with mock.patch("platform_utils.remove"):
+                            with mock.patch("kanon_cli.repo.platform_utils.remove"):
                                 result = Editor.EditString("data")
                                 self.assertEqual(result, "edited result")
 
@@ -229,13 +229,13 @@ class EditStringTests(EditorTestCase):
                     with mock.patch("subprocess.Popen") as mock_popen:
                         mock_popen.return_value.wait.return_value = 0
                         with mock.patch("builtins.open", mock.mock_open(read_data=b"result")):
-                            with mock.patch("platform_utils.remove") as mock_remove:
+                            with mock.patch("kanon_cli.repo.platform_utils.remove") as mock_remove:
                                 Editor.EditString("data")
                                 mock_remove.assert_called_once_with("/tmp/test")
 
     def test_edit_string_raises_on_nonzero_exit(self):
         """EditString should raise EditorError on nonzero exit code."""
-        from error import EditorError
+        from kanon_cli.repo.error import EditorError
 
         self.setEditor("cat")
         with mock.patch("tempfile.mkstemp", return_value=(999, "/tmp/test")):
@@ -243,20 +243,20 @@ class EditStringTests(EditorTestCase):
                 with mock.patch("os.close"):
                     with mock.patch("subprocess.Popen") as mock_popen:
                         mock_popen.return_value.wait.return_value = 1
-                        with mock.patch("platform_utils.remove"):
+                        with mock.patch("kanon_cli.repo.platform_utils.remove"):
                             with self.assertRaises(EditorError):
                                 Editor.EditString("data")
 
     def test_edit_string_raises_on_oserror(self):
         """EditString should raise EditorError on OSError."""
-        from error import EditorError
+        from kanon_cli.repo.error import EditorError
 
         self.setEditor("nonexistent-editor")
         with mock.patch("tempfile.mkstemp", return_value=(999, "/tmp/test")):
             with mock.patch("os.write"):
                 with mock.patch("os.close"):
                     with mock.patch("subprocess.Popen", side_effect=OSError("fail")):
-                        with mock.patch("platform_utils.remove"):
+                        with mock.patch("kanon_cli.repo.platform_utils.remove"):
                             with self.assertRaises(EditorError):
                                 Editor.EditString("data")
 
@@ -269,9 +269,9 @@ class EditStringTests(EditorTestCase):
                     with mock.patch("subprocess.Popen") as mock_popen:
                         mock_popen.return_value.wait.return_value = 0
                         with mock.patch("builtins.open", mock.mock_open(read_data=b"result")):
-                            with mock.patch("platform_utils.remove"):
+                            with mock.patch("kanon_cli.repo.platform_utils.remove"):
                                 with mock.patch(
-                                    "platform_utils.isWindows",
+                                    "kanon_cli.repo.platform_utils.isWindows",
                                     return_value=True,
                                 ):
                                     Editor.EditString("data")
@@ -287,9 +287,9 @@ class EditStringTests(EditorTestCase):
                     with mock.patch("subprocess.Popen") as mock_popen:
                         mock_popen.return_value.wait.return_value = 0
                         with mock.patch("builtins.open", mock.mock_open(read_data=b"result")):
-                            with mock.patch("platform_utils.remove"):
+                            with mock.patch("kanon_cli.repo.platform_utils.remove"):
                                 with mock.patch(
-                                    "platform_utils.isWindows",
+                                    "kanon_cli.repo.platform_utils.isWindows",
                                     return_value=False,
                                 ):
                                     Editor.EditString("data")

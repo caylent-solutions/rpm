@@ -20,8 +20,8 @@ from unittest import mock
 
 import pytest
 
-import color
-import git_config
+from kanon_cli.repo import color
+from kanon_cli.repo import git_config
 
 
 def fixture(*paths):
@@ -255,7 +255,7 @@ class ColoringInitTests(unittest.TestCase):
         config = unittest.mock.MagicMock()
         color.DEFAULT = "auto"
         with mock.patch("os.isatty", return_value=True):
-            with mock.patch("pager.active", False):
+            with mock.patch("kanon_cli.repo.pager.active", False):
                 coloring = color.Coloring(config, "test")
                 self.assertTrue(coloring._on)
 
@@ -264,7 +264,7 @@ class ColoringInitTests(unittest.TestCase):
         config = unittest.mock.MagicMock()
         color.DEFAULT = "auto"
         with mock.patch("os.isatty", return_value=False):
-            with mock.patch("pager.active", False):
+            with mock.patch("kanon_cli.repo.pager.active", False):
                 coloring = color.Coloring(config, "test")
                 self.assertFalse(coloring._on)
 
@@ -280,7 +280,7 @@ class ColoringInitTests(unittest.TestCase):
         config = unittest.mock.MagicMock()
         color.DEFAULT = "auto"
         with mock.patch("os.isatty", return_value=False):
-            with mock.patch("pager.active", True):
+            with mock.patch("kanon_cli.repo.pager.active", True):
                 coloring = color.Coloring(config, "test")
                 self.assertTrue(coloring._on)
 

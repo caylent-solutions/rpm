@@ -20,11 +20,11 @@ from unittest import mock
 
 import pytest
 
-from event_log import _NextEventId
-from event_log import EventLog
-from event_log import TASK_COMMAND
-from event_log import TASK_SYNC_LOCAL
-from event_log import TASK_SYNC_NETWORK
+from kanon_cli.repo.event_log import _NextEventId
+from kanon_cli.repo.event_log import EventLog
+from kanon_cli.repo.event_log import TASK_COMMAND
+from kanon_cli.repo.event_log import TASK_SYNC_LOCAL
+from kanon_cli.repo.event_log import TASK_SYNC_NETWORK
 
 
 @pytest.mark.unit
@@ -258,7 +258,7 @@ class TestNextEventId:
     def test_next_event_id_increments(self):
         """Test _NextEventId increments."""
         # Reset the global
-        import event_log
+        from kanon_cli.repo import event_log
 
         event_log._EVENT_ID = None
 
@@ -271,7 +271,7 @@ class TestNextEventId:
 
     def test_next_event_id_thread_safe(self):
         """Test _NextEventId is thread-safe."""
-        import event_log
+        from kanon_cli.repo import event_log
 
         event_log._EVENT_ID = None
 

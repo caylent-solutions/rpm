@@ -20,7 +20,7 @@ from unittest import mock
 
 import pytest
 
-from subcmds import gc
+from kanon_cli.repo.subcmds import gc
 
 
 def _make_gc_instance():
@@ -48,7 +48,7 @@ class TestFindGitToDelete:
 
         to_keep = {kept_dir}
 
-        with mock.patch("platform_utils.walk", side_effect=os.walk):
+        with mock.patch("kanon_cli.repo.platform_utils.walk", side_effect=os.walk):
             result = gc_obj._find_git_to_delete(to_keep, str(tmp_path))
 
         assert unused_dir in result
@@ -60,7 +60,7 @@ class TestFindGitToDelete:
         """An empty start directory returns an empty set."""
         gc_obj = _make_gc_instance()
 
-        with mock.patch("platform_utils.walk", side_effect=os.walk):
+        with mock.patch("kanon_cli.repo.platform_utils.walk", side_effect=os.walk):
             result = gc_obj._find_git_to_delete(set(), str(tmp_path))
 
         assert result == set()
@@ -76,7 +76,7 @@ class TestFindGitToDelete:
 
         to_keep = {dir_a, dir_b}
 
-        with mock.patch("platform_utils.walk", side_effect=os.walk):
+        with mock.patch("kanon_cli.repo.platform_utils.walk", side_effect=os.walk):
             result = gc_obj._find_git_to_delete(to_keep, str(tmp_path))
 
         assert result == set()
@@ -130,9 +130,9 @@ class DeleteUnusedProjectsTest(unittest.TestCase):
                 side_effect=[{unused_path}, set()],
             ),
             mock.patch("builtins.print") as mock_print,
-            mock.patch("platform_utils.rename") as mock_rename,
-            mock.patch("platform_utils.rmtree") as mock_rmtree,
-            mock.patch("subcmds.gc.Progress"),
+            mock.patch("kanon_cli.repo.platform_utils.rename") as mock_rename,
+            mock.patch("kanon_cli.repo.platform_utils.rmtree") as mock_rmtree,
+            mock.patch("kanon_cli.repo.subcmds.gc.Progress"),
         ):
             result = self.gc.delete_unused_projects([fake_project], opt)
 
@@ -167,7 +167,7 @@ class TestGeneratePromisorFiles:
             with open(f, "w"):
                 pass
 
-        with mock.patch("platform_utils.walk", side_effect=os.walk):
+        with mock.patch("kanon_cli.repo.platform_utils.walk", side_effect=os.walk):
             gc_obj._generate_promisor_files(pack_dir)
 
         # Verify .promisor files exist for each .pack file.

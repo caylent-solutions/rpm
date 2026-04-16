@@ -18,14 +18,7 @@ from unittest import mock
 
 import pytest
 
-from git_config import (
-    GetSchemeFromUrl,
-    GetUrlCookieFile,
-    GitConfig,
-    Remote,
-    Branch,
-    RefSpec,
-)
+from kanon_cli.repo.git_config import GetSchemeFromUrl, GetUrlCookieFile, GitConfig, Remote, Branch, RefSpec
 
 
 class TestRemoteClass:
@@ -116,7 +109,7 @@ class TestRemoteClass:
             assert isinstance(remote.fetch[0], RefSpec)
 
     @pytest.mark.unit
-    @mock.patch("git_config.GitConfig.ForUser")
+    @mock.patch("kanon_cli.repo.git_config.GitConfig.ForUser")
     def test_remote_instead_of(self, mock_for_user):
         """Test Remote _InsteadOf method."""
         mock_config = mock.MagicMock()
@@ -258,7 +251,7 @@ class TestGetUrlCookieFile:
     """Test GetUrlCookieFile context manager."""
 
     @pytest.mark.unit
-    @mock.patch("git_config.GitConfig.ForUser")
+    @mock.patch("kanon_cli.repo.git_config.GitConfig.ForUser")
     def test_get_url_cookie_file_no_persistent(self, mock_for_user):
         """Test GetUrlCookieFile with non-persistent URL."""
         mock_user_config = mock.MagicMock()
@@ -273,7 +266,7 @@ class TestGetUrlCookieFile:
             assert proxy is None
 
     @pytest.mark.unit
-    @mock.patch("git_config.GitConfig.ForUser")
+    @mock.patch("kanon_cli.repo.git_config.GitConfig.ForUser")
     def test_get_url_cookie_file_with_cookie(self, mock_for_user):
         """Test GetUrlCookieFile with cookie file configured."""
         mock_user_config = mock.MagicMock()
@@ -289,7 +282,7 @@ class TestGetUrlCookieFile:
 
     @pytest.mark.unit
     @mock.patch("subprocess.Popen")
-    @mock.patch("git_config.GitConfig.ForUser")
+    @mock.patch("kanon_cli.repo.git_config.GitConfig.ForUser")
     def test_get_url_cookie_file_persistent_url_success(self, mock_for_user, mock_popen):
         """Test GetUrlCookieFile with persistent URL and successful subprocess."""
         mock_user_config = mock.MagicMock()
@@ -310,7 +303,7 @@ class TestGetUrlCookieFile:
 
     @pytest.mark.unit
     @mock.patch("subprocess.Popen")
-    @mock.patch("git_config.GitConfig.ForUser")
+    @mock.patch("kanon_cli.repo.git_config.GitConfig.ForUser")
     def test_get_url_cookie_file_persistent_url_failure(self, mock_for_user, mock_popen):
         """Test GetUrlCookieFile with persistent URL and subprocess failure."""
         mock_user_config = mock.MagicMock()

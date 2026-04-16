@@ -24,8 +24,8 @@ import unittest
 import pytest
 from unittest import mock
 
-import git_trace2_event_log
-import platform_utils
+from kanon_cli.repo import git_trace2_event_log
+from kanon_cli.repo import platform_utils
 
 
 def serverLoggingThread(socket_path, server_ready, received_traces):

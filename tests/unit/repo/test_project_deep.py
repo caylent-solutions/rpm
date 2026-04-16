@@ -19,8 +19,8 @@ from unittest import mock
 
 import pytest
 
-import error
-import project
+from kanon_cli.repo import error
+from kanon_cli.repo import project
 
 
 def _make_project(tmp_path):
@@ -123,7 +123,7 @@ class TestGitGetByExec:
         mock_cmd.Wait.return_value = 0
         mock_cmd.stdout = "file1.txt\0file2.py\0"
 
-        with mock.patch("project.GitCommand", return_value=mock_cmd):
+        with mock.patch("kanon_cli.repo.project.GitCommand", return_value=mock_cmd):
             result = git_exec.LsOthers()
 
         assert result == ["file1.txt", "file2.py"]
@@ -137,7 +137,7 @@ class TestGitGetByExec:
         mock_cmd.Wait.return_value = 0
         mock_cmd.stdout = None
 
-        with mock.patch("project.GitCommand", return_value=mock_cmd):
+        with mock.patch("kanon_cli.repo.project.GitCommand", return_value=mock_cmd):
             result = git_exec.LsOthers()
 
         assert result == []
@@ -150,7 +150,7 @@ class TestGitGetByExec:
         mock_cmd = mock.MagicMock()
         mock_cmd.Wait.return_value = 1
 
-        with mock.patch("project.GitCommand", return_value=mock_cmd):
+        with mock.patch("kanon_cli.repo.project.GitCommand", return_value=mock_cmd):
             result = git_exec.LsOthers()
 
         assert result == []
@@ -164,7 +164,7 @@ class TestGitGetByExec:
         mock_cmd.Wait.return_value = 0
         mock_cmd.stdout = ":100644 100644 abc123 def456 M\0file.txt\0"
 
-        with mock.patch("project.GitCommand", return_value=mock_cmd):
+        with mock.patch("kanon_cli.repo.project.GitCommand", return_value=mock_cmd):
             result = git_exec.DiffZ("diff-index", "--cached", "HEAD")
 
         assert "file.txt" in result
@@ -181,7 +181,7 @@ class TestGitGetByExec:
         mock_cmd.Wait.return_value = 0
         mock_cmd.stdout = ":100644 100644 abc123 abc123 R100\0old.txt\0new.txt\0"
 
-        with mock.patch("project.GitCommand", return_value=mock_cmd):
+        with mock.patch("kanon_cli.repo.project.GitCommand", return_value=mock_cmd):
             result = git_exec.DiffZ("diff-index", "-M", "HEAD")
 
         assert "new.txt" in result
@@ -198,7 +198,7 @@ class TestGitGetByExec:
         mock_cmd.Wait.return_value = 0
         mock_cmd.stdout = None
 
-        with mock.patch("project.GitCommand", return_value=mock_cmd):
+        with mock.patch("kanon_cli.repo.project.GitCommand", return_value=mock_cmd):
             result = git_exec.DiffZ("diff-files")
 
         assert result == {}
@@ -281,7 +281,7 @@ class TestProjectInitialization:
         new_gitdir = str(tmp_path / "new-gitdir")
         new_objdir = str(tmp_path / "new-objdir")
 
-        with mock.patch("project.GitConfig"):
+        with mock.patch("kanon_cli.repo.project.GitConfig"):
             proj.UpdatePaths("new-relpath", new_worktree, new_gitdir, new_objdir)
 
         assert proj.relpath == "new-relpath"
@@ -294,7 +294,7 @@ class TestProjectInitialization:
         proj = _make_project(tmp_path)
         new_gitdir = str(tmp_path / "new-gitdir")
 
-        with mock.patch("project.GitConfig"):
+        with mock.patch("kanon_cli.repo.project.GitConfig"):
             proj.UpdatePaths("relpath", None, new_gitdir, new_gitdir)
 
         assert proj.worktree is None
@@ -446,7 +446,7 @@ class TestBranchOperations:
         """Test _AbortRebase calls appropriate git commands."""
         proj = _make_project(tmp_path)
 
-        with mock.patch("project.GitCommand") as mock_git:
+        with mock.patch("kanon_cli.repo.project.GitCommand") as mock_git:
             mock_cmd = mock.MagicMock()
             mock_cmd.Wait.return_value = 0
             mock_git.return_value = mock_cmd
@@ -1053,7 +1053,7 @@ class TestEdgeCases:
         proj.remote.name = "origin"
         proj.bare_git.rev_parse.return_value = "fetched_sha"
 
-        with mock.patch("project.GitCommand") as mock_git:
+        with mock.patch("kanon_cli.repo.project.GitCommand") as mock_git:
             mock_cmd = mock.MagicMock()
             mock_cmd.Wait.return_value = 0
             mock_git.return_value = mock_cmd

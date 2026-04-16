@@ -20,12 +20,12 @@ import unittest
 
 import pytest
 
-import command
-import error
-import fetch
-import git_command
-import project
-from subcmds import all_modules
+from kanon_cli.repo import command
+from kanon_cli.repo import error
+from kanon_cli.repo import fetch
+from kanon_cli.repo import git_command
+from kanon_cli.repo import project
+from kanon_cli.repo.subcmds import all_modules
 
 
 imports = all_modules + [

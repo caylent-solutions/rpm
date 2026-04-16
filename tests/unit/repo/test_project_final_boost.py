@@ -4,12 +4,10 @@ from unittest import mock
 
 import pytest
 
-import project
-from error import GitError
-from git_refs import R_HEADS
-from project import (
-    SyncBuffer,
-)
+from kanon_cli.repo import project
+from kanon_cli.repo.error import GitError
+from kanon_cli.repo.git_refs import R_HEADS
+from kanon_cli.repo.project import SyncBuffer
 
 
 def _make_project(**kwargs):
@@ -34,7 +32,7 @@ def _make_project(**kwargs):
     }
     defaults.update(kwargs)
 
-    with mock.patch("project.Project._LoadUserIdentity"):
+    with mock.patch("kanon_cli.repo.project.Project._LoadUserIdentity"):
         proj = project.Project(**defaults)
     return proj
 
@@ -75,7 +73,7 @@ class TestAbandonBranch:
         proj.work_git = mock.MagicMock()
         proj.work_git.GetHead.return_value = R_HEADS + "main"
 
-        with mock.patch("project.GitCommand") as mock_gc:
+        with mock.patch("kanon_cli.repo.project.GitCommand") as mock_gc:
             mock_gc.return_value.Wait.return_value = 0
             result = proj.AbandonBranch("feature")
 
@@ -91,8 +89,8 @@ class TestAbandonBranch:
 
         with (
             mock.patch.object(proj, "GetRevisionId", return_value="sha123"),
-            mock.patch("project._lwrite") as mock_lw,
-            mock.patch("project.GitCommand") as mock_gc,
+            mock.patch("kanon_cli.repo.project._lwrite") as mock_lw,
+            mock.patch("kanon_cli.repo.project.GitCommand") as mock_gc,
         ):
             mock_gc.return_value.Wait.return_value = 0
             result = proj.AbandonBranch("feature")
@@ -111,7 +109,7 @@ class TestAbandonBranch:
         with (
             mock.patch.object(proj, "GetRevisionId", return_value="other_sha"),
             mock.patch.object(proj, "_Checkout") as mock_co,
-            mock.patch("project.GitCommand") as mock_gc,
+            mock.patch("kanon_cli.repo.project.GitCommand") as mock_gc,
         ):
             mock_gc.return_value.Wait.return_value = 0
             result = proj.AbandonBranch("feature")
@@ -181,8 +179,8 @@ class TestPruneHeads:
             mock.patch.object(proj.bare_git, "DetachHead"),
             mock.patch.object(proj.bare_git, "GetHead", return_value="rev123"),
             mock.patch.object(proj, "CleanPublishedCache"),
-            mock.patch("project.IsId", return_value=True),
-            mock.patch("project.GitCommand") as mock_gc,
+            mock.patch("kanon_cli.repo.project.IsId", return_value=True),
+            mock.patch("kanon_cli.repo.project.GitCommand") as mock_gc,
         ):
             mock_gc.return_value.Wait.return_value = 0
             result = proj.PruneHeads()
@@ -204,7 +202,7 @@ class TestCheckoutBranch:
 
         with (
             mock.patch.object(proj, "GetRevisionId", return_value="sha123"),
-            mock.patch("project._lwrite"),
+            mock.patch("kanon_cli.repo.project._lwrite"),
         ):
             result = proj.CheckoutBranch("feature")
 
@@ -220,7 +218,7 @@ class TestCheckoutBranch:
 
         with (
             mock.patch.object(proj, "GetRevisionId", return_value="sha123"),
-            mock.patch("project.GitCommand") as mock_gc,
+            mock.patch("kanon_cli.repo.project.GitCommand") as mock_gc,
         ):
             mock_gc.return_value.Wait.return_value = 0
             result = proj.CheckoutBranch("feature")
@@ -295,7 +293,7 @@ class TestGitGetByExecMethods:
         """Lines 3928-3945: rev_list method."""
         proj = _make_project()
 
-        with mock.patch("project.GitCommand") as mock_gc:
+        with mock.patch("kanon_cli.repo.project.GitCommand") as mock_gc:
             mock_gc.return_value.Wait.return_value = 0
             mock_gc.return_value.stdout = "sha1\nsha2\n"
             result = proj.bare_git.rev_list("HEAD")
@@ -306,7 +304,7 @@ class TestGitGetByExecMethods:
         """Lines 3929-3930: rev_list with format kwarg."""
         proj = _make_project()
 
-        with mock.patch("project.GitCommand") as mock_gc:
+        with mock.patch("kanon_cli.repo.project.GitCommand") as mock_gc:
             mock_gc.return_value.Wait.return_value = 0
             mock_gc.return_value.stdout = "abc123 msg\n"
             result = proj.bare_git.rev_list("HEAD", format="%H %s")
@@ -360,7 +358,7 @@ class TestRebaseMethod:
         """Lines 1897: _Rebase runs git rebase."""
         proj = _make_project()
 
-        with mock.patch("project.GitCommand") as mock_gc:
+        with mock.patch("kanon_cli.repo.project.GitCommand") as mock_gc:
             mock_gc.return_value.Wait.return_value = 0
             proj._Rebase("upstream_sha")
 
@@ -368,7 +366,7 @@ class TestRebaseMethod:
         """_Rebase raises on failure."""
         proj = _make_project()
 
-        with mock.patch("project.GitCommand") as mock_gc:
+        with mock.patch("kanon_cli.repo.project.GitCommand") as mock_gc:
             mock_gc.return_value.Wait.return_value = 1
             mock_gc.return_value.stderr = "conflict"
             with pytest.raises(GitError):
@@ -383,7 +381,7 @@ class TestFastForwardMethod:
         """Lines 1903+: _FastForward runs git merge --ff-only."""
         proj = _make_project()
 
-        with mock.patch("project.GitCommand") as mock_gc:
+        with mock.patch("kanon_cli.repo.project.GitCommand") as mock_gc:
             mock_gc.return_value.Wait.return_value = 0
             proj._FastForward("target_sha")
 
@@ -396,7 +394,7 @@ class TestCheckoutMethod:
         """Lines 2091+: _Checkout runs git checkout."""
         proj = _make_project()
 
-        with mock.patch("project.GitCommand") as mock_gc:
+        with mock.patch("kanon_cli.repo.project.GitCommand") as mock_gc:
             mock_gc.return_value.Wait.return_value = 0
             proj._Checkout("target_sha")
 
@@ -404,7 +402,7 @@ class TestCheckoutMethod:
         """_Checkout with force_checkout=True."""
         proj = _make_project()
 
-        with mock.patch("project.GitCommand") as mock_gc:
+        with mock.patch("kanon_cli.repo.project.GitCommand") as mock_gc:
             mock_gc.return_value.Wait.return_value = 0
             proj._Checkout("target_sha", force_checkout=True)
 
@@ -417,7 +415,7 @@ class TestCherryPickMethod:
         """Lines 2155+: _CherryPick runs cherry-pick."""
         proj = _make_project()
 
-        with mock.patch("project.GitCommand") as mock_gc:
+        with mock.patch("kanon_cli.repo.project.GitCommand") as mock_gc:
             mock_gc.return_value.Wait.return_value = 0
             proj._CherryPick("commit_sha")
 
@@ -430,7 +428,7 @@ class TestRevertMethod:
         """Lines 2195+: _Revert runs revert."""
         proj = _make_project()
 
-        with mock.patch("project.GitCommand") as mock_gc:
+        with mock.patch("kanon_cli.repo.project.GitCommand") as mock_gc:
             mock_gc.return_value.Wait.return_value = 0
             proj._Revert("commit_sha")
 
@@ -443,7 +441,7 @@ class TestGetSubmodules:
         """Lines 2234-2238: no .gitmodules file."""
         proj = _make_project()
 
-        with mock.patch("project.GitCommand") as mock_gc:
+        with mock.patch("kanon_cli.repo.project.GitCommand") as mock_gc:
             mock_gc.return_value.Wait.return_value = 1
             result = proj._GetSubmodules()
 

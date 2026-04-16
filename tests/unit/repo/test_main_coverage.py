@@ -18,8 +18,8 @@ from unittest import mock
 
 import pytest
 
-import main
-from error import (
+from kanon_cli.repo import main
+from kanon_cli.repo.error import (
     DownloadError,
     InvalidProjectGroupsError,
     ManifestParseError,
@@ -69,7 +69,7 @@ class TestCheckWrapperVersion:
         assert exc_info.value.code == 1
 
     @pytest.mark.unit
-    @mock.patch("main.Wrapper")
+    @mock.patch("kanon_cli.repo.main.Wrapper")
     def test_wrapper_version_older_than_current(self, mock_wrapper):
         """Test _CheckWrapperVersion with older version shows warning."""
         mock_wrapper.return_value.VERSION = (2, 0)
@@ -77,7 +77,7 @@ class TestCheckWrapperVersion:
         main._CheckWrapperVersion("1.20", "/path/to/repo")
 
     @pytest.mark.unit
-    @mock.patch("main.Wrapper")
+    @mock.patch("kanon_cli.repo.main.Wrapper")
     def test_wrapper_version_current(self, mock_wrapper):
         """Test _CheckWrapperVersion with current version."""
         mock_wrapper.return_value.VERSION = (2, 0)
@@ -120,7 +120,7 @@ class TestRepoClass:
         assert gopts.trace is True
 
     @pytest.mark.unit
-    @mock.patch("main.RepoConfig")
+    @mock.patch("kanon_cli.repo.main.RepoConfig")
     def test_expand_alias_no_alias(self, mock_config):
         """Test _ExpandAlias with no alias configured."""
         mock_config.ForRepository.return_value.GetString.return_value = None
@@ -131,7 +131,7 @@ class TestRepoClass:
         assert args == []
 
     @pytest.mark.unit
-    @mock.patch("main.RepoConfig")
+    @mock.patch("kanon_cli.repo.main.RepoConfig")
     def test_expand_alias_existing_command(self, mock_config):
         """Test _ExpandAlias with existing command doesn't resolve alias."""
         repo = main._Repo("/test/repo")
@@ -140,7 +140,7 @@ class TestRepoClass:
         assert args == []
 
     @pytest.mark.unit
-    @mock.patch("main.RepoConfig")
+    @mock.patch("kanon_cli.repo.main.RepoConfig")
     def test_expand_alias_with_alias(self, mock_config):
         """Test _ExpandAlias with configured alias."""
         mock_config.ForRepository.return_value.GetString.return_value = "status --verbose"
@@ -158,7 +158,7 @@ class TestRepoClass:
         assert "Available commands:" in captured.out
 
     @pytest.mark.unit
-    @mock.patch("main._Repo._PrintHelp")
+    @mock.patch("kanon_cli.repo.main._Repo._PrintHelp")
     def test_run_help_option(self, mock_help):
         """Test _Run with --help option."""
         repo = main._Repo("/test/repo")
@@ -170,7 +170,7 @@ class TestRepoClass:
         mock_help.assert_called_once()
 
     @pytest.mark.unit
-    @mock.patch("main._Repo._PrintHelp")
+    @mock.patch("kanon_cli.repo.main._Repo._PrintHelp")
     def test_run_help_all_option(self, mock_help):
         """Test _Run with --help-all option."""
         repo = main._Repo("/test/repo")
@@ -212,9 +212,9 @@ class TestRunLongErrors:
     """Test _RunLong error handling."""
 
     @pytest.mark.unit
-    @mock.patch("main.RepoClient")
-    @mock.patch("main.SetDefaultColoring")
-    @mock.patch("main.EventLog")
+    @mock.patch("kanon_cli.repo.main.RepoClient")
+    @mock.patch("kanon_cli.repo.main.SetDefaultColoring")
+    @mock.patch("kanon_cli.repo.main.EventLog")
     def test_run_long_unknown_command(self, mock_event_log, mock_coloring, mock_client):
         """Test _RunLong with unknown command."""
         repo = main._Repo("/test/repo")
@@ -231,10 +231,10 @@ class TestRunLongErrors:
         assert result == 1
 
     @pytest.mark.unit
-    @mock.patch("main.RepoClient")
-    @mock.patch("main.SetDefaultColoring")
-    @mock.patch("main.EventLog")
-    @mock.patch("main.Editor")
+    @mock.patch("kanon_cli.repo.main.RepoClient")
+    @mock.patch("kanon_cli.repo.main.SetDefaultColoring")
+    @mock.patch("kanon_cli.repo.main.EventLog")
+    @mock.patch("kanon_cli.repo.main.Editor")
     def test_run_long_no_manifest_exception(self, mock_editor, mock_event_log, mock_coloring, mock_client):
         """Test _RunLong with NoManifestException during option parsing."""
         repo = main._Repo("/test/repo")
@@ -257,10 +257,10 @@ class TestRunLongErrors:
         assert result == 1
 
     @pytest.mark.unit
-    @mock.patch("main.RepoClient")
-    @mock.patch("main.SetDefaultColoring")
-    @mock.patch("main.EventLog")
-    @mock.patch("main.Editor")
+    @mock.patch("kanon_cli.repo.main.RepoClient")
+    @mock.patch("kanon_cli.repo.main.SetDefaultColoring")
+    @mock.patch("kanon_cli.repo.main.EventLog")
+    @mock.patch("kanon_cli.repo.main.Editor")
     def test_run_long_download_error(self, mock_editor, mock_event_log, mock_coloring, mock_client):
         """Test _RunLong with DownloadError during execution."""
         repo = main._Repo("/test/repo")
@@ -282,10 +282,10 @@ class TestRunLongErrors:
         assert result != 0
 
     @pytest.mark.unit
-    @mock.patch("main.RepoClient")
-    @mock.patch("main.SetDefaultColoring")
-    @mock.patch("main.EventLog")
-    @mock.patch("main.Editor")
+    @mock.patch("kanon_cli.repo.main.RepoClient")
+    @mock.patch("kanon_cli.repo.main.SetDefaultColoring")
+    @mock.patch("kanon_cli.repo.main.EventLog")
+    @mock.patch("kanon_cli.repo.main.Editor")
     def test_run_long_no_such_project_error(self, mock_editor, mock_event_log, mock_coloring, mock_client):
         """Test _RunLong with NoSuchProjectError during execution."""
         repo = main._Repo("/test/repo")
@@ -307,10 +307,10 @@ class TestRunLongErrors:
         assert result != 0
 
     @pytest.mark.unit
-    @mock.patch("main.RepoClient")
-    @mock.patch("main.SetDefaultColoring")
-    @mock.patch("main.EventLog")
-    @mock.patch("main.Editor")
+    @mock.patch("kanon_cli.repo.main.RepoClient")
+    @mock.patch("kanon_cli.repo.main.SetDefaultColoring")
+    @mock.patch("kanon_cli.repo.main.EventLog")
+    @mock.patch("kanon_cli.repo.main.Editor")
     def test_run_long_invalid_project_groups_error(self, mock_editor, mock_event_log, mock_coloring, mock_client):
         """Test _RunLong with InvalidProjectGroupsError."""
         repo = main._Repo("/test/repo")
@@ -332,10 +332,10 @@ class TestRunLongErrors:
         assert result != 0
 
     @pytest.mark.unit
-    @mock.patch("main.RepoClient")
-    @mock.patch("main.SetDefaultColoring")
-    @mock.patch("main.EventLog")
-    @mock.patch("main.Editor")
+    @mock.patch("kanon_cli.repo.main.RepoClient")
+    @mock.patch("kanon_cli.repo.main.SetDefaultColoring")
+    @mock.patch("kanon_cli.repo.main.EventLog")
+    @mock.patch("kanon_cli.repo.main.Editor")
     def test_run_long_manifest_parse_error(self, mock_editor, mock_event_log, mock_coloring, mock_client):
         """Test _RunLong with ManifestParseError."""
         repo = main._Repo("/test/repo")

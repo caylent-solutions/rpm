@@ -19,10 +19,10 @@ from unittest import mock
 
 import pytest
 
-from subcmds.forall import DoWork
-from subcmds.forall import Forall
-from subcmds.forall import ForallColoring
-from subcmds.forall import WorkerKeyboardInterrupt
+from kanon_cli.repo.subcmds.forall import DoWork
+from kanon_cli.repo.subcmds.forall import Forall
+from kanon_cli.repo.subcmds.forall import ForallColoring
+from kanon_cli.repo.subcmds.forall import WorkerKeyboardInterrupt
 
 
 @pytest.mark.unit
@@ -172,7 +172,7 @@ class TestForallDoWorkWrapper:
 
         with mock.patch.object(Forall, "get_parallel_context") as mock_context:
             mock_context.return_value = {"projects": [project]}
-            with mock.patch("subcmds.forall.DoWork", return_value=(0, "output")):
+            with mock.patch("kanon_cli.repo.subcmds.forall.DoWork", return_value=(0, "output")):
                 with mock.patch("os.path.exists", return_value=True):
                     result = Forall.DoWorkWrapper(mirror, opt, cmd, shell, config, 0)
 
@@ -191,7 +191,7 @@ class TestForallDoWorkWrapper:
 
         with mock.patch.object(Forall, "get_parallel_context") as mock_context:
             mock_context.return_value = {"projects": [project]}
-            with mock.patch("subcmds.forall.DoWork", side_effect=KeyboardInterrupt()):
+            with mock.patch("kanon_cli.repo.subcmds.forall.DoWork", side_effect=KeyboardInterrupt()):
                 with pytest.raises(WorkerKeyboardInterrupt):
                     Forall.DoWorkWrapper(mirror, opt, cmd, shell, config, 0)
 

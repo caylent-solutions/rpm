@@ -20,7 +20,7 @@ from unittest import mock
 
 import pytest
 
-from subcmds import init
+from kanon_cli.repo.subcmds import init
 
 
 class InitCommand(unittest.TestCase):
@@ -78,9 +78,9 @@ class InitExecuteRepoRevGuard(unittest.TestCase):
         opt = self._make_opt(repo_rev="feat/initial-rpm-git-repo")
 
         with (
-            mock.patch("subcmds.init.Wrapper") as MockWrapper,
-            mock.patch("subcmds.init.git_require", return_value=True),
-            mock.patch("subcmds.init.WrapperDir", return_value="/fake/dir"),
+            mock.patch("kanon_cli.repo.subcmds.init.Wrapper") as MockWrapper,
+            mock.patch("kanon_cli.repo.subcmds.init.git_require", return_value=True),
+            mock.patch("kanon_cli.repo.subcmds.init.WrapperDir", return_value="/fake/dir"),
             mock.patch.object(cmd, "_SyncManifest"),
             mock.patch.object(cmd, "_DisplayResult"),
             mock.patch("os.isatty", return_value=False),
@@ -103,9 +103,9 @@ class InitExecuteRepoRevGuard(unittest.TestCase):
             opt = self._make_opt(repo_rev="stable")
 
             with (
-                mock.patch("subcmds.init.Wrapper") as MockWrapper,
-                mock.patch("subcmds.init.git_require", return_value=True),
-                mock.patch("subcmds.init.WrapperDir", return_value="/fake/dir"),
+                mock.patch("kanon_cli.repo.subcmds.init.Wrapper") as MockWrapper,
+                mock.patch("kanon_cli.repo.subcmds.init.git_require", return_value=True),
+                mock.patch("kanon_cli.repo.subcmds.init.WrapperDir", return_value="/fake/dir"),
                 mock.patch.object(cmd, "_SyncManifest"),
                 mock.patch.object(cmd, "_DisplayResult"),
                 mock.patch("os.isatty", return_value=False),
@@ -135,9 +135,9 @@ class InitExecuteRepoRevGuard(unittest.TestCase):
         opt = self._make_opt(repo_rev=None)
 
         with (
-            mock.patch("subcmds.init.Wrapper") as MockWrapper,
-            mock.patch("subcmds.init.git_require", return_value=True),
-            mock.patch("subcmds.init.WrapperDir", return_value="/fake/dir"),
+            mock.patch("kanon_cli.repo.subcmds.init.Wrapper") as MockWrapper,
+            mock.patch("kanon_cli.repo.subcmds.init.git_require", return_value=True),
+            mock.patch("kanon_cli.repo.subcmds.init.WrapperDir", return_value="/fake/dir"),
             mock.patch.object(cmd, "_SyncManifest"),
             mock.patch.object(cmd, "_DisplayResult"),
             mock.patch("os.isatty", return_value=False),
@@ -241,7 +241,7 @@ class TestInitSyncManifest:
 
     def test_sync_manifest_raises_on_failure(self):
         """Test _SyncManifest raises UpdateManifestError on failure."""
-        from error import UpdateManifestError
+        from kanon_cli.repo.error import UpdateManifestError
 
         cmd = init.Init()
         cmd.manifest = mock.MagicMock()

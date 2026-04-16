@@ -20,8 +20,8 @@ import json
 from pathlib import Path
 from unittest import mock
 
-import manifest_xml
-from subcmds import manifest
+from kanon_cli.repo import manifest_xml
+from kanon_cli.repo.subcmds import manifest
 
 
 _EXAMPLE_MANIFEST = """\

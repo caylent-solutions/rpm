@@ -22,9 +22,9 @@ import unittest
 import pytest
 from unittest import mock
 
-from color import SetDefaultColoring
-from error import RepoExitError
-from repo_logging import RepoLogger
+from kanon_cli.repo.color import SetDefaultColoring
+from kanon_cli.repo.error import RepoExitError
+from kanon_cli.repo.repo_logging import RepoLogger
 
 
 class TestRepoLogger(unittest.TestCase):
@@ -119,7 +119,7 @@ class TestRepoLoggerInit(unittest.TestCase):
 
     def test_logger_uses_coloring_formatter(self):
         """RepoLogger should use _LogColoringFormatter."""
-        from repo_logging import _LogColoringFormatter
+        from kanon_cli.repo.repo_logging import _LogColoringFormatter
 
         logger = RepoLogger(__name__)
         handler = logger.handlers[0]
@@ -139,7 +139,7 @@ class TestLogColoringFormatter(unittest.TestCase):
 
     def test_formatter_initializes_with_config(self):
         """_LogColoringFormatter should initialize with config."""
-        from repo_logging import _LogColoringFormatter
+        from kanon_cli.repo.repo_logging import _LogColoringFormatter
 
         config = mock.Mock()
         config.GetString.return_value = None
@@ -148,14 +148,14 @@ class TestLogColoringFormatter(unittest.TestCase):
 
     def test_formatter_uses_default_config_when_none(self):
         """_LogColoringFormatter should use default config when None."""
-        from repo_logging import _LogColoringFormatter, _ConfigMock
+        from kanon_cli.repo.repo_logging import _LogColoringFormatter, _ConfigMock
 
         formatter = _LogColoringFormatter()
         self.assertIsInstance(formatter.config, _ConfigMock)
 
     def test_formatter_format_applies_color(self):
         """_LogColoringFormatter.format should apply color to message."""
-        from repo_logging import _LogColoringFormatter
+        from kanon_cli.repo.repo_logging import _LogColoringFormatter
 
         SetDefaultColoring("always")
         formatter = _LogColoringFormatter()
@@ -166,7 +166,7 @@ class TestLogColoringFormatter(unittest.TestCase):
 
     def test_formatter_format_returns_plain_for_info(self):
         """_LogColoringFormatter.format should return plain text for INFO."""
-        from repo_logging import _LogColoringFormatter
+        from kanon_cli.repo.repo_logging import _LogColoringFormatter
 
         formatter = _LogColoringFormatter()
         record = logging.LogRecord("test", logging.INFO, "path", 1, "test message", (), None)
@@ -180,7 +180,7 @@ class TestLogColoring(unittest.TestCase):
 
     def test_log_coloring_initializes(self):
         """_LogColoring should initialize correctly."""
-        from repo_logging import _LogColoring, _ConfigMock
+        from kanon_cli.repo.repo_logging import _LogColoring, _ConfigMock
 
         config = _ConfigMock()
         coloring = _LogColoring(config)
@@ -189,7 +189,7 @@ class TestLogColoring(unittest.TestCase):
 
     def test_log_coloring_has_level_map(self):
         """_LogColoring should have levelMap with ERROR and WARNING."""
-        from repo_logging import _LogColoring, _ConfigMock
+        from kanon_cli.repo.repo_logging import _LogColoring, _ConfigMock
 
         config = _ConfigMock()
         coloring = _LogColoring(config)
@@ -198,7 +198,7 @@ class TestLogColoring(unittest.TestCase):
 
     def test_log_coloring_error_is_callable(self):
         """_LogColoring.error should be callable."""
-        from repo_logging import _LogColoring, _ConfigMock
+        from kanon_cli.repo.repo_logging import _LogColoring, _ConfigMock
 
         config = _ConfigMock()
         coloring = _LogColoring(config)
@@ -206,7 +206,7 @@ class TestLogColoring(unittest.TestCase):
 
     def test_log_coloring_warning_is_callable(self):
         """_LogColoring.warning should be callable."""
-        from repo_logging import _LogColoring, _ConfigMock
+        from kanon_cli.repo.repo_logging import _LogColoring, _ConfigMock
 
         config = _ConfigMock()
         coloring = _LogColoring(config)
@@ -219,14 +219,14 @@ class TestConfigMock(unittest.TestCase):
 
     def test_config_mock_has_default_values(self):
         """_ConfigMock should have default_values attribute."""
-        from repo_logging import _ConfigMock
+        from kanon_cli.repo.repo_logging import _ConfigMock
 
         config = _ConfigMock()
         self.assertIsInstance(config.default_values, dict)
 
     def test_config_mock_get_string_returns_value(self):
         """_ConfigMock.GetString should return value from defaults."""
-        from repo_logging import _ConfigMock
+        from kanon_cli.repo.repo_logging import _ConfigMock
 
         config = _ConfigMock()
         result = config.GetString("color.ui")
@@ -234,7 +234,7 @@ class TestConfigMock(unittest.TestCase):
 
     def test_config_mock_get_string_returns_none_for_missing(self):
         """_ConfigMock.GetString should return None for missing keys."""
-        from repo_logging import _ConfigMock
+        from kanon_cli.repo.repo_logging import _ConfigMock
 
         config = _ConfigMock()
         result = config.GetString("nonexistent.key")
@@ -264,7 +264,7 @@ class TestLogAggregatedErrorsWithNoErrors(unittest.TestCase):
     @mock.patch.object(RepoLogger, "error")
     def test_log_aggregated_errors_with_exactly_max_errors(self, mock_error):
         """log_aggregated_errors should not show +N when exactly MAX_PRINT_ERRORS."""
-        from repo_logging import MAX_PRINT_ERRORS
+        from kanon_cli.repo.repo_logging import MAX_PRINT_ERRORS
 
         logger = RepoLogger(__name__)
         errors = [Exception(f"error{i}") for i in range(MAX_PRINT_ERRORS)]
@@ -277,7 +277,7 @@ class TestLogAggregatedErrorsWithNoErrors(unittest.TestCase):
     @mock.patch.object(RepoLogger, "error")
     def test_log_aggregated_errors_with_one_extra_error(self, mock_error):
         """log_aggregated_errors should show +1 when one over MAX_PRINT_ERRORS."""
-        from repo_logging import MAX_PRINT_ERRORS
+        from kanon_cli.repo.repo_logging import MAX_PRINT_ERRORS
 
         logger = RepoLogger(__name__)
         errors = [Exception(f"error{i}") for i in range(MAX_PRINT_ERRORS + 1)]

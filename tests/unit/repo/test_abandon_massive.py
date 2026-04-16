@@ -18,8 +18,8 @@ from unittest import mock
 
 import pytest
 
-from error import RepoError
-from subcmds.abandon import Abandon, AbandonError
+from kanon_cli.repo.error import RepoError
+from kanon_cli.repo.subcmds.abandon import Abandon, AbandonError
 
 
 def _make_cmd():
@@ -66,7 +66,7 @@ def test_validate_options_valid_branch():
     opt = mock.MagicMock()
     opt.all = False
 
-    with mock.patch("subcmds.abandon.git") as mock_git:
+    with mock.patch("kanon_cli.repo.subcmds.abandon.git") as mock_git:
         mock_git.check_ref_format.return_value = True
 
         cmd.ValidateOptions(opt, ["feature-branch"])

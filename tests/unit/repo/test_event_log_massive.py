@@ -19,7 +19,7 @@ from unittest import mock
 
 import pytest
 
-from event_log import EventLog, TASK_COMMAND, TASK_SYNC_NETWORK, TASK_SYNC_LOCAL
+from kanon_cli.repo.event_log import EventLog, TASK_COMMAND, TASK_SYNC_NETWORK, TASK_SYNC_LOCAL
 
 
 @pytest.mark.unit

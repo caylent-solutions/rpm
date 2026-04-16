@@ -10,16 +10,9 @@ from unittest import mock
 
 import pytest
 
-from error import (
-    GitError,
-    RepoError,
-)
-import project
-from project import (
-    LocalSyncFail,
-    _PriorSyncFailedError,
-    _DirtyError,
-)
+from kanon_cli.repo.error import GitError, RepoError
+from kanon_cli.repo import project
+from kanon_cli.repo.project import LocalSyncFail, _PriorSyncFailedError, _DirtyError
 
 pytestmark = pytest.mark.unit
 
@@ -193,7 +186,7 @@ class TestSyncNetworkHalf:
         with mock.patch.object(p, "_FetchArchive"):
             with mock.patch.object(p, "_ExtractArchive", return_value=True):
                 with mock.patch.object(p, "_CopyAndLinkFiles"):
-                    with mock.patch("platform_utils.remove"):
+                    with mock.patch("kanon_cli.repo.platform_utils.remove"):
                         result = p.Sync_NetworkHalf(
                             archive=True,
                             clone_bundle=False,
@@ -323,8 +316,8 @@ class TestSyncNetworkHalf:
                     with mock.patch.object(p, "_InitRemote"):
                         with mock.patch.object(p, "_RemoteFetch", return_value=True):
                             with mock.patch.object(p, "_InitMRef"):
-                                with mock.patch("platform_utils.islink", return_value=True):
-                                    with mock.patch("platform_utils.remove"):
+                                with mock.patch("kanon_cli.repo.platform_utils.islink", return_value=True):
+                                    with mock.patch("kanon_cli.repo.platform_utils.remove"):
                                         p.Sync_NetworkHalf(
                                             is_new=False,
                                             clone_bundle=False,
@@ -555,7 +548,7 @@ class TestSyncNetworkHalf:
                 with mock.patch.object(p, "_InitRemote"):
                     with mock.patch.object(p, "_RemoteFetch", return_value=True):
                         with mock.patch.object(p, "_InitMirrorHead") as init_mirror_mock:
-                            with mock.patch("platform_utils.remove"):
+                            with mock.patch("kanon_cli.repo.platform_utils.remove"):
                                 p.Sync_NetworkHalf(
                                     clone_bundle=False,
                                     partial_clone_exclude=[],
@@ -1154,7 +1147,7 @@ class TestMiscellaneousMethods:
 
     def test_sync_network_half_result_success(self, tmp_path):
         """SyncNetworkHalfResult success property."""
-        from project import SyncNetworkHalfResult
+        from kanon_cli.repo.project import SyncNetworkHalfResult
 
         result = SyncNetworkHalfResult(remote_fetched=True, error=None)
         assert result.success is True
@@ -1164,7 +1157,7 @@ class TestMiscellaneousMethods:
 
     def test_delete_worktree_error_aggregate_errors(self, tmp_path):
         """DeleteWorktreeError should store aggregate errors."""
-        from project import DeleteWorktreeError
+        from kanon_cli.repo.project import DeleteWorktreeError
 
         errors = [GitError("error1"), GitError("error2")]
         exc = DeleteWorktreeError("message", aggregate_errors=errors)
@@ -1173,7 +1166,7 @@ class TestMiscellaneousMethods:
 
     def test_sync_network_half_error(self, tmp_path):
         """SyncNetworkHalfError should be created properly."""
-        from project import SyncNetworkHalfError
+        from kanon_cli.repo.project import SyncNetworkHalfError
 
         error = SyncNetworkHalfError("test message", project="test-project")
         assert "test message" in str(error)

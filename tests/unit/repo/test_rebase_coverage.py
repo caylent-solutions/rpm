@@ -18,7 +18,7 @@ from unittest import mock
 
 import pytest
 
-from subcmds.rebase import Rebase, RebaseColoring
+from kanon_cli.repo.subcmds.rebase import Rebase, RebaseColoring
 
 
 def _make_cmd():
@@ -68,7 +68,7 @@ class TestRebaseCommand:
 
     @pytest.mark.unit
     @mock.patch.object(Rebase, "GetProjects")
-    @mock.patch("subcmds.rebase.GitCommand")
+    @mock.patch("kanon_cli.repo.subcmds.rebase.GitCommand")
     def test_execute_single_project_success(self, mock_git_command, mock_get_projects):
         """Test Execute with single project success."""
         cmd = _make_cmd()
@@ -141,7 +141,7 @@ class TestRebaseCommand:
 
     @pytest.mark.unit
     @mock.patch.object(Rebase, "GetProjects")
-    @mock.patch("subcmds.rebase.GitCommand")
+    @mock.patch("kanon_cli.repo.subcmds.rebase.GitCommand")
     def test_execute_with_whitespace_option(self, mock_git_command, mock_get_projects):
         """Test Execute with whitespace option."""
         cmd = _make_cmd()
@@ -175,7 +175,7 @@ class TestRebaseCommand:
 
     @pytest.mark.unit
     @mock.patch.object(Rebase, "GetProjects")
-    @mock.patch("subcmds.rebase.GitCommand")
+    @mock.patch("kanon_cli.repo.subcmds.rebase.GitCommand")
     def test_execute_with_force_rebase(self, mock_git_command, mock_get_projects):
         """Test Execute with force-rebase option."""
         cmd = _make_cmd()
@@ -209,7 +209,7 @@ class TestRebaseCommand:
 
     @pytest.mark.unit
     @mock.patch.object(Rebase, "GetProjects")
-    @mock.patch("subcmds.rebase.GitCommand")
+    @mock.patch("kanon_cli.repo.subcmds.rebase.GitCommand")
     def test_execute_with_no_ff(self, mock_git_command, mock_get_projects):
         """Test Execute with no-ff option."""
         cmd = _make_cmd()
@@ -243,7 +243,7 @@ class TestRebaseCommand:
 
     @pytest.mark.unit
     @mock.patch.object(Rebase, "GetProjects")
-    @mock.patch("subcmds.rebase.GitCommand")
+    @mock.patch("kanon_cli.repo.subcmds.rebase.GitCommand")
     def test_execute_with_autosquash(self, mock_git_command, mock_get_projects):
         """Test Execute with autosquash option."""
         cmd = _make_cmd()
@@ -277,7 +277,7 @@ class TestRebaseCommand:
 
     @pytest.mark.unit
     @mock.patch.object(Rebase, "GetProjects")
-    @mock.patch("subcmds.rebase.GitCommand")
+    @mock.patch("kanon_cli.repo.subcmds.rebase.GitCommand")
     def test_execute_with_onto_manifest(self, mock_git_command, mock_get_projects):
         """Test Execute with onto-manifest option."""
         cmd = _make_cmd()
@@ -312,7 +312,7 @@ class TestRebaseCommand:
 
     @pytest.mark.unit
     @mock.patch.object(Rebase, "GetProjects")
-    @mock.patch("subcmds.rebase.GitCommand")
+    @mock.patch("kanon_cli.repo.subcmds.rebase.GitCommand")
     def test_execute_with_auto_stash_clean(self, mock_git_command, mock_get_projects):
         """Test Execute with auto-stash on clean working directory."""
         cmd = _make_cmd()
@@ -346,7 +346,7 @@ class TestRebaseCommand:
 
     @pytest.mark.unit
     @mock.patch.object(Rebase, "GetProjects")
-    @mock.patch("subcmds.rebase.GitCommand")
+    @mock.patch("kanon_cli.repo.subcmds.rebase.GitCommand")
     def test_execute_with_auto_stash_dirty(self, mock_git_command, mock_get_projects):
         """Test Execute with auto-stash on dirty working directory."""
         cmd = _make_cmd()
@@ -384,7 +384,7 @@ class TestRebaseCommand:
 
     @pytest.mark.unit
     @mock.patch.object(Rebase, "GetProjects")
-    @mock.patch("subcmds.rebase.GitCommand")
+    @mock.patch("kanon_cli.repo.subcmds.rebase.GitCommand")
     def test_execute_rebase_failure(self, mock_git_command, mock_get_projects):
         """Test Execute with rebase failure."""
         cmd = _make_cmd()
@@ -418,7 +418,7 @@ class TestRebaseCommand:
 
     @pytest.mark.unit
     @mock.patch.object(Rebase, "GetProjects")
-    @mock.patch("subcmds.rebase.GitCommand")
+    @mock.patch("kanon_cli.repo.subcmds.rebase.GitCommand")
     def test_execute_fail_fast(self, mock_git_command, mock_get_projects):
         """Test Execute with fail-fast on multiple projects."""
         cmd = _make_cmd()

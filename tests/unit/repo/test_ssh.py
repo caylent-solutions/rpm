@@ -22,7 +22,7 @@ from unittest import mock
 
 import pytest
 
-import ssh
+from kanon_cli.repo import ssh
 
 
 class SshTests(unittest.TestCase):
@@ -43,8 +43,10 @@ class SshTests(unittest.TestCase):
 
     def test_version(self):
         """Check version() handling."""
-        with mock.patch("ssh._run_ssh_version", return_value="OpenSSH_1.2\n"):
+        ssh.version.cache_clear()
+        with mock.patch("kanon_cli.repo.ssh._run_ssh_version", return_value="OpenSSH_1.2\n"):
             self.assertEqual(ssh.version(), (1, 2))
+        ssh.version.cache_clear()
 
     def test_context_manager_empty(self):
         """Verify context manager with no clients works correctly."""
@@ -70,12 +72,12 @@ class SshTests(unittest.TestCase):
         proxy = ssh.ProxyManager(manager)
         with mock.patch("tempfile.mkdtemp", return_value="/tmp/foo"):
             # Old ssh version uses port.
-            with mock.patch("ssh.version", return_value=(6, 6)):
+            with mock.patch("kanon_cli.repo.ssh.version", return_value=(6, 6)):
                 self.assertTrue(proxy.sock().endswith("%p"))
 
             proxy._sock_path = None
             # New ssh version uses hash.
-            with mock.patch("ssh.version", return_value=(6, 7)):
+            with mock.patch("kanon_cli.repo.ssh.version", return_value=(6, 7)):
                 self.assertTrue(proxy.sock().endswith("%C"))
 
 
@@ -106,7 +108,7 @@ class SshMandatoryTests(unittest.TestCase):
         """FileNotFoundError from ssh -V should cause sys.exit(1)."""
         ssh.version.cache_clear()
         with mock.patch(
-            "ssh._run_ssh_version",
+            "kanon_cli.repo.ssh._run_ssh_version",
             side_effect=FileNotFoundError("ssh not found"),
         ):
             with mock.patch("sys.exit") as mock_exit:
@@ -124,7 +126,7 @@ class SshMandatoryTests(unittest.TestCase):
         """CalledProcessError from ssh -V should cause sys.exit(1)."""
         ssh.version.cache_clear()
         with mock.patch(
-            "ssh._run_ssh_version",
+            "kanon_cli.repo.ssh._run_ssh_version",
             side_effect=subprocess.CalledProcessError(1, "ssh", output=b"error"),
         ):
             with mock.patch("sys.exit") as mock_exit:
@@ -137,7 +139,7 @@ class SshMandatoryTests(unittest.TestCase):
         """Normal ssh version parsing should return a tuple."""
         ssh.version.cache_clear()
         with mock.patch(
-            "ssh._run_ssh_version",
+            "kanon_cli.repo.ssh._run_ssh_version",
             return_value="OpenSSH_8.9p1 Ubuntu-3, OpenSSL 3.0.2\n",
         ):
             result = ssh.version()
@@ -202,7 +204,7 @@ class ProxyManagerTests(unittest.TestCase):
         with multiprocessing.Manager() as manager:
             proxy = ssh.ProxyManager(manager)
             with mock.patch("tempfile.mkdtemp", return_value="/tmp/ssh-test"):
-                with mock.patch("ssh.version", return_value=(6, 6)):
+                with mock.patch("kanon_cli.repo.ssh.version", return_value=(6, 6)):
                     path = proxy.sock()
                     self.assertIn("/tmp/ssh-test", path)
                     self.assertTrue(path.endswith("%r@%h:%p"))
@@ -212,7 +214,7 @@ class ProxyManagerTests(unittest.TestCase):
         with multiprocessing.Manager() as manager:
             proxy = ssh.ProxyManager(manager)
             with mock.patch("tempfile.mkdtemp", return_value="/tmp/ssh-test"):
-                with mock.patch("ssh.version", return_value=(6, 7)):
+                with mock.patch("kanon_cli.repo.ssh.version", return_value=(6, 7)):
                     path = proxy.sock()
                     self.assertTrue(path.endswith("%C"))
 
@@ -228,7 +230,7 @@ class ProxyManagerTests(unittest.TestCase):
         with multiprocessing.Manager() as manager:
             proxy = ssh.ProxyManager(manager)
             with mock.patch("tempfile.mkdtemp", return_value="/tmp/ssh-cache"):
-                with mock.patch("ssh.version", return_value=(7, 0)):
+                with mock.patch("kanon_cli.repo.ssh.version", return_value=(7, 0)):
                     path1 = proxy.sock()
                     path2 = proxy.sock()
                     self.assertEqual(path1, path2)
@@ -260,8 +262,8 @@ class ProxyManagerTests(unittest.TestCase):
         with multiprocessing.Manager() as manager:
             proxy = ssh.ProxyManager(manager)
             with mock.patch("tempfile.mkdtemp", return_value="/tmp/ssh-remove"):
-                with mock.patch("ssh.version", return_value=(7, 0)):
-                    with mock.patch("platform_utils.rmdir") as mock_rmdir:
+                with mock.patch("kanon_cli.repo.ssh.version", return_value=(7, 0)):
+                    with mock.patch("kanon_cli.repo.platform_utils.rmdir") as mock_rmdir:
                         proxy.sock()
                         proxy.close()
                         mock_rmdir.assert_called_once()
@@ -389,7 +391,7 @@ class ParseSshVersionTests(unittest.TestCase):
 
     def test_parse_calls_run_when_no_arg(self):
         """Should call _run_ssh_version when ver_str is None."""
-        with mock.patch("ssh._run_ssh_version", return_value="OpenSSH_7.8\n"):
+        with mock.patch("kanon_cli.repo.ssh._run_ssh_version", return_value="OpenSSH_7.8\n"):
             result = ssh._parse_ssh_version()
             self.assertEqual(result, (7, 8))
 

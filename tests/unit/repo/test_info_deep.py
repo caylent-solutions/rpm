@@ -18,8 +18,8 @@ from unittest import mock
 
 import pytest
 
-from subcmds.info import _Coloring
-from subcmds.info import Info
+from kanon_cli.repo.subcmds.info import _Coloring
+from kanon_cli.repo.subcmds.info import Info
 
 
 @pytest.mark.unit

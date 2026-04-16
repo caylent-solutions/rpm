@@ -16,7 +16,7 @@
 
 import pytest
 
-from subcmds.download import CHANGE_RE
+from kanon_cli.repo.subcmds.download import CHANGE_RE
 
 
 class TestDownloadCommand:

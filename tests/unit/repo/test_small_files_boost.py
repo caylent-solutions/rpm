@@ -34,7 +34,7 @@ class TestForallDoWorkProcessResults:
 
     def test_process_results_newline_handling(self):
         """Line 270-271: output ending with newline sets end=''."""
-        from subcmds.forall import DoWork
+        from kanon_cli.repo.subcmds.forall import DoWork
 
         project = mock.Mock()
         project.name = "proj"
@@ -70,7 +70,7 @@ class TestForallDoWorkProcessResults:
 
     def test_process_results_abort_on_errors_in_execute(self):
         """Lines 259-276: _ProcessResults raises when abort_on_errors is set."""
-        from subcmds.forall import Forall
+        from kanon_cli.repo.subcmds.forall import Forall
 
         forall = Forall()
         forall.GetProjects = mock.Mock(return_value=[mock.Mock()])
@@ -113,7 +113,7 @@ class TestForallDoWorkProcessResults:
 
     def test_process_results_multiple_outputs_with_header(self):
         """Lines 263-266: second output prints blank line when project_header."""
-        from subcmds.forall import Forall
+        from kanon_cli.repo.subcmds.forall import Forall
 
         forall = Forall()
         forall.GetProjects = mock.Mock(return_value=[mock.Mock(), mock.Mock()])
@@ -164,7 +164,7 @@ class TestForallDoWorkSpecialCases:
 
     def test_cn_none_when_all_args_are_flags(self):
         """Line 225: cn = None when all args after git start with '-'."""
-        from subcmds.forall import Forall
+        from kanon_cli.repo.subcmds.forall import Forall
 
         forall = Forall()
         forall.GetProjects = mock.Mock(return_value=[mock.Mock()])
@@ -193,7 +193,7 @@ class TestForallDoWorkSpecialCases:
 
     def test_color_cmd_insertion(self):
         """Line 233: --color is inserted when cn is in _CAN_COLOR and is_on."""
-        from subcmds.forall import Forall
+        from kanon_cli.repo.subcmds.forall import Forall
 
         forall = Forall()
         forall.GetProjects = mock.Mock(return_value=[mock.Mock()])
@@ -222,7 +222,7 @@ class TestForallDoWorkSpecialCases:
         with (
             mock.patch("os.path.isfile", return_value=False),
             mock.patch(
-                "color.Coloring.is_on",
+                "kanon_cli.repo.color.Coloring.is_on",
                 new_callable=lambda: property(lambda s: True),
             ),
         ):
@@ -230,7 +230,7 @@ class TestForallDoWorkSpecialCases:
 
     def test_smart_sync_manifest_override(self):
         """Line 243: Override manifest when smart_sync_override.xml exists."""
-        from subcmds.forall import Forall
+        from kanon_cli.repo.subcmds.forall import Forall
 
         forall = Forall()
         forall.GetProjects = mock.Mock(return_value=[])
@@ -259,8 +259,8 @@ class TestForallDoWorkSpecialCases:
 
     def test_do_work_manifest_invalid_revision(self):
         """Lines 350-351: ManifestInvalidRevisionError sets lrev=''."""
-        from error import ManifestInvalidRevisionError
-        from subcmds.forall import DoWork
+        from kanon_cli.repo.error import ManifestInvalidRevisionError
+        from kanon_cli.repo.subcmds.forall import DoWork
 
         project = mock.Mock()
         project.name = "proj"
@@ -296,7 +296,7 @@ class TestForallDoWorkSpecialCases:
     def test_do_work_verbose_stderr(self):
         """Line 380: verbose sets stderr=subprocess.STDOUT."""
         import subprocess
-        from subcmds.forall import DoWork
+        from kanon_cli.repo.subcmds.forall import DoWork
 
         project = mock.Mock()
         project.name = "proj"
@@ -332,7 +332,7 @@ class TestForallDoWorkSpecialCases:
 
     def test_do_work_project_header_mirror(self):
         """Line 406: mirror mode uses project.name as header path."""
-        from subcmds.forall import DoWork
+        from kanon_cli.repo.subcmds.forall import DoWork
 
         project = mock.Mock()
         project.name = "test-mirror-proj"
@@ -366,7 +366,7 @@ class TestForallDoWorkSpecialCases:
 
     def test_do_work_missing_checkout_with_header_verbose(self):
         """Lines 373-377: missing checkout with project_header + verbose."""
-        from subcmds.forall import DoWork
+        from kanon_cli.repo.subcmds.forall import DoWork
 
         project = mock.Mock()
         project.name = "proj"
@@ -394,7 +394,7 @@ class TestForallDoWorkSpecialCases:
 
     def test_forall_execute_generic_exception(self):
         """Lines 297-303: generic exception handling in Execute."""
-        from subcmds.forall import Forall
+        from kanon_cli.repo.subcmds.forall import Forall
 
         forall = Forall()
         forall.GetProjects = mock.Mock(return_value=[mock.Mock()])
@@ -434,7 +434,7 @@ class TestBranchesExecuteDeepCoverage:
     """Cover lines 166 (published='p'), 188-197 (not-in-project), 204-212."""
 
     def _make_cmd(self):
-        from subcmds.branches import Branches
+        from kanon_cli.repo.subcmds.branches import Branches
 
         cmd = Branches.__new__(Branches)
         cmd.manifest = mock.MagicMock()
@@ -442,7 +442,7 @@ class TestBranchesExecuteDeepCoverage:
 
     def test_published_partial(self):
         """Line 166: published='p' when IsPublished but not IsPublishedEqual."""
-        from subcmds.branches import Branches
+        from kanon_cli.repo.subcmds.branches import Branches
 
         cmd = self._make_cmd()
         opt = mock.MagicMock()
@@ -476,7 +476,7 @@ class TestBranchesExecuteDeepCoverage:
 
     def test_not_in_project_display(self):
         """Lines 188-197: 'not in' display path when branch in majority."""
-        from subcmds.branches import Branches
+        from kanon_cli.repo.subcmds.branches import Branches
 
         cmd = self._make_cmd()
         opt = mock.MagicMock()
@@ -519,7 +519,7 @@ class TestBranchesExecuteDeepCoverage:
 
     def test_long_line_wraps_branch_display(self):
         """Lines 204-212: when line is too long, wraps with colon style."""
-        from subcmds.branches import Branches
+        from kanon_cli.repo.subcmds.branches import Branches
 
         cmd = self._make_cmd()
         opt = mock.MagicMock()
@@ -558,7 +558,7 @@ class TestBranchesExecuteDeepCoverage:
 
     def test_split_current_long_display(self):
         """Lines 204-212: split current branch with non_cur_paths iteration."""
-        from subcmds.branches import Branches
+        from kanon_cli.repo.subcmds.branches import Branches
 
         cmd = self._make_cmd()
         opt = mock.MagicMock()
@@ -624,7 +624,7 @@ class TestPlatformUtilsWindows:
 
     def test_symlink_windows_directory(self):
         """Lines 44: Windows directory symlink path."""
-        import platform_utils
+        from kanon_cli.repo import platform_utils
 
         mock_win32 = mock.MagicMock()
         with (
@@ -638,7 +638,7 @@ class TestPlatformUtilsWindows:
 
     def test_winpath_is_valid_no_drive_no_sep(self):
         """Lines 77-79: _winpath_is_valid with different path forms."""
-        import platform_utils
+        from kanon_cli.repo import platform_utils
 
         with mock.patch.object(platform_utils, "isWindows", return_value=True):
             # Relative path like "foo\\bar" should be valid (tail[0] != os.sep)
@@ -650,7 +650,7 @@ class TestPlatformUtilsWindows:
 
     def test_winpath_is_valid_drive_with_sep(self):
         """Line 77: drive+valid tail."""
-        import platform_utils
+        from kanon_cli.repo import platform_utils
 
         with mock.patch.object(platform_utils, "isWindows", return_value=True):
             # On Linux os.sep is '/' so we simulate the Windows case
@@ -663,7 +663,7 @@ class TestPlatformUtilsWindows:
 
     def test_winpath_is_valid_empty_tail_no_drive(self):
         """Line 79: empty tail, no drive (e.g., '.')."""
-        import platform_utils
+        from kanon_cli.repo import platform_utils
 
         with mock.patch.object(platform_utils, "isWindows", return_value=True):
             with (
@@ -674,7 +674,7 @@ class TestPlatformUtilsWindows:
 
     def test_makelongpath_windows_long(self):
         """Lines 92-98: Windows long path prefix addition."""
-        import platform_utils
+        from kanon_cli.repo import platform_utils
 
         long_path = "C:\\" + "a" * 250
         with (
@@ -687,7 +687,7 @@ class TestPlatformUtilsWindows:
 
     def test_makelongpath_windows_already_prefixed(self):
         """Line 92-93: path already has long-path prefix."""
-        import platform_utils
+        from kanon_cli.repo import platform_utils
 
         path = "\\\\?\\" + "C:\\" + "a" * 250
         with mock.patch.object(platform_utils, "isWindows", return_value=True):
@@ -696,7 +696,7 @@ class TestPlatformUtilsWindows:
 
     def test_makelongpath_windows_relative(self):
         """Line 94-95: relative path on Windows stays unchanged."""
-        import platform_utils
+        from kanon_cli.repo import platform_utils
 
         long_path = "a" * 250
         with (
@@ -708,7 +708,7 @@ class TestPlatformUtilsWindows:
 
     def test_rename_windows_eexist(self):
         """Line 136: Windows rename with EEXIST fallback."""
-        import platform_utils
+        from kanon_cli.repo import platform_utils
 
         with (
             mock.patch.object(platform_utils, "isWindows", return_value=True),
@@ -727,7 +727,7 @@ class TestPlatformUtilsWindows:
 
     def test_walk_windows_impl_topdown_false(self):
         """Lines 200-206: _walk_windows_impl with topdown=False."""
-        import platform_utils
+        from kanon_cli.repo import platform_utils
 
         with (
             mock.patch.object(platform_utils, "listdir", return_value=["dir1", "file1"]),
@@ -745,7 +745,7 @@ class TestPlatformUtilsWindows:
 
     def test_walk_windows_impl_onerror(self):
         """Lines 185-188: _walk_windows_impl with onerror callback."""
-        import platform_utils
+        from kanon_cli.repo import platform_utils
 
         onerror = mock.Mock()
         with mock.patch.object(platform_utils, "listdir", side_effect=OSError("fail")):
@@ -755,7 +755,7 @@ class TestPlatformUtilsWindows:
 
     def test_walk_windows_impl_followlinks(self):
         """Lines 200-202: _walk_windows_impl with followlinks=True."""
-        import platform_utils
+        from kanon_cli.repo import platform_utils
 
         with (
             mock.patch.object(platform_utils, "listdir", return_value=["lnk"]),
@@ -779,7 +779,7 @@ class TestSuperprojectLogAndSync:
     """Cover _LogMessage, _LogError, _LogWarning, Sync completion."""
 
     def _make_superproject(self):
-        from git_superproject import Superproject
+        from kanon_cli.repo.git_superproject import Superproject
 
         manifest = mock.Mock()
         manifest.repodir = "/tmp/repo"
@@ -844,7 +844,7 @@ class TestSuperprojectLogAndSync:
         with (
             mock.patch("os.path.exists", side_effect=[True, False]),
             mock.patch("builtins.print") as mock_print,
-            mock.patch("git_superproject.GitCommand", return_value=mock_p),
+            mock.patch("kanon_cli.repo.git_superproject.GitCommand", return_value=mock_p),
         ):
             result = sp._Init()
             assert result is True
@@ -873,7 +873,7 @@ class TestSuperprojectWriteManifest:
     """Cover _WriteManifestFile lines 419-422, 430-432."""
 
     def _make_superproject(self):
-        from git_superproject import Superproject
+        from kanon_cli.repo.git_superproject import Superproject
 
         manifest = mock.Mock()
         manifest.repodir = "/tmp/repo"
@@ -919,7 +919,7 @@ class TestSuperprojectUpdateProjects:
     """Cover UpdateProjectsRevisionId line 474 and missing commit ids."""
 
     def _make_superproject(self):
-        from git_superproject import Superproject
+        from kanon_cli.repo.git_superproject import Superproject
 
         manifest = mock.Mock()
         manifest.repodir = "/tmp/repo"
@@ -947,7 +947,7 @@ class TestSuperprojectUpdateProjects:
         project.manifest.IsFromLocalManifest.return_value = False
 
         with mock.patch.object(sp, "_GetAllProjectsCommitIds") as mock_get:
-            from git_superproject import CommitIdsResult
+            from kanon_cli.repo.git_superproject import CommitIdsResult
 
             mock_get.return_value = CommitIdsResult(commit_ids={"other_proj": "abc123"}, fatal=False)
             with mock.patch("builtins.print"):
@@ -974,7 +974,7 @@ class TestSuperprojectUpdateProjects:
             mock.patch.object(sp, "_GetAllProjectsCommitIds") as mock_get,
             mock.patch.object(sp, "_WriteManifestFile", return_value="/tmp/manifest.xml"),
         ):
-            from git_superproject import CommitIdsResult
+            from kanon_cli.repo.git_superproject import CommitIdsResult
 
             mock_get.return_value = CommitIdsResult(commit_ids={"proj_to_update": "newid123"}, fatal=False)
             result = sp.UpdateProjectsRevisionId([skipped_project, updated_project], mock.Mock())
@@ -989,7 +989,7 @@ class TestUseSuperprojectFromConfiguration:
 
     def test_user_choice_false(self):
         """Line 525: user opted out, prints not-enrolled message."""
-        from git_superproject import _UseSuperprojectFromConfiguration
+        from kanon_cli.repo.git_superproject import _UseSuperprojectFromConfiguration
         import time
 
         # Clear the lru_cache
@@ -1000,7 +1000,7 @@ class TestUseSuperprojectFromConfiguration:
         mock_user_cfg.GetInt.return_value = int(time.time()) + 10000
 
         with (
-            mock.patch("git_superproject.RepoConfig") as mock_rc,
+            mock.patch("kanon_cli.repo.git_superproject.RepoConfig") as mock_rc,
             mock.patch("builtins.print"),
         ):
             mock_rc.ForUser.return_value = mock_user_cfg
@@ -1011,7 +1011,7 @@ class TestUseSuperprojectFromConfiguration:
 
     def test_no_valid_choice_no_system(self):
         """Line 558: no unexpired choice, system says no -> False."""
-        from git_superproject import _UseSuperprojectFromConfiguration
+        from kanon_cli.repo.git_superproject import _UseSuperprojectFromConfiguration
 
         _UseSuperprojectFromConfiguration.cache_clear()
 
@@ -1021,7 +1021,7 @@ class TestUseSuperprojectFromConfiguration:
         mock_system_cfg = mock.Mock()
         mock_system_cfg.GetBoolean.return_value = False
 
-        with mock.patch("git_superproject.RepoConfig") as mock_rc:
+        with mock.patch("kanon_cli.repo.git_superproject.RepoConfig") as mock_rc:
             mock_rc.ForUser.return_value = mock_user_cfg
             mock_rc.ForSystem.return_value = mock_system_cfg
             result = _UseSuperprojectFromConfiguration()
@@ -1037,14 +1037,14 @@ class TestUseSuperproject:
     def test_use_superproject_no_superproject_no_client(self):
         """manifest.superproject truthy but client_value None goes
         to _UseSuperprojectFromConfiguration."""
-        from git_superproject import UseSuperproject
+        from kanon_cli.repo.git_superproject import UseSuperproject
 
         manifest = mock.Mock()
         manifest.superproject = True
         manifest.manifestProject.use_superproject = None
 
         with mock.patch(
-            "git_superproject._UseSuperprojectFromConfiguration",
+            "kanon_cli.repo.git_superproject._UseSuperprojectFromConfiguration",
             return_value=False,
         ) as mock_cfg:
             result = UseSuperproject(None, manifest)
@@ -1058,7 +1058,7 @@ class TestUseSuperproject:
         This requires use_superproject=None, client_value=None,
         and manifest.superproject falsy at the elif on line 591.
         """
-        from git_superproject import UseSuperproject
+        from kanon_cli.repo.git_superproject import UseSuperproject
 
         manifest = mock.Mock()
         # First check on line 582 needs superproject truthy
@@ -1083,8 +1083,8 @@ class TestSmartsyncExecute:
 
     def test_execute_sets_smart_sync(self):
         """Lines 32-33: Execute sets opt.smart_sync and calls Sync.Execute."""
-        from subcmds.smartsync import Smartsync
-        from subcmds.sync import Sync
+        from kanon_cli.repo.subcmds.smartsync import Smartsync
+        from kanon_cli.repo.subcmds.sync import Sync
 
         smartsync = Smartsync.__new__(Smartsync)
         opt = mock.Mock()
@@ -1107,9 +1107,9 @@ class TestEventLog:
 
     def test_write_uses_event_target_path(self):
         """Lines 27-29: Write calls _GetEventTargetPath when path is None."""
-        from git_trace2_event_log import EventLog
+        from kanon_cli.repo.git_trace2_event_log import EventLog
 
-        with mock.patch("git_trace2_event_log.RepoSourceVersion", return_value="1.0"):
+        with mock.patch("kanon_cli.repo.git_trace2_event_log.RepoSourceVersion", return_value="1.0"):
             log = EventLog()
 
         with (
@@ -1122,9 +1122,9 @@ class TestEventLog:
 
     def test_write_with_explicit_path(self):
         """Line 29: Write with explicit path skips _GetEventTargetPath."""
-        from git_trace2_event_log import EventLog
+        from kanon_cli.repo.git_trace2_event_log import EventLog
 
-        with mock.patch("git_trace2_event_log.RepoSourceVersion", return_value="1.0"):
+        with mock.patch("kanon_cli.repo.git_trace2_event_log.RepoSourceVersion", return_value="1.0"):
             log = EventLog()
 
         with mock.patch.object(type(log).__bases__[0], "Write", return_value=True) as mock_write:
@@ -1133,13 +1133,13 @@ class TestEventLog:
 
     def test_get_event_target_path(self):
         """Line 32: _GetEventTargetPath calls GetEventTargetPath."""
-        from git_trace2_event_log import EventLog
+        from kanon_cli.repo.git_trace2_event_log import EventLog
 
-        with mock.patch("git_trace2_event_log.RepoSourceVersion", return_value="1.0"):
+        with mock.patch("kanon_cli.repo.git_trace2_event_log.RepoSourceVersion", return_value="1.0"):
             log = EventLog()
 
         with mock.patch(
-            "git_trace2_event_log.GetEventTargetPath",
+            "kanon_cli.repo.git_trace2_event_log.GetEventTargetPath",
             return_value="/target/path",
         ) as mock_gtp:
             result = log._GetEventTargetPath()
@@ -1158,7 +1158,7 @@ class TestDiffExecuteOne:
 
     def test_execute_one_returns_output(self):
         """Lines 56-59: _ExecuteOne returns (ret, buf)."""
-        from subcmds.diff import Diff
+        from kanon_cli.repo.subcmds.diff import Diff
 
         mock_project = mock.Mock()
         mock_project.PrintWorkTreeDiff.return_value = True
@@ -1174,7 +1174,7 @@ class TestDiffExecuteOne:
 
     def test_execute_one_with_output(self):
         """Lines 56-59: _ExecuteOne captures output from PrintWorkTreeDiff."""
-        from subcmds.diff import Diff
+        from kanon_cli.repo.subcmds.diff import Diff
 
         mock_project = mock.Mock()
 
@@ -1200,7 +1200,7 @@ class TestDiffExecute:
 
     def test_execute_processes_results_with_output(self):
         """Lines 69-72: _ProcessResults prints output and tracks failure."""
-        from subcmds.diff import Diff
+        from kanon_cli.repo.subcmds.diff import Diff
 
         diff_cmd = Diff.__new__(Diff)
         diff_cmd.manifest = mock.MagicMock()
@@ -1239,7 +1239,7 @@ class TestDiffExecute:
 
     def test_execute_all_success(self):
         """Lines 69-72: all projects succeed returns 0."""
-        from subcmds.diff import Diff
+        from kanon_cli.repo.subcmds.diff import Diff
 
         diff_cmd = Diff.__new__(Diff)
         diff_cmd.manifest = mock.MagicMock()
@@ -1277,7 +1277,7 @@ class TestUploadSingleBranch:
     """Cover _SingleBranch line 433 (verify pending abort)."""
 
     def _make_upload(self):
-        from subcmds.upload import Upload
+        from kanon_cli.repo.subcmds.upload import Upload
 
         cmd = Upload.__new__(Upload)
         cmd.manifest = mock.MagicMock()
@@ -1286,7 +1286,7 @@ class TestUploadSingleBranch:
 
     def test_single_branch_verify_pending_abort(self):
         """Line 433: _VerifyPendingCommits returns False -> die."""
-        from subcmds.upload import UploadExitError
+        from kanon_cli.repo.subcmds.upload import UploadExitError
 
         cmd = self._make_upload()
 
@@ -1299,7 +1299,7 @@ class TestUploadSingleBranch:
         opt = mock.Mock()
         opt.yes = False
 
-        with mock.patch("subcmds.upload._VerifyPendingCommits", return_value=False):
+        with mock.patch("kanon_cli.repo.subcmds.upload._VerifyPendingCommits", return_value=False):
             with pytest.raises(UploadExitError):
                 cmd._SingleBranch(opt, branch, ([], []))
 
@@ -1309,7 +1309,7 @@ class TestUploadMultipleBranches:
     """Cover _MultipleBranches lines 451, 457, 496, 500-507, 512-515."""
 
     def _make_upload(self):
-        from subcmds.upload import Upload
+        from kanon_cli.repo.subcmds.upload import Upload
 
         cmd = Upload.__new__(Upload)
         cmd.manifest = mock.MagicMock()
@@ -1340,8 +1340,8 @@ class TestUploadMultipleBranches:
         edited = "# project proj1/:\n branch feat ( 1 commit, 2024-01-01) to remote branch main:\n"
 
         with (
-            mock.patch("subcmds.upload.Editor") as mock_editor,
-            mock.patch("subcmds.upload._VerifyPendingCommits", return_value=True),
+            mock.patch("kanon_cli.repo.subcmds.upload.Editor") as mock_editor,
+            mock.patch("kanon_cli.repo.subcmds.upload._VerifyPendingCommits", return_value=True),
             mock.patch.object(cmd, "_UploadAndReport"),
         ):
             mock_editor.EditString.return_value = edited
@@ -1375,8 +1375,8 @@ class TestUploadMultipleBranches:
         edited = "# project proj1/:\n branch feat1 ( 1 commit, 2024-01-01) to remote branch main:\n"
 
         with (
-            mock.patch("subcmds.upload.Editor") as mock_editor,
-            mock.patch("subcmds.upload._VerifyPendingCommits", return_value=True),
+            mock.patch("kanon_cli.repo.subcmds.upload.Editor") as mock_editor,
+            mock.patch("kanon_cli.repo.subcmds.upload._VerifyPendingCommits", return_value=True),
             mock.patch.object(cmd, "_UploadAndReport"),
         ):
             mock_editor.EditString.return_value = edited
@@ -1384,7 +1384,7 @@ class TestUploadMultipleBranches:
 
     def test_multiple_branches_project_not_available(self):
         """Line 496: unknown project in edited script -> die."""
-        from subcmds.upload import UploadExitError
+        from kanon_cli.repo.subcmds.upload import UploadExitError
 
         cmd = self._make_upload()
 
@@ -1405,14 +1405,14 @@ class TestUploadMultipleBranches:
 
         edited = "# project unknown_proj/:\n branch feat (1 commit, date) to remote branch main:\n"
 
-        with mock.patch("subcmds.upload.Editor") as mock_editor:
+        with mock.patch("kanon_cli.repo.subcmds.upload.Editor") as mock_editor:
             mock_editor.EditString.return_value = edited
             with pytest.raises(UploadExitError):
                 cmd._MultipleBranches(opt, [(project, [branch])], ([], []))
 
     def test_multiple_branches_branch_without_project(self):
         """Lines 500-502: branch line before any project -> die."""
-        from subcmds.upload import UploadExitError
+        from kanon_cli.repo.subcmds.upload import UploadExitError
 
         cmd = self._make_upload()
 
@@ -1433,14 +1433,14 @@ class TestUploadMultipleBranches:
 
         edited = " branch feat (1 commit, date) to remote branch main:\n"
 
-        with mock.patch("subcmds.upload.Editor") as mock_editor:
+        with mock.patch("kanon_cli.repo.subcmds.upload.Editor") as mock_editor:
             mock_editor.EditString.return_value = edited
             with pytest.raises(UploadExitError):
                 cmd._MultipleBranches(opt, [(project, [branch])], ([], []))
 
     def test_multiple_branches_branch_not_in_project(self):
         """Lines 505-506: branch not found in project -> die."""
-        from subcmds.upload import UploadExitError
+        from kanon_cli.repo.subcmds.upload import UploadExitError
 
         cmd = self._make_upload()
 
@@ -1461,14 +1461,14 @@ class TestUploadMultipleBranches:
 
         edited = " project proj1/:\n branch unknown_branch (1 commit, date) to remote branch main:\n"
 
-        with mock.patch("subcmds.upload.Editor") as mock_editor:
+        with mock.patch("kanon_cli.repo.subcmds.upload.Editor") as mock_editor:
             mock_editor.EditString.return_value = edited
             with pytest.raises(UploadExitError):
                 cmd._MultipleBranches(opt, [(project, [branch])], ([], []))
 
     def test_multiple_branches_verify_abort(self):
         """Lines 512-513: _VerifyPendingCommits returns False -> die."""
-        from subcmds.upload import UploadExitError
+        from kanon_cli.repo.subcmds.upload import UploadExitError
 
         cmd = self._make_upload()
 
@@ -1490,8 +1490,8 @@ class TestUploadMultipleBranches:
         edited = " project proj1/:\n branch feat (1 commit, date) to remote branch main:\n"
 
         with (
-            mock.patch("subcmds.upload.Editor") as mock_editor,
-            mock.patch("subcmds.upload._VerifyPendingCommits", return_value=False),
+            mock.patch("kanon_cli.repo.subcmds.upload.Editor") as mock_editor,
+            mock.patch("kanon_cli.repo.subcmds.upload._VerifyPendingCommits", return_value=False),
         ):
             mock_editor.EditString.return_value = edited
             with pytest.raises(UploadExitError):
@@ -1503,7 +1503,7 @@ class TestUploadAndReportLongError:
     """Cover _UploadAndReport line 677 (long error message)."""
 
     def _make_upload(self):
-        from subcmds.upload import Upload
+        from kanon_cli.repo.subcmds.upload import Upload
 
         cmd = Upload.__new__(Upload)
         cmd.manifest = mock.MagicMock()
@@ -1512,8 +1512,8 @@ class TestUploadAndReportLongError:
 
     def test_upload_and_report_long_error_message(self):
         """Line 677: error message > 30 chars uses multiline format."""
-        from subcmds.upload import UploadExitError
-        from error import UploadError
+        from kanon_cli.repo.subcmds.upload import UploadExitError
+        from kanon_cli.repo.error import UploadError
 
         cmd = self._make_upload()
 
@@ -1536,7 +1536,7 @@ class TestUploadExecute:
     """Cover Upload.Execute lines 743-758, 773, 779-820."""
 
     def _make_upload(self):
-        from subcmds.upload import Upload
+        from kanon_cli.repo.subcmds.upload import Upload
 
         cmd = Upload.__new__(Upload)
         cmd.manifest = mock.MagicMock()
@@ -1545,7 +1545,7 @@ class TestUploadExecute:
 
     def test_execute_avail_none_logs_error(self):
         """Lines 743-758: avail is None logs branch error."""
-        from subcmds.upload import Upload
+        from kanon_cli.repo.subcmds.upload import Upload
 
         cmd = self._make_upload()
 
@@ -1577,7 +1577,7 @@ class TestUploadExecute:
 
     def test_execute_no_branches_with_branch_name(self):
         """Line 773: no branches with specific branch name."""
-        from subcmds.upload import Upload
+        from kanon_cli.repo.subcmds.upload import Upload
 
         cmd = self._make_upload()
 
@@ -1600,7 +1600,7 @@ class TestUploadExecute:
 
     def test_execute_hook_fails_partial_sync(self):
         """Lines 779-811: hook fails and partial sync detected."""
-        from subcmds.upload import Upload
+        from kanon_cli.repo.subcmds.upload import Upload
 
         cmd = self._make_upload()
 
@@ -1623,8 +1623,8 @@ class TestUploadExecute:
             mock.patch.object(Upload, "ParallelContext") as mock_pc,
             mock.patch.object(Upload, "get_parallel_context", return_value={}),
             mock.patch.object(Upload, "ExecuteInParallel") as mock_exec,
-            mock.patch("subcmds.upload.RepoHook") as mock_hook_cls,
-            mock.patch("subcmds.upload.LocalSyncState") as mock_lss,
+            mock.patch("kanon_cli.repo.subcmds.upload.RepoHook") as mock_hook_cls,
+            mock.patch("kanon_cli.repo.subcmds.upload.LocalSyncState") as mock_lss,
         ):
             mock_pc.return_value.__enter__ = mock.MagicMock()
             mock_pc.return_value.__exit__ = mock.MagicMock()
@@ -1647,7 +1647,7 @@ class TestUploadExecute:
 
     def test_execute_single_branch_path(self):
         """Lines 817-818: single pending branch calls _SingleBranch."""
-        from subcmds.upload import Upload
+        from kanon_cli.repo.subcmds.upload import Upload
 
         cmd = self._make_upload()
 
@@ -1670,7 +1670,7 @@ class TestUploadExecute:
             mock.patch.object(Upload, "ParallelContext") as mock_pc,
             mock.patch.object(Upload, "get_parallel_context", return_value={}),
             mock.patch.object(Upload, "ExecuteInParallel") as mock_exec,
-            mock.patch("subcmds.upload.RepoHook") as mock_hook_cls,
+            mock.patch("kanon_cli.repo.subcmds.upload.RepoHook") as mock_hook_cls,
             mock.patch.object(cmd, "_SingleBranch") as mock_single,
         ):
             mock_pc.return_value.__enter__ = mock.MagicMock()
@@ -1690,7 +1690,7 @@ class TestUploadExecute:
 
     def test_execute_multiple_branches_path(self):
         """Lines 819-820: multiple pending branches calls _MultipleBranches."""
-        from subcmds.upload import Upload
+        from kanon_cli.repo.subcmds.upload import Upload
 
         cmd = self._make_upload()
 
@@ -1714,7 +1714,7 @@ class TestUploadExecute:
             mock.patch.object(Upload, "ParallelContext") as mock_pc,
             mock.patch.object(Upload, "get_parallel_context", return_value={}),
             mock.patch.object(Upload, "ExecuteInParallel") as mock_exec,
-            mock.patch("subcmds.upload.RepoHook") as mock_hook_cls,
+            mock.patch("kanon_cli.repo.subcmds.upload.RepoHook") as mock_hook_cls,
             mock.patch.object(cmd, "_MultipleBranches") as mock_multi,
         ):
             mock_pc.return_value.__enter__ = mock.MagicMock()

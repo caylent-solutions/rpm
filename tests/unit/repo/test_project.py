@@ -25,12 +25,12 @@ from unittest import mock
 
 import pytest
 
-import error
-import git_command
-import git_config
-import manifest_xml
-import platform_utils
-import project
+from kanon_cli.repo import error
+from kanon_cli.repo import git_command
+from kanon_cli.repo import git_config
+from kanon_cli.repo import manifest_xml
+from kanon_cli.repo import platform_utils
+from kanon_cli.repo import project
 
 
 @contextlib.contextmanager
@@ -639,7 +639,7 @@ class LinkFileExcludeTests(CopyLinkTestCase):
         self.touch(src)
         dest = os.path.join(self.topdir, "linked-file")
         lf = self.LinkFile("file.txt", dest, exclude="something")
-        from error import ManifestInvalidPathError
+        from kanon_cli.repo.error import ManifestInvalidPathError
 
         with self.assertRaises(ManifestInvalidPathError):
             lf._Link()
@@ -680,7 +680,7 @@ class LinkFileExcludeTests(CopyLinkTestCase):
         self._make_src_dir("pkg", ["a.py"])
         dest = os.path.join(self.topdir, "linked-pkg")
         lf = self.LinkFile("pk*", dest, exclude="something")
-        from error import ManifestInvalidPathError
+        from kanon_cli.repo.error import ManifestInvalidPathError
 
         with self.assertRaises(ManifestInvalidPathError):
             lf._Link()
@@ -1233,7 +1233,7 @@ class TestLwriteFunction:
             path = os.path.join(tmpdir, "test.txt")
             lock_path = path + ".lock"
 
-            with mock.patch("platform_utils.rename", side_effect=OSError("Rename failed")):
+            with mock.patch("kanon_cli.repo.platform_utils.rename", side_effect=OSError("Rename failed")):
                 with pytest.raises(OSError):
                     project._lwrite(path, "content")
 
@@ -1421,7 +1421,7 @@ class TestLinkFileClassExtended:
             lf = project._LinkFile(worktree, "src.txt", topdir, "dest.txt")
 
             # Mock symlink to raise OSError
-            with mock.patch("platform_utils.symlink", side_effect=OSError("Link failed")):
+            with mock.patch("kanon_cli.repo.platform_utils.symlink", side_effect=OSError("Link failed")):
                 # Should not raise, just log error
                 lf._Link()
 
@@ -2168,7 +2168,7 @@ class TestProjectSetRevision:
         proj.revisionExpr = None
         proj.revisionId = None
 
-        with mock.patch("git_config.IsId", return_value=False):
+        with mock.patch("kanon_cli.repo.git_config.IsId", return_value=False):
             project.Project.SetRevision(proj, "main", revisionId="abc123")
 
         assert proj.revisionExpr == "main"
@@ -2182,7 +2182,7 @@ class TestProjectSetRevision:
         proj.revisionExpr = None
         proj.revisionId = None
 
-        with mock.patch("git_config.IsId", return_value=False):
+        with mock.patch("kanon_cli.repo.git_config.IsId", return_value=False):
             project.Project.SetRevision(proj, "main", revisionId=None)
 
         assert proj.revisionExpr == "main"
@@ -2202,9 +2202,9 @@ class TestProjectUpdatePaths:
         proj.manifest.globalConfig = mock.Mock()
 
         with (
-            mock.patch("git_config.GitConfig.ForRepository"),
+            mock.patch("kanon_cli.repo.git_config.GitConfig.ForRepository"),
             mock.patch.object(project.Project, "_GitGetByExec"),
-            mock.patch("project.GitRefs"),
+            mock.patch("kanon_cli.repo.project.GitRefs"),
         ):
             project.Project.UpdatePaths(proj, "rel/path", "/worktree", "/gitdir", "/objdir")
 
@@ -2222,9 +2222,9 @@ class TestProjectUpdatePaths:
         proj.manifest.globalConfig = mock.Mock()
 
         with (
-            mock.patch("git_config.GitConfig.ForRepository"),
+            mock.patch("kanon_cli.repo.git_config.GitConfig.ForRepository"),
             mock.patch.object(project.Project, "_GitGetByExec"),
-            mock.patch("project.GitRefs"),
+            mock.patch("kanon_cli.repo.project.GitRefs"),
         ):
             project.Project.UpdatePaths(proj, "rel/path", None, "/gitdir", "/objdir")
 
@@ -2389,7 +2389,7 @@ class TestProjectHooksFunction:
             mock.patch("os.path.realpath", return_value="/repo/hooks"),
             mock.patch("os.path.abspath", return_value="/repo/hooks"),
             mock.patch("os.path.dirname", return_value="/repo"),
-            mock.patch("platform_utils.listdir", return_value=["hook1", "hook2"]),
+            mock.patch("kanon_cli.repo.platform_utils.listdir", return_value=["hook1", "hook2"]),
         ):
             result1 = project._ProjectHooks()
             result2 = project._ProjectHooks()

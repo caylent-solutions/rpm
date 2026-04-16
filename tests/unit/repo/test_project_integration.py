@@ -25,7 +25,7 @@ from unittest import mock
 
 import pytest
 
-import project
+from kanon_cli.repo import project
 
 
 def _run_git(cmd, cwd):

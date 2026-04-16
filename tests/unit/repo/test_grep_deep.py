@@ -18,13 +18,13 @@ from unittest import mock
 
 import pytest
 
-from command import UsageError
-from error import GitError
-from error import InvalidArgumentsError
-from subcmds.grep import ExecuteOneResult
-from subcmds.grep import Grep
-from subcmds.grep import GrepColoring
-from subcmds.grep import GrepCommandError
+from kanon_cli.repo.command import UsageError
+from kanon_cli.repo.error import GitError
+from kanon_cli.repo.error import InvalidArgumentsError
+from kanon_cli.repo.subcmds.grep import ExecuteOneResult
+from kanon_cli.repo.subcmds.grep import Grep
+from kanon_cli.repo.subcmds.grep import GrepColoring
+from kanon_cli.repo.subcmds.grep import GrepCommandError
 
 
 @pytest.mark.unit
@@ -99,7 +99,7 @@ class TestGrepExecuteOne:
 
         with mock.patch.object(Grep, "get_parallel_context") as mock_context:
             mock_context.return_value = {"projects": [project]}
-            with mock.patch("subcmds.grep.GitCommand") as mock_git:
+            with mock.patch("kanon_cli.repo.subcmds.grep.GitCommand") as mock_git:
                 mock_process = mock.Mock()
                 mock_process.Wait.return_value = 0
                 mock_process.stdout = "match line 1\nmatch line 2\n"
@@ -118,7 +118,7 @@ class TestGrepExecuteOne:
 
         with mock.patch.object(Grep, "get_parallel_context") as mock_context:
             mock_context.return_value = {"projects": [project]}
-            with mock.patch("subcmds.grep.GitCommand") as mock_git:
+            with mock.patch("kanon_cli.repo.subcmds.grep.GitCommand") as mock_git:
                 mock_process = mock.Mock()
                 mock_process.Wait.return_value = 1
                 mock_process.stdout = ""
@@ -135,7 +135,7 @@ class TestGrepExecuteOne:
 
         with mock.patch.object(Grep, "get_parallel_context") as mock_context:
             mock_context.return_value = {"projects": [project]}
-            with mock.patch("subcmds.grep.GitCommand", side_effect=GitError("error")):
+            with mock.patch("kanon_cli.repo.subcmds.grep.GitCommand", side_effect=GitError("error")):
                 result = Grep._ExecuteOne(["grep", "pattern"], 0)
 
                 assert result.rc == -1
@@ -147,7 +147,7 @@ class TestGrepExecuteOne:
 
         with mock.patch.object(Grep, "get_parallel_context") as mock_context:
             mock_context.return_value = {"projects": [project]}
-            with mock.patch("subcmds.grep.GitCommand") as mock_git:
+            with mock.patch("kanon_cli.repo.subcmds.grep.GitCommand") as mock_git:
                 mock_process = mock.Mock()
                 mock_process.Wait.side_effect = GitError("wait error")
                 mock_git.return_value = mock_process

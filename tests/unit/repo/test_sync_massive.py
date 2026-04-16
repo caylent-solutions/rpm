@@ -20,12 +20,12 @@ from unittest import mock
 
 import pytest
 
-from error import GitError, SyncError
-from subcmds.sync import Sync
-from subcmds.sync import _SafeCheckoutOrder
-from subcmds.sync import _chunksize
-from subcmds.sync import _FetchOneResult
-from subcmds.sync import _CheckoutOneResult
+from kanon_cli.repo.error import GitError, SyncError
+from kanon_cli.repo.subcmds.sync import Sync
+from kanon_cli.repo.subcmds.sync import _SafeCheckoutOrder
+from kanon_cli.repo.subcmds.sync import _chunksize
+from kanon_cli.repo.subcmds.sync import _FetchOneResult
+from kanon_cli.repo.subcmds.sync import _CheckoutOneResult
 
 
 @pytest.mark.unit
@@ -116,7 +116,7 @@ class TestChunksize(unittest.TestCase):
     def test_chunksize_respects_worker_batch_size(self):
         """Test _chunksize respects WORKER_BATCH_SIZE."""
         # With many projects and few jobs, should cap at WORKER_BATCH_SIZE
-        from command import WORKER_BATCH_SIZE
+        from kanon_cli.repo.command import WORKER_BATCH_SIZE
 
         result = _chunksize(10000, 1)
         self.assertEqual(result, WORKER_BATCH_SIZE)
@@ -224,7 +224,7 @@ class TestGetCurrentBranchOnly(unittest.TestCase):
         mock_manifest = mock.Mock()
         mock_manifest.superproject = mock.Mock()
 
-        with mock.patch("git_superproject.UseSuperproject", return_value=True):
+        with mock.patch("kanon_cli.repo.git_superproject.UseSuperproject", return_value=True):
             result = Sync._GetCurrentBranchOnly(mock_opt, mock_manifest)
             self.assertTrue(result)
 
@@ -236,7 +236,7 @@ class TestGetCurrentBranchOnly(unittest.TestCase):
         mock_manifest = mock.Mock()
         mock_manifest.superproject = None
 
-        with mock.patch("git_superproject.UseSuperproject", return_value=False):
+        with mock.patch("kanon_cli.repo.git_superproject.UseSuperproject", return_value=False):
             result = Sync._GetCurrentBranchOnly(mock_opt, mock_manifest)
             self.assertTrue(result)
 
@@ -247,7 +247,7 @@ class TestGetCurrentBranchOnly(unittest.TestCase):
         mock_opt.current_branch_only = False
         mock_manifest = mock.Mock()
 
-        with mock.patch("git_superproject.UseSuperproject", return_value=False):
+        with mock.patch("kanon_cli.repo.git_superproject.UseSuperproject", return_value=False):
             result = Sync._GetCurrentBranchOnly(mock_opt, mock_manifest)
             self.assertFalse(result)
 
@@ -301,7 +301,7 @@ class TestUpdateProjectsRevisionId(unittest.TestCase):
 
         with mock.patch.object(sync_cmd, "GetProjects", return_value=[]):
             with mock.patch.object(sync_cmd, "ManifestList", return_value=[mock_manifest]):
-                with mock.patch("git_superproject.UseSuperproject", return_value=True):
+                with mock.patch("kanon_cli.repo.git_superproject.UseSuperproject", return_value=True):
                     sync_cmd._UpdateProjectsRevisionId(mock_opt, [], {}, mock_manifest)
 
 
@@ -722,7 +722,7 @@ class TestJobsOption(unittest.TestCase):
 
     def test_jobs_default(self):
         """Test jobs default value."""
-        from command import DEFAULT_LOCAL_JOBS
+        from kanon_cli.repo.command import DEFAULT_LOCAL_JOBS
 
         mock_opt = mock.Mock()
         mock_opt.jobs = DEFAULT_LOCAL_JOBS

@@ -20,10 +20,10 @@ from unittest import mock
 
 import pytest
 
-import project
-from error import DownloadError
-from error import GitError
-from error import ManifestInvalidRevisionError
+from kanon_cli.repo import project
+from kanon_cli.repo.error import DownloadError
+from kanon_cli.repo.error import GitError
+from kanon_cli.repo.error import ManifestInvalidRevisionError
 
 
 def _make_project(**kwargs):
@@ -48,7 +48,7 @@ def _make_project(**kwargs):
     }
     defaults.update(kwargs)
 
-    with mock.patch("project.Project._LoadUserIdentity"):
+    with mock.patch("kanon_cli.repo.project.Project._LoadUserIdentity"):
         proj = project.Project(**defaults)
 
     # Mock UserEmail as it's a property
@@ -77,7 +77,7 @@ class TestUploadForReviewBlock1:
         branch.remote.projectname = "test/project"
         branch.remote.ReviewUrl = mock.MagicMock(return_value="ssh://review.example.com")
 
-        with mock.patch("project.GitCommand") as mock_cmd:
+        with mock.patch("kanon_cli.repo.project.GitCommand") as mock_cmd:
             mock_cmd.return_value.Wait.return_value = 0
 
             # Call the real method
@@ -128,8 +128,8 @@ class TestCheckoutAndBranchesBlock4:
         proj.work_git.GetHead.return_value = "refs/heads/feature"
 
         with mock.patch.object(proj, "GetRevisionId", return_value="abc123"):
-            with mock.patch("project._lwrite") as mock_lwrite:
-                with mock.patch("project.GitCommand") as mock_cmd:
+            with mock.patch("kanon_cli.repo.project._lwrite") as mock_lwrite:
+                with mock.patch("kanon_cli.repo.project.GitCommand") as mock_cmd:
                     mock_cmd.return_value.Wait.return_value = 0
                     result = proj.AbandonBranch("feature")
 
@@ -148,7 +148,7 @@ class TestCheckoutAndBranchesBlock4:
 
         with mock.patch.object(proj, "GetRevisionId", return_value="abc123"):
             with mock.patch.object(proj, "_Checkout") as mock_checkout:
-                with mock.patch("project.GitCommand") as mock_cmd:
+                with mock.patch("kanon_cli.repo.project.GitCommand") as mock_cmd:
                     mock_cmd.return_value.Wait.return_value = 0
                     result = proj.AbandonBranch("feature")
 
@@ -165,7 +165,7 @@ class TestSubmodulesBlock5:
         proj = _make_project()
 
         with mock.patch.object(proj, "GetRevisionId", return_value="abc123"):
-            with mock.patch("project.GitCommand") as mock_cmd:
+            with mock.patch("kanon_cli.repo.project.GitCommand") as mock_cmd:
                 mock_cmd.side_effect = GitError("cat-file failed")
 
                 result = proj._GetSubmodules()
@@ -177,7 +177,7 @@ class TestSubmodulesBlock5:
         proj = _make_project()
 
         with mock.patch.object(proj, "GetRevisionId", return_value="abc123"):
-            with mock.patch("project.GitCommand") as mock_cmd:
+            with mock.patch("kanon_cli.repo.project.GitCommand") as mock_cmd:
                 mock_proc = mock.MagicMock()
                 mock_proc.Wait.return_value = 1
                 mock_cmd.return_value = mock_proc
@@ -191,7 +191,7 @@ class TestSubmodulesBlock5:
         proj = _make_project()
 
         with mock.patch.object(proj, "GetRevisionId", return_value="abc123"):
-            with mock.patch("project.GitCommand") as mock_cmd:
+            with mock.patch("kanon_cli.repo.project.GitCommand") as mock_cmd:
                 # First call succeeds (cat-file), second fails (config)
                 mock_proc1 = mock.MagicMock()
                 mock_proc1.Wait.return_value = 0
@@ -205,7 +205,7 @@ class TestSubmodulesBlock5:
                 with mock.patch("tempfile.mkstemp", return_value=(1, "/tmp/test")):
                     with mock.patch("os.write"):
                         with mock.patch("os.close"):
-                            with mock.patch("platform_utils.remove"):
+                            with mock.patch("kanon_cli.repo.platform_utils.remove"):
                                 result = proj._GetSubmodules()
 
                                 assert result == []
@@ -215,7 +215,7 @@ class TestSubmodulesBlock5:
         proj = _make_project()
 
         with mock.patch.object(proj, "GetRevisionId", return_value="abc123"):
-            with mock.patch("project.GitCommand") as mock_cmd:
+            with mock.patch("kanon_cli.repo.project.GitCommand") as mock_cmd:
                 mock_proc = mock.MagicMock()
                 mock_proc.Wait.return_value = 0
                 mock_proc.stdout = '[submodule "test"]\n'
@@ -225,7 +225,7 @@ class TestSubmodulesBlock5:
                 with mock.patch("tempfile.mkstemp", return_value=(1, "/tmp/test")):
                     with mock.patch("os.write"):
                         with mock.patch("os.close"):
-                            with mock.patch("platform_utils.remove"):
+                            with mock.patch("kanon_cli.repo.platform_utils.remove"):
                                 result = proj._GetSubmodules()
 
                                 assert result == []
@@ -239,7 +239,7 @@ submodule.test.url=https://example.com/test.git
 """
 
         with mock.patch.object(proj, "GetRevisionId", return_value="abc123"):
-            with mock.patch("project.GitCommand") as mock_cmd:
+            with mock.patch("kanon_cli.repo.project.GitCommand") as mock_cmd:
                 mock_proc1 = mock.MagicMock()
                 mock_proc1.Wait.return_value = 0
                 mock_proc1.stdout = "gitmodules content"
@@ -257,7 +257,7 @@ submodule.test.url=https://example.com/test.git
                 with mock.patch("tempfile.mkstemp", return_value=(1, "/tmp/test")):
                     with mock.patch("os.write"):
                         with mock.patch("os.close"):
-                            with mock.patch("platform_utils.remove"):
+                            with mock.patch("kanon_cli.repo.platform_utils.remove"):
                                 result = proj._GetSubmodules()
 
                                 assert len(result) == 1
@@ -273,7 +273,7 @@ submodule.test.shallow=true
 """
 
         with mock.patch.object(proj, "GetRevisionId", return_value="abc123"):
-            with mock.patch("project.GitCommand") as mock_cmd:
+            with mock.patch("kanon_cli.repo.project.GitCommand") as mock_cmd:
                 mock_proc1 = mock.MagicMock()
                 mock_proc1.Wait.return_value = 0
                 mock_proc1.stdout = "gitmodules"
@@ -291,7 +291,7 @@ submodule.test.shallow=true
                 with mock.patch("tempfile.mkstemp", return_value=(1, "/tmp/test")):
                     with mock.patch("os.write"):
                         with mock.patch("os.close"):
-                            with mock.patch("platform_utils.remove"):
+                            with mock.patch("kanon_cli.repo.platform_utils.remove"):
                                 result = proj._GetSubmodules()
 
                                 assert len(result) == 1
@@ -306,7 +306,7 @@ submodule.test.url=https://example.com/test.git
 """
 
         with mock.patch.object(proj, "GetRevisionId", return_value="abc123"):
-            with mock.patch("project.GitCommand") as mock_cmd:
+            with mock.patch("kanon_cli.repo.project.GitCommand") as mock_cmd:
                 mock_proc1 = mock.MagicMock()
                 mock_proc1.Wait.return_value = 0
                 mock_proc1.stdout = "gitmodules"
@@ -324,7 +324,7 @@ submodule.test.url=https://example.com/test.git
                 with mock.patch("tempfile.mkstemp", return_value=(1, "/tmp/test")):
                     with mock.patch("os.write"):
                         with mock.patch("os.close"):
-                            with mock.patch("platform_utils.remove"):
+                            with mock.patch("kanon_cli.repo.platform_utils.remove"):
                                 result = proj._GetSubmodules()
 
                                 assert result == []
@@ -353,7 +353,7 @@ class TestGitOperationsBlock6:
 
         with mock.patch.object(proj, "GetRemote") as mock_remote:
             mock_remote.return_value.PreConnectFetch.return_value = True
-            with mock.patch("project.IsId", side_effect=lambda x: x == "abc123"):
+            with mock.patch("kanon_cli.repo.project.IsId", side_effect=lambda x: x == "abc123"):
                 # Test the logic path
                 pass
 
@@ -368,11 +368,11 @@ class TestGitOperationsBlock6:
             with mock.patch("os.path.basename", return_value="objects"):
                 with mock.patch("os.path.dirname", return_value="/tmp/alt"):
                     with mock.patch("os.path.join"):
-                        with mock.patch("project.GitRefs") as mock_git_refs:
+                        with mock.patch("kanon_cli.repo.project.GitRefs") as mock_git_refs:
                             mock_git_refs.return_value.all = {
                                 "refs/tags/v1.0": "tag123",
                             }
-                            with mock.patch("project._lwrite"):
+                            with mock.patch("kanon_cli.repo.project._lwrite"):
                                 # Test the alt_dir logic path
                                 pass
 
@@ -382,7 +382,7 @@ class TestGitOperationsBlock6:
         proj.bare_ref = mock.MagicMock()
         proj.bare_ref.all = {"refs/heads/main": "main123"}
 
-        with mock.patch("project.GitRefs") as mock_git_refs:
+        with mock.patch("kanon_cli.repo.project.GitRefs") as mock_git_refs:
             mock_git_refs.return_value.all = {
                 "refs/tags/v1.0": "tag123",
             }
@@ -408,7 +408,7 @@ class TestInitGitDirBlock7:
                             GitError("check failed"),
                             None,
                         ]
-                        with mock.patch("platform_utils.rmtree"):
+                        with mock.patch("kanon_cli.repo.platform_utils.rmtree"):
                             with mock.patch.object(proj, "_InitGitDir", wraps=proj._InitGitDir):
                                 with mock.patch.object(proj, "EnableRepositoryExtension"):
                                     with pytest.raises(GitError):
@@ -432,7 +432,7 @@ class TestInitGitDirBlock7:
             with mock.patch("os.path.exists", return_value=False):
                 with mock.patch("os.makedirs") as mock_makedirs:
                     with mock.patch("glob.glob", return_value=[]):
-                        with mock.patch("project._ProjectHooks", return_value=[]):
+                        with mock.patch("kanon_cli.repo.project._ProjectHooks", return_value=[]):
                             proj._InitHooks()
 
                             mock_makedirs.assert_called_once()
@@ -444,8 +444,8 @@ class TestInitGitDirBlock7:
         with mock.patch("os.path.realpath", return_value="/tmp/hooks"):
             with mock.patch("os.path.exists", return_value=True):
                 with mock.patch("glob.glob", return_value=["/tmp/hooks/pre-commit.sample"]):
-                    with mock.patch("platform_utils.remove") as mock_remove:
-                        with mock.patch("project._ProjectHooks", return_value=[]):
+                    with mock.patch("kanon_cli.repo.platform_utils.remove") as mock_remove:
+                        with mock.patch("kanon_cli.repo.project._ProjectHooks", return_value=[]):
                             proj._InitHooks()
 
                             mock_remove.assert_called()
@@ -458,12 +458,12 @@ class TestInitGitDirBlock7:
             with mock.patch("os.path.exists", return_value=True):
                 with mock.patch("glob.glob", return_value=[]):
                     with mock.patch(
-                        "project._ProjectHooks",
+                        "kanon_cli.repo.project._ProjectHooks",
                         return_value=["/tmp/hooks-src/pre-commit"],
                     ):
                         with mock.patch("os.path.basename", return_value="pre-commit"):
-                            with mock.patch("platform_utils.islink", return_value=True):
-                                with mock.patch("platform_utils.symlink") as mock_symlink:
+                            with mock.patch("kanon_cli.repo.platform_utils.islink", return_value=True):
+                                with mock.patch("kanon_cli.repo.platform_utils.symlink") as mock_symlink:
                                     proj._InitHooks()
 
                                     # Should not create symlink
@@ -477,11 +477,11 @@ class TestInitGitDirBlock7:
             with mock.patch("os.path.exists", return_value=True):
                 with mock.patch("glob.glob", return_value=[]):
                     with mock.patch(
-                        "project._ProjectHooks",
+                        "kanon_cli.repo.project._ProjectHooks",
                         return_value=["/tmp/hooks-src/pre-commit"],
                     ):
                         with mock.patch("os.path.basename", return_value="pre-commit"):
-                            with mock.patch("platform_utils.islink", return_value=False):
+                            with mock.patch("kanon_cli.repo.platform_utils.islink", return_value=False):
                                 with mock.patch("os.path.exists", return_value=True):
                                     with mock.patch("filecmp.cmp", return_value=False):
                                         proj._InitHooks(quiet=False)
@@ -495,7 +495,7 @@ class TestInitWorktreeBlock8:
         """Test _Checkout with quiet flag."""
         proj = _make_project()
 
-        with mock.patch("project.GitCommand") as mock_cmd:
+        with mock.patch("kanon_cli.repo.project.GitCommand") as mock_cmd:
             mock_cmd.return_value.Wait.return_value = 0
             proj._Checkout("abc123", quiet=True)
 
@@ -506,7 +506,7 @@ class TestInitWorktreeBlock8:
         """Test _Checkout with force_checkout flag."""
         proj = _make_project()
 
-        with mock.patch("project.GitCommand") as mock_cmd:
+        with mock.patch("kanon_cli.repo.project.GitCommand") as mock_cmd:
             mock_cmd.return_value.Wait.return_value = 0
             proj._Checkout("abc123", force_checkout=True)
 
@@ -517,7 +517,7 @@ class TestInitWorktreeBlock8:
         """Test _CherryPick with ffonly flag."""
         proj = _make_project()
 
-        with mock.patch("project.GitCommand") as mock_cmd:
+        with mock.patch("kanon_cli.repo.project.GitCommand") as mock_cmd:
             mock_cmd.return_value.Wait.return_value = 0
             proj._CherryPick("abc123", ffonly=True)
 
@@ -528,7 +528,7 @@ class TestInitWorktreeBlock8:
         """Test _CherryPick with record_origin flag."""
         proj = _make_project()
 
-        with mock.patch("project.GitCommand") as mock_cmd:
+        with mock.patch("kanon_cli.repo.project.GitCommand") as mock_cmd:
             mock_cmd.return_value.Wait.return_value = 0
             proj._CherryPick("abc123", record_origin=True)
 
@@ -539,7 +539,7 @@ class TestInitWorktreeBlock8:
         """Test _LsRemote method."""
         proj = _make_project()
 
-        with mock.patch("project.GitCommand") as mock_cmd:
+        with mock.patch("kanon_cli.repo.project.GitCommand") as mock_cmd:
             mock_proc = mock.MagicMock()
             mock_proc.Wait.return_value = 0
             mock_proc.stdout = "abc123\trefs/heads/main"
@@ -553,7 +553,7 @@ class TestInitWorktreeBlock8:
         """Test _LsRemote returns None on failure."""
         proj = _make_project()
 
-        with mock.patch("project.GitCommand") as mock_cmd:
+        with mock.patch("kanon_cli.repo.project.GitCommand") as mock_cmd:
             mock_proc = mock.MagicMock()
             mock_proc.Wait.return_value = 1
             mock_cmd.return_value = mock_proc
@@ -566,7 +566,7 @@ class TestInitWorktreeBlock8:
         """Test _Revert method."""
         proj = _make_project()
 
-        with mock.patch("project.GitCommand") as mock_cmd:
+        with mock.patch("kanon_cli.repo.project.GitCommand") as mock_cmd:
             mock_cmd.return_value.Wait.return_value = 0
             proj._Revert("abc123")
 
@@ -578,7 +578,7 @@ class TestInitWorktreeBlock8:
         """Test _ResetHard with quiet flag."""
         proj = _make_project()
 
-        with mock.patch("project.GitCommand") as mock_cmd:
+        with mock.patch("kanon_cli.repo.project.GitCommand") as mock_cmd:
             mock_cmd.return_value.Wait.return_value = 0
             proj._ResetHard("abc123", quiet=True)
 
@@ -589,7 +589,7 @@ class TestInitWorktreeBlock8:
         """Test _ResetHard raises GitError on failure."""
         proj = _make_project()
 
-        with mock.patch("project.GitCommand") as mock_cmd:
+        with mock.patch("kanon_cli.repo.project.GitCommand") as mock_cmd:
             mock_cmd.return_value.Wait.return_value = 1
 
             with pytest.raises(GitError):
@@ -599,7 +599,7 @@ class TestInitWorktreeBlock8:
         """Test _SyncSubmodules with quiet flag."""
         proj = _make_project()
 
-        with mock.patch("project.GitCommand") as mock_cmd:
+        with mock.patch("kanon_cli.repo.project.GitCommand") as mock_cmd:
             mock_cmd.return_value.Wait.return_value = 0
             proj._SyncSubmodules(quiet=True)
 
@@ -610,7 +610,7 @@ class TestInitWorktreeBlock8:
         """Test _SyncSubmodules raises GitError on failure."""
         proj = _make_project()
 
-        with mock.patch("project.GitCommand") as mock_cmd:
+        with mock.patch("kanon_cli.repo.project.GitCommand") as mock_cmd:
             mock_cmd.return_value.Wait.return_value = 1
 
             with pytest.raises(GitError):
@@ -620,7 +620,7 @@ class TestInitWorktreeBlock8:
         """Test _InitSubmodules with quiet flag."""
         proj = _make_project()
 
-        with mock.patch("project.GitCommand") as mock_cmd:
+        with mock.patch("kanon_cli.repo.project.GitCommand") as mock_cmd:
             mock_cmd.return_value.Wait.return_value = 0
             proj._InitSubmodules(quiet=True)
 
@@ -631,7 +631,7 @@ class TestInitWorktreeBlock8:
         """Test _InitSubmodules raises GitError on failure."""
         proj = _make_project()
 
-        with mock.patch("project.GitCommand") as mock_cmd:
+        with mock.patch("kanon_cli.repo.project.GitCommand") as mock_cmd:
             mock_cmd.return_value.Wait.return_value = 1
 
             with pytest.raises(GitError):
@@ -641,7 +641,7 @@ class TestInitWorktreeBlock8:
         """Test _Rebase with onto parameter."""
         proj = _make_project()
 
-        with mock.patch("project.GitCommand") as mock_cmd:
+        with mock.patch("kanon_cli.repo.project.GitCommand") as mock_cmd:
             mock_cmd.return_value.Wait.return_value = 0
             proj._Rebase("upstream123", onto="onto123")
 
@@ -653,7 +653,7 @@ class TestInitWorktreeBlock8:
         """Test _Rebase raises GitError on failure."""
         proj = _make_project()
 
-        with mock.patch("project.GitCommand") as mock_cmd:
+        with mock.patch("kanon_cli.repo.project.GitCommand") as mock_cmd:
             mock_cmd.return_value.Wait.return_value = 1
 
             with pytest.raises(GitError):
@@ -663,7 +663,7 @@ class TestInitWorktreeBlock8:
         """Test _FastForward with ffonly flag."""
         proj = _make_project()
 
-        with mock.patch("project.GitCommand") as mock_cmd:
+        with mock.patch("kanon_cli.repo.project.GitCommand") as mock_cmd:
             mock_cmd.return_value.Wait.return_value = 0
             proj._FastForward("head123", ffonly=True)
 
@@ -674,7 +674,7 @@ class TestInitWorktreeBlock8:
         """Test _FastForward with quiet flag."""
         proj = _make_project()
 
-        with mock.patch("project.GitCommand") as mock_cmd:
+        with mock.patch("kanon_cli.repo.project.GitCommand") as mock_cmd:
             mock_cmd.return_value.Wait.return_value = 0
             proj._FastForward("head123", quiet=True)
 
@@ -685,7 +685,7 @@ class TestInitWorktreeBlock8:
         """Test _FastForward raises GitError on failure."""
         proj = _make_project()
 
-        with mock.patch("project.GitCommand") as mock_cmd:
+        with mock.patch("kanon_cli.repo.project.GitCommand") as mock_cmd:
             mock_cmd.return_value.Wait.return_value = 1
 
             with pytest.raises(GitError):
@@ -775,7 +775,7 @@ class TestInitWorktreeBlock8:
                 with mock.patch("os.makedirs"):
                     with mock.patch("os.path.dirname", return_value="/tmp/dst"):
                         with mock.patch("os.path.relpath", return_value="../src/objects"):
-                            with mock.patch("platform_utils.symlink") as mock_symlink:
+                            with mock.patch("kanon_cli.repo.platform_utils.symlink") as mock_symlink:
                                 proj._ReferenceGitDir("/tmp/src", "/tmp/dst", copy_all=False)
 
                                 # Should create symlinks for shareable dirs
@@ -790,7 +790,7 @@ class TestInitWorktreeBlock8:
                 with mock.patch("os.makedirs"):
                     with mock.patch("os.path.dirname", return_value="/tmp/dst"):
                         with mock.patch("os.path.relpath", return_value="../src"):
-                            with mock.patch("platform_utils.symlink") as mock_symlink:
+                            with mock.patch("kanon_cli.repo.platform_utils.symlink") as mock_symlink:
                                 mock_symlink.side_effect = OSError(errno.EPERM, "Permission denied")
 
                                 with pytest.raises(DownloadError):
@@ -807,7 +807,7 @@ class TestInitWorktreeBlock8:
                     mock.mock_open(read_data="gitdir: /abs/path/.git"),
                 ):
                     with mock.patch("os.path.isabs", return_value=True):
-                        with mock.patch("platform_utils.remove"):
+                        with mock.patch("kanon_cli.repo.platform_utils.remove"):
                             with mock.patch("os.path.relpath", return_value="../.git"):
                                 with mock.patch.object(proj, "_InitMRef"):
                                     proj._InitGitWorktree()
@@ -834,14 +834,14 @@ class TestMigrationAndHelpers:
         proj.parent = mock.MagicMock()
         proj.parent.gitdir = "/tmp/parent/.git"
 
-        with mock.patch("platform_utils.isdir", return_value=False):
+        with mock.patch("kanon_cli.repo.platform_utils.isdir", return_value=False):
             proj._MigrateOldSubmoduleDir()
 
     def test_get_symlink_error_message_windows(self):
         """Test _get_symlink_error_message for Windows."""
         proj = _make_project()
 
-        with mock.patch("platform_utils.isWindows", return_value=True):
+        with mock.patch("kanon_cli.repo.platform_utils.isWindows", return_value=True):
             msg = proj._get_symlink_error_message()
 
             assert "Administrator" in msg
@@ -850,7 +850,7 @@ class TestMigrationAndHelpers:
         """Test _get_symlink_error_message for Unix."""
         proj = _make_project()
 
-        with mock.patch("platform_utils.isWindows", return_value=False):
+        with mock.patch("kanon_cli.repo.platform_utils.isWindows", return_value=False):
             msg = proj._get_symlink_error_message()
 
             assert "symlinks" in msg
@@ -897,7 +897,7 @@ class TestAdditionalUploadForReview:
         proj, branch = _make_upload_mocks()
         branch.remote.ReviewUrl = mock.MagicMock(return_value="ssh://review.example.com")
 
-        with mock.patch("project.GitCommand") as mock_cmd:
+        with mock.patch("kanon_cli.repo.project.GitCommand") as mock_cmd:
             mock_cmd.return_value.Wait.return_value = 0
             project.Project.UploadForReview(proj, branch=branch, people=([], []), dryrun=False)
 
@@ -908,7 +908,7 @@ class TestAdditionalUploadForReview:
         """Test upload with push_options."""
         proj, branch = _make_upload_mocks()
 
-        with mock.patch("project.GitCommand") as mock_cmd:
+        with mock.patch("kanon_cli.repo.project.GitCommand") as mock_cmd:
             mock_cmd.return_value.Wait.return_value = 0
             project.Project.UploadForReview(
                 proj,
@@ -938,7 +938,7 @@ class TestAdditionalUploadForReview:
         branch.remote.projectname = "test/project"
         branch.remote.ReviewUrl = mock.MagicMock(return_value="https://review.example.com")
 
-        with mock.patch("project.GitCommand") as mock_cmd:
+        with mock.patch("kanon_cli.repo.project.GitCommand") as mock_cmd:
             mock_cmd.return_value.Wait.return_value = 0
             project.Project.UploadForReview(
                 proj,
@@ -956,7 +956,7 @@ class TestAdditionalUploadForReview:
         """Test upload with hashtags."""
         proj, branch = _make_upload_mocks()
 
-        with mock.patch("project.GitCommand") as mock_cmd:
+        with mock.patch("kanon_cli.repo.project.GitCommand") as mock_cmd:
             mock_cmd.return_value.Wait.return_value = 0
             project.Project.UploadForReview(
                 proj,
@@ -975,7 +975,7 @@ class TestAdditionalUploadForReview:
         """Test upload with labels."""
         proj, branch = _make_upload_mocks()
 
-        with mock.patch("project.GitCommand") as mock_cmd:
+        with mock.patch("kanon_cli.repo.project.GitCommand") as mock_cmd:
             mock_cmd.return_value.Wait.return_value = 0
             project.Project.UploadForReview(
                 proj,
@@ -993,7 +993,7 @@ class TestAdditionalUploadForReview:
         """Test upload with reviewers and cc."""
         proj, branch = _make_upload_mocks()
 
-        with mock.patch("project.GitCommand") as mock_cmd:
+        with mock.patch("kanon_cli.repo.project.GitCommand") as mock_cmd:
             mock_cmd.return_value.Wait.return_value = 0
             project.Project.UploadForReview(
                 proj,
@@ -1011,7 +1011,7 @@ class TestAdditionalUploadForReview:
         """Test upload with notify."""
         proj, branch = _make_upload_mocks()
 
-        with mock.patch("project.GitCommand") as mock_cmd:
+        with mock.patch("kanon_cli.repo.project.GitCommand") as mock_cmd:
             mock_cmd.return_value.Wait.return_value = 0
             project.Project.UploadForReview(proj, branch=branch, people=([], []), dryrun=False, notify="ALL")
 
@@ -1023,7 +1023,7 @@ class TestAdditionalUploadForReview:
         """Test upload with private flag."""
         proj, branch = _make_upload_mocks()
 
-        with mock.patch("project.GitCommand") as mock_cmd:
+        with mock.patch("kanon_cli.repo.project.GitCommand") as mock_cmd:
             mock_cmd.return_value.Wait.return_value = 0
             project.Project.UploadForReview(proj, branch=branch, people=([], []), dryrun=False, private=True)
 
@@ -1035,7 +1035,7 @@ class TestAdditionalUploadForReview:
         """Test upload with wip flag."""
         proj, branch = _make_upload_mocks()
 
-        with mock.patch("project.GitCommand") as mock_cmd:
+        with mock.patch("kanon_cli.repo.project.GitCommand") as mock_cmd:
             mock_cmd.return_value.Wait.return_value = 0
             project.Project.UploadForReview(proj, branch=branch, people=([], []), dryrun=False, wip=True)
 
@@ -1047,7 +1047,7 @@ class TestAdditionalUploadForReview:
         """Test upload with ready flag."""
         proj, branch = _make_upload_mocks()
 
-        with mock.patch("project.GitCommand") as mock_cmd:
+        with mock.patch("kanon_cli.repo.project.GitCommand") as mock_cmd:
             mock_cmd.return_value.Wait.return_value = 0
             project.Project.UploadForReview(proj, branch=branch, people=([], []), dryrun=False, ready=True)
 
@@ -1059,7 +1059,7 @@ class TestAdditionalUploadForReview:
         """Test upload with patchset_description."""
         proj, branch = _make_upload_mocks()
 
-        with mock.patch("project.GitCommand") as mock_cmd:
+        with mock.patch("kanon_cli.repo.project.GitCommand") as mock_cmd:
             mock_cmd.return_value.Wait.return_value = 0
             project.Project.UploadForReview(
                 proj,

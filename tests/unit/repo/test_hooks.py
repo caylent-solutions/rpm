@@ -20,7 +20,7 @@ import unittest.mock
 
 import pytest
 
-import hooks
+from kanon_cli.repo import hooks
 
 
 class RepoHookShebang(unittest.TestCase):
@@ -144,7 +144,7 @@ class RepoHookRunTests(unittest.TestCase):
 
     def test_run_returns_false_on_hook_error(self):
         """Run should return False when HookError is raised."""
-        from error import HookError
+        from kanon_cli.repo.error import HookError
 
         mock_project = unittest.mock.MagicMock()
         mock_project.worktree = "/fake/worktree"
@@ -176,7 +176,7 @@ class RepoHookRunTests(unittest.TestCase):
 
     def test_run_returns_true_when_ignore_hooks(self):
         """Run should return True if ignore_hooks is set and hook fails."""
-        from error import HookError
+        from kanon_cli.repo.error import HookError
 
         mock_project = unittest.mock.MagicMock()
         mock_project.worktree = "/fake/worktree"
@@ -199,7 +199,7 @@ class RepoHookCheckHookTests(unittest.TestCase):
 
     def test_check_hook_raises_when_file_missing(self):
         """_CheckHook should raise HookError if script file doesn't exist."""
-        from error import HookError
+        from kanon_cli.repo.error import HookError
 
         mock_project = unittest.mock.MagicMock()
         mock_project.worktree = "/nonexistent"

@@ -20,7 +20,7 @@ from xml.dom import minidom
 
 import pytest
 
-from subcmds.envsubst import Envsubst
+from kanon_cli.repo.subcmds.envsubst import Envsubst
 
 
 def _make_cmd():

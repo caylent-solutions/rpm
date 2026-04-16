@@ -18,13 +18,8 @@ from unittest import mock
 
 import pytest
 
-from error import GitError
-from subcmds.checkout import (
-    Checkout,
-    CheckoutBranchResult,
-    CheckoutCommandError,
-    MissingBranchError,
-)
+from kanon_cli.repo.error import GitError
+from kanon_cli.repo.subcmds.checkout import Checkout, CheckoutBranchResult, CheckoutCommandError, MissingBranchError
 
 
 def _make_cmd():
@@ -322,7 +317,7 @@ def test_execute_uses_progress():
     cmd.ParallelContext.return_value = context_mock
     cmd.get_parallel_context.return_value = {}
 
-    with mock.patch("subcmds.checkout.Progress"):
+    with mock.patch("kanon_cli.repo.subcmds.checkout.Progress"):
         cmd.Execute(opt, ["my-branch"])
 
 

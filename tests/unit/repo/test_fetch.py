@@ -19,8 +19,8 @@ from unittest import mock
 
 import pytest
 
-from fetch import fetch_file
-from fetch import FetchFileError
+from kanon_cli.repo.fetch import fetch_file
+from kanon_cli.repo.fetch import FetchFileError
 
 
 @pytest.mark.unit
@@ -68,7 +68,7 @@ class TestFetchFile:
 
     def test_fetch_file_http_success(self):
         """Test fetch_file with HTTP URL."""
-        with mock.patch("fetch.urlopen") as mock_urlopen:
+        with mock.patch("kanon_cli.repo.fetch.urlopen") as mock_urlopen:
             mock_response = mock.MagicMock()
             mock_response.read.return_value = b"http contents"
             mock_response.__enter__.return_value = mock_response
@@ -81,7 +81,7 @@ class TestFetchFile:
 
     def test_fetch_file_https_success(self):
         """Test fetch_file with HTTPS URL."""
-        with mock.patch("fetch.urlopen") as mock_urlopen:
+        with mock.patch("kanon_cli.repo.fetch.urlopen") as mock_urlopen:
             mock_response = mock.MagicMock()
             mock_response.read.return_value = b"https contents"
             mock_response.__enter__.return_value = mock_response
@@ -93,7 +93,7 @@ class TestFetchFile:
 
     def test_fetch_file_file_url(self):
         """Test fetch_file with file:// URL."""
-        with mock.patch("fetch.urlopen") as mock_urlopen:
+        with mock.patch("kanon_cli.repo.fetch.urlopen") as mock_urlopen:
             mock_response = mock.MagicMock()
             mock_response.read.return_value = b"local file contents"
             mock_response.__enter__.return_value = mock_response

@@ -16,7 +16,7 @@
 
 import pytest
 
-from subcmds import stage
+from kanon_cli.repo.subcmds import stage
 
 
 @pytest.mark.unit

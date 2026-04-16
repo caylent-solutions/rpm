@@ -18,7 +18,7 @@ from unittest import mock
 
 import pytest
 
-from subcmds.status import Status
+from kanon_cli.repo.subcmds.status import Status
 
 
 def _make_cmd():
@@ -112,7 +112,7 @@ class TestStatusCommand:
 
     @pytest.mark.unit
     @mock.patch("glob.glob")
-    @mock.patch("platform_utils.isdir")
+    @mock.patch("kanon_cli.repo.platform_utils.isdir")
     def test_find_orphans_file(self, mock_isdir, mock_glob):
         """Test _FindOrphans with file."""
         cmd = _make_cmd()
@@ -125,7 +125,7 @@ class TestStatusCommand:
 
     @pytest.mark.unit
     @mock.patch("glob.glob")
-    @mock.patch("platform_utils.isdir")
+    @mock.patch("kanon_cli.repo.platform_utils.isdir")
     def test_find_orphans_project_dir(self, mock_isdir, mock_glob):
         """Test _FindOrphans with project directory."""
         cmd = _make_cmd()
@@ -137,7 +137,7 @@ class TestStatusCommand:
 
     @pytest.mark.unit
     @mock.patch("glob.glob")
-    @mock.patch("platform_utils.isdir")
+    @mock.patch("kanon_cli.repo.platform_utils.isdir")
     def test_find_orphans_parent_dir(self, mock_isdir, mock_glob):
         """Test _FindOrphans with parent directory."""
         cmd = _make_cmd()
@@ -149,7 +149,7 @@ class TestStatusCommand:
 
     @pytest.mark.unit
     @mock.patch("glob.glob")
-    @mock.patch("platform_utils.isdir")
+    @mock.patch("kanon_cli.repo.platform_utils.isdir")
     def test_find_orphans_orphan_dir(self, mock_isdir, mock_glob):
         """Test _FindOrphans with orphan directory."""
         cmd = _make_cmd()
@@ -206,7 +206,7 @@ class TestStatusCommand:
     @mock.patch("os.chdir")
     @mock.patch("os.getcwd")
     @mock.patch("glob.glob")
-    @mock.patch("platform_utils.isdir")
+    @mock.patch("kanon_cli.repo.platform_utils.isdir")
     def test_execute_with_orphans_found(
         self,
         mock_isdir,

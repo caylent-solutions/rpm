@@ -18,7 +18,7 @@ from unittest import mock
 
 import pytest
 
-from subcmds.manifest import Manifest, OutputFormat
+from kanon_cli.repo.subcmds.manifest import Manifest, OutputFormat
 
 
 def _make_cmd():

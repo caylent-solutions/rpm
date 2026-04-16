@@ -20,12 +20,12 @@ import xmlrpc.client
 
 import pytest
 
-from error import GitError
-from error import RepoChangedException
-from error import RepoUnhandledExceptionError
-from error import SyncError
-from error import UpdateManifestError
-from subcmds import sync
+from kanon_cli.repo.error import GitError
+from kanon_cli.repo.error import RepoChangedException
+from kanon_cli.repo.error import RepoUnhandledExceptionError
+from kanon_cli.repo.error import SyncError
+from kanon_cli.repo.error import UpdateManifestError
+from kanon_cli.repo.subcmds import sync
 
 
 @pytest.mark.unit
@@ -68,8 +68,8 @@ class TestSmartSyncSetup:
         mock_netrc = mock.MagicMock()
         mock_netrc.authenticators.return_value = None
 
-        with mock.patch("subcmds.sync.netrc.netrc", return_value=mock_netrc):
-            with mock.patch("subcmds.sync.xmlrpc.client.Server") as mock_server:
+        with mock.patch("kanon_cli.repo.subcmds.sync.netrc.netrc", return_value=mock_netrc):
+            with mock.patch("kanon_cli.repo.subcmds.sync.xmlrpc.client.Server") as mock_server:
                 server_inst = mock.MagicMock()
                 server_inst.GetApprovedManifest.return_value = [
                     True,
@@ -106,8 +106,8 @@ class TestSmartSyncSetup:
         mock_netrc = mock.MagicMock()
         mock_netrc.authenticators.side_effect = netrc_module.NetrcParseError("Parse error")
 
-        with mock.patch("subcmds.sync.netrc.netrc", return_value=mock_netrc):
-            with mock.patch("subcmds.sync.xmlrpc.client.Server") as mock_server:
+        with mock.patch("kanon_cli.repo.subcmds.sync.netrc.netrc", return_value=mock_netrc):
+            with mock.patch("kanon_cli.repo.subcmds.sync.xmlrpc.client.Server") as mock_server:
                 server_inst = mock.MagicMock()
                 server_inst.GetApprovedManifest.return_value = [
                     True,
@@ -146,7 +146,7 @@ class TestSmartSyncSetup:
         }
 
         with mock.patch.dict(os.environ, env_vars):
-            with mock.patch("subcmds.sync.xmlrpc.client.Server") as mock_server:
+            with mock.patch("kanon_cli.repo.subcmds.sync.xmlrpc.client.Server") as mock_server:
                 server_inst = mock.MagicMock()
                 server_inst.GetApprovedManifest.return_value = [
                     True,
@@ -188,7 +188,7 @@ class TestSmartSyncSetup:
         }
 
         with mock.patch.dict(os.environ, env_vars, clear=True):
-            with mock.patch("subcmds.sync.xmlrpc.client.Server") as mock_server:
+            with mock.patch("kanon_cli.repo.subcmds.sync.xmlrpc.client.Server") as mock_server:
                 server_inst = mock.MagicMock()
                 server_inst.GetApprovedManifest.return_value = [
                     True,
@@ -222,7 +222,7 @@ class TestSmartSyncSetup:
         manifest.IsMirror = False
         manifest.IsArchive = False
 
-        with mock.patch("subcmds.sync.xmlrpc.client.Server") as mock_server:
+        with mock.patch("kanon_cli.repo.subcmds.sync.xmlrpc.client.Server") as mock_server:
             server_inst = mock.MagicMock()
             server_inst.GetApprovedManifest.return_value = [
                 True,
@@ -255,7 +255,7 @@ class TestSmartSyncSetup:
 
         protocol_error = xmlrpc.client.ProtocolError("http://example.com", 500, "Internal Server Error", {})
 
-        with mock.patch("subcmds.sync.xmlrpc.client.Server", side_effect=protocol_error):
+        with mock.patch("kanon_cli.repo.subcmds.sync.xmlrpc.client.Server", side_effect=protocol_error):
             # This should hit lines 1662-1667
             with pytest.raises(sync.SmartSyncError, match="cannot connect to manifest server"):
                 cmd._SmartSyncSetup(opt, "/tmp/manifest.xml", manifest)
@@ -277,7 +277,7 @@ class TestSmartSyncSetup:
         manifest.IsMirror = False
         manifest.IsArchive = False
 
-        with mock.patch("subcmds.sync.xmlrpc.client.Server") as mock_server:
+        with mock.patch("kanon_cli.repo.subcmds.sync.xmlrpc.client.Server") as mock_server:
             server_inst = mock.MagicMock()
             server_inst.GetApprovedManifest.return_value = [
                 True,
@@ -326,14 +326,14 @@ class TestSuperprojectSetup:
         with mock.patch.object(cmd, "GetProjects", return_value=[]):
             with mock.patch.object(cmd, "ManifestList", return_value=[manifest]):
                 with mock.patch(
-                    "subcmds.sync.git_superproject.UseSuperproject",
+                    "kanon_cli.repo.subcmds.sync.git_superproject.UseSuperproject",
                     return_value=True,
                 ):
                     with mock.patch(
-                        "subcmds.sync.git_superproject.PrintMessages",
+                        "kanon_cli.repo.subcmds.sync.git_superproject.PrintMessages",
                         return_value=True,
                     ):
-                        with mock.patch("subcmds.sync.logger") as mock_logger:
+                        with mock.patch("kanon_cli.repo.subcmds.sync.logger") as mock_logger:
                             # This should hit lines 718-728 (IsMirror, no working tree)
                             cmd._UpdateProjectsRevisionId(opt, [], superproject_logging_data, manifest)
                             # Verify warning was logged about no working tree
@@ -372,11 +372,11 @@ class TestSuperprojectSetup:
         with mock.patch.object(cmd, "GetProjects", return_value=[]):
             with mock.patch.object(cmd, "ManifestList", return_value=[manifest]):
                 with mock.patch(
-                    "subcmds.sync.git_superproject.UseSuperproject",
+                    "kanon_cli.repo.subcmds.sync.git_superproject.UseSuperproject",
                     return_value=True,
                 ):
                     with mock.patch(
-                        "subcmds.sync.git_superproject.PrintMessages",
+                        "kanon_cli.repo.subcmds.sync.git_superproject.PrintMessages",
                         return_value=True,
                     ):
                         # This should hit lines 755-756 (fatal error)
@@ -416,11 +416,11 @@ class TestSuperprojectSetup:
         with mock.patch.object(cmd, "GetProjects", return_value=[]):
             with mock.patch.object(cmd, "ManifestList", return_value=[manifest]):
                 with mock.patch(
-                    "subcmds.sync.git_superproject.UseSuperproject",
+                    "kanon_cli.repo.subcmds.sync.git_superproject.UseSuperproject",
                     return_value=True,
                 ):
                     with mock.patch(
-                        "subcmds.sync.git_superproject.PrintMessages",
+                        "kanon_cli.repo.subcmds.sync.git_superproject.PrintMessages",
                         return_value=False,
                     ):
                         # This should hit line 758 (unload manifest)
@@ -510,7 +510,7 @@ class TestUpdateManifestProject:
         mp.config = mock.MagicMock()
 
         # Mock SyncBuffer to return failure
-        with mock.patch("subcmds.sync.SyncBuffer") as mock_syncbuf:
+        with mock.patch("kanon_cli.repo.subcmds.sync.SyncBuffer") as mock_syncbuf:
             syncbuf_inst = mock.MagicMock()
             syncbuf_inst.Finish.return_value = False
             mock_syncbuf.return_value = syncbuf_inst
@@ -668,7 +668,7 @@ class TestSyncOneProject:
 
         project.Sync_LocalHalf.side_effect = mock_sync_local_half
 
-        with mock.patch("subcmds.sync.SyncBuffer") as mock_syncbuf:
+        with mock.patch("kanon_cli.repo.subcmds.sync.SyncBuffer") as mock_syncbuf:
             syncbuf_inst = mock.MagicMock()
             syncbuf_inst.Finish.return_value = True
             mock_syncbuf.return_value = syncbuf_inst
@@ -716,8 +716,8 @@ class TestNetrcHandling:
         manifest.IsArchive = False
 
         # Mock netrc to raise OSError (file not found)
-        with mock.patch("subcmds.sync.netrc.netrc", side_effect=OSError("File not found")):
-            with mock.patch("subcmds.sync.xmlrpc.client.Server") as mock_server:
+        with mock.patch("kanon_cli.repo.subcmds.sync.netrc.netrc", side_effect=OSError("File not found")):
+            with mock.patch("kanon_cli.repo.subcmds.sync.xmlrpc.client.Server") as mock_server:
                 server_inst = mock.MagicMock()
                 server_inst.GetApprovedManifest.return_value = [
                     True,
@@ -753,7 +753,7 @@ class TestSmartSyncEdgeCases:
         manifest.IsMirror = False
         manifest.IsArchive = False
 
-        with mock.patch("subcmds.sync.xmlrpc.client.Server") as mock_server:
+        with mock.patch("kanon_cli.repo.subcmds.sync.xmlrpc.client.Server") as mock_server:
             server_inst = mock.MagicMock()
             server_inst.GetApprovedManifest.return_value = [
                 True,
@@ -879,7 +879,7 @@ class TestAdditionalCoverage:
         manifest = mock.MagicMock()
         manifest.manifest_server = "http://manifest-server.example.com"
 
-        with mock.patch("subcmds.sync.xmlrpc.client.Server") as mock_server:
+        with mock.patch("kanon_cli.repo.subcmds.sync.xmlrpc.client.Server") as mock_server:
             server_inst = mock.MagicMock()
             server_inst.GetApprovedManifest.return_value = [True, "content"]
             mock_server.return_value = server_inst
@@ -904,7 +904,7 @@ class TestAdditionalCoverage:
         manifest.manifest_server = "http://manifest-server.example.com"
 
         fault = xmlrpc.client.Fault(1, "Test fault")
-        with mock.patch("subcmds.sync.xmlrpc.client.Server", side_effect=fault):
+        with mock.patch("kanon_cli.repo.subcmds.sync.xmlrpc.client.Server", side_effect=fault):
             with pytest.raises(sync.SmartSyncError, match="cannot connect"):
                 cmd._SmartSyncSetup(opt, "/tmp/manifest.xml", manifest)
 
@@ -923,7 +923,7 @@ class TestAdditionalCoverage:
         manifest = mock.MagicMock()
         manifest.manifest_server = "http://manifest-server.example.com"
 
-        with mock.patch("subcmds.sync.xmlrpc.client.Server") as mock_server:
+        with mock.patch("kanon_cli.repo.subcmds.sync.xmlrpc.client.Server") as mock_server:
             server_inst = mock.MagicMock()
             server_inst.GetApprovedManifest.return_value = [
                 False,
@@ -991,7 +991,7 @@ class TestAdditionalCoverage:
         manifest.manifest_server = "http://manifest-server.example.com"
 
         with mock.patch(
-            "subcmds.sync.xmlrpc.client.Server",
+            "kanon_cli.repo.subcmds.sync.xmlrpc.client.Server",
             side_effect=OSError("Connection error"),
         ):
             with pytest.raises(sync.SmartSyncError, match="cannot connect"):
@@ -1015,8 +1015,8 @@ class TestAdditionalCoverage:
         mock_netrc = mock.MagicMock()
         mock_netrc.authenticators.return_value = ("user", "account", "pass")
 
-        with mock.patch("subcmds.sync.netrc.netrc", return_value=mock_netrc):
-            with mock.patch("subcmds.sync.xmlrpc.client.Server") as mock_server:
+        with mock.patch("kanon_cli.repo.subcmds.sync.netrc.netrc", return_value=mock_netrc):
+            with mock.patch("kanon_cli.repo.subcmds.sync.xmlrpc.client.Server") as mock_server:
                 server_inst = mock.MagicMock()
                 server_inst.GetApprovedManifest.return_value = [True, "content"]
                 mock_server.return_value = server_inst
@@ -1044,8 +1044,8 @@ class TestAdditionalCoverage:
 
         mock_netrc = mock.MagicMock()
 
-        with mock.patch("subcmds.sync.netrc.netrc", return_value=mock_netrc):
-            with mock.patch("subcmds.sync.xmlrpc.client.Server") as mock_server:
+        with mock.patch("kanon_cli.repo.subcmds.sync.netrc.netrc", return_value=mock_netrc):
+            with mock.patch("kanon_cli.repo.subcmds.sync.xmlrpc.client.Server") as mock_server:
                 server_inst = mock.MagicMock()
                 server_inst.GetApprovedManifest.return_value = [True, "content"]
                 mock_server.return_value = server_inst
@@ -1112,7 +1112,7 @@ class TestAdditionalCoverage:
         """Test RepoHook.FromSubcmd can be called."""
         manifest = mock.MagicMock()
 
-        with mock.patch("subcmds.sync.RepoHook") as mock_hook:
+        with mock.patch("kanon_cli.repo.subcmds.sync.RepoHook") as mock_hook:
             mock_hook.FromSubcmd.return_value = None
             cmd = sync.Sync()
             cmd.manifest = manifest
@@ -1144,7 +1144,7 @@ class TestAdditionalCoverage:
         env_vars = {"SYNC_TARGET": "custom-target"}
 
         with mock.patch.dict(os.environ, env_vars):
-            with mock.patch("subcmds.sync.xmlrpc.client.Server") as mock_server:
+            with mock.patch("kanon_cli.repo.subcmds.sync.xmlrpc.client.Server") as mock_server:
                 server_inst = mock.MagicMock()
                 server_inst.GetApprovedManifest.return_value = [True, "content"]
                 mock_server.return_value = server_inst
@@ -1176,7 +1176,7 @@ class TestAdditionalCoverage:
         env_vars = {}
 
         with mock.patch.dict(os.environ, env_vars, clear=True):
-            with mock.patch("subcmds.sync.xmlrpc.client.Server") as mock_server:
+            with mock.patch("kanon_cli.repo.subcmds.sync.xmlrpc.client.Server") as mock_server:
                 server_inst = mock.MagicMock()
                 server_inst.GetApprovedManifest.return_value = [True, "content"]
                 mock_server.return_value = server_inst

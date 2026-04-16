@@ -24,10 +24,10 @@ import xml.parsers.expat
 
 import pytest
 
-from error import RepoChangedException
-from error import RepoUnhandledExceptionError
-from error import SyncError
-from subcmds import sync
+from kanon_cli.repo.error import RepoChangedException
+from kanon_cli.repo.error import RepoUnhandledExceptionError
+from kanon_cli.repo.error import SyncError
+from kanon_cli.repo.subcmds import sync
 
 
 @pytest.mark.unit
@@ -40,7 +40,7 @@ class TestRlimitNofile:
         # but we can test the function behavior
         with mock.patch.dict("sys.modules", {"resource": None}):
             # Force reimport to test ImportError path
-            import subcmds.sync as sync_module
+            from kanon_cli.repo.subcmds import sync as sync_module
 
             # The _rlimit_nofile function should exist and return default
             # This tests lines 50-51
@@ -55,7 +55,7 @@ class TestThreadingImport:
         """Test fallback to dummy_threading (lines 39-40)."""
         # This tests the ImportError case for threading
         # The actual import happens at module level, so we verify the module exists
-        import subcmds.sync as sync_module
+        from kanon_cli.repo.subcmds import sync as sync_module
 
         assert hasattr(sync_module, "_threading")
 
@@ -72,8 +72,8 @@ class TestPostRepoUpgrade:
             manifest.projects = []
 
             # Mock platform_utils functions
-            with mock.patch("subcmds.sync.platform_utils") as mock_platform:
-                with mock.patch("subcmds.sync.Wrapper") as mock_wrapper:
+            with mock.patch("kanon_cli.repo.subcmds.sync.platform_utils") as mock_platform:
+                with mock.patch("kanon_cli.repo.subcmds.sync.Wrapper") as mock_wrapper:
                     mock_platform.islink.return_value = False
                     mock_platform.symlink.return_value = None
                     wrapper_inst = mock.MagicMock()
@@ -94,8 +94,8 @@ class TestPostRepoUpgrade:
             project.Exists = True
             manifest.projects = [project]
 
-            with mock.patch("subcmds.sync.platform_utils") as mock_platform:
-                with mock.patch("subcmds.sync.Wrapper") as mock_wrapper:
+            with mock.patch("kanon_cli.repo.subcmds.sync.platform_utils") as mock_platform:
+                with mock.patch("kanon_cli.repo.subcmds.sync.Wrapper") as mock_wrapper:
                     mock_platform.islink.return_value = False
                     mock_platform.symlink.side_effect = Exception("test")
                     wrapper_inst = mock.MagicMock()
@@ -133,7 +133,7 @@ class TestPostRepoFetch:
         rp.work_git.reset = mock.MagicMock()
         rp.gitdir = "/tmp/test/.repo/repo"
 
-        with mock.patch("subcmds.sync.Wrapper") as mock_wrapper:
+        with mock.patch("kanon_cli.repo.subcmds.sync.Wrapper") as mock_wrapper:
             wrapper_inst = mock.MagicMock()
             wrapper_inst.check_repo_rev.return_value = (None, "v2.15")
             mock_wrapper.return_value = wrapper_inst
@@ -147,7 +147,7 @@ class TestPostRepoFetch:
 
     def test_post_repo_fetch_git_error_on_reset(self):
         """Test _PostRepoFetch when reset fails."""
-        from error import GitError
+        from kanon_cli.repo.error import GitError
 
         rp = mock.MagicMock()
         rp.HasChanges = True
@@ -156,7 +156,7 @@ class TestPostRepoFetch:
         rp.work_git.reset.side_effect = GitError("Git error")
         rp.gitdir = "/tmp/test/.repo/repo"
 
-        with mock.patch("subcmds.sync.Wrapper") as mock_wrapper:
+        with mock.patch("kanon_cli.repo.subcmds.sync.Wrapper") as mock_wrapper:
             wrapper_inst = mock.MagicMock()
             wrapper_inst.check_repo_rev.return_value = (None, "v2.15")
             mock_wrapper.return_value = wrapper_inst
@@ -173,7 +173,7 @@ class TestPostRepoFetch:
         rp.bare_git.rev_parse.side_effect = ["abc123", "abc123"]
         rp.gitdir = "/tmp/test/.repo/repo"
 
-        with mock.patch("subcmds.sync.Wrapper") as mock_wrapper:
+        with mock.patch("kanon_cli.repo.subcmds.sync.Wrapper") as mock_wrapper:
             wrapper_inst = mock.MagicMock()
             wrapper_inst.check_repo_rev.return_value = (None, "v2.15")
             mock_wrapper.return_value = wrapper_inst
@@ -210,7 +210,7 @@ class TestFetchTimes:
             ft = sync._FetchTimes(manifest)
 
             # Test lines 2675-2677 (ValueError path)
-            with mock.patch("subcmds.sync.platform_utils") as mock_platform:
+            with mock.patch("kanon_cli.repo.subcmds.sync.platform_utils") as mock_platform:
                 ft._Load()
                 mock_platform.remove.assert_called_once()
 
@@ -228,7 +228,7 @@ class TestFetchTimes:
 
             # Test lines 2691-2692
             with mock.patch("builtins.open", side_effect=OSError("test error")):
-                with mock.patch("subcmds.sync.platform_utils") as mock_platform:
+                with mock.patch("kanon_cli.repo.subcmds.sync.platform_utils") as mock_platform:
                     ft.Save()
                     mock_platform.remove.assert_called_once()
 
@@ -359,7 +359,7 @@ class TestUpdateProjectsRevisionId:
         with mock.patch.object(sync_cmd, "GetProjects", return_value=[project]):
             with mock.patch.object(sync_cmd, "ManifestList", return_value=[manifest]):
                 with mock.patch(
-                    "subcmds.sync.git_superproject.UseSuperproject",
+                    "kanon_cli.repo.subcmds.sync.git_superproject.UseSuperproject",
                     return_value=True,
                 ):
                     # Test lines 718-728 (mirror warning path)
@@ -701,7 +701,7 @@ class TestExecuteHelper:
                         with mock.patch.object(sync_cmd, "_UpdateProjectsRevisionId"):
                             with mock.patch.object(sync_cmd, "GetProjects", return_value=[]):
                                 with mock.patch.object(sync_cmd, "_SyncPhased"):
-                                    with mock.patch("subcmds.sync.platform_utils") as mock_platform:
+                                    with mock.patch("kanon_cli.repo.subcmds.sync.platform_utils") as mock_platform:
                                         # Test lines 1888-1896 (remove override)
                                         sync_cmd._ExecuteHelper(opt, args, errors)
                                         mock_platform.remove.assert_called()
@@ -737,7 +737,7 @@ class TestExecuteHelper:
         manifest.CloneBundle = True
 
         with mock.patch.object(sync_cmd, "ManifestList", return_value=[]):
-            with mock.patch("subcmds.sync._PostRepoUpgrade") as mock_post_upgrade:
+            with mock.patch("kanon_cli.repo.subcmds.sync._PostRepoUpgrade") as mock_post_upgrade:
                 with mock.patch.object(sync_cmd, "_ValidateOptionsWithManifest"):
                     with mock.patch.object(sync_cmd, "_UpdateRepoProject"):
                         with mock.patch.object(sync_cmd, "_UpdateProjectsRevisionId"):
@@ -801,7 +801,7 @@ class TestCreateSyncProgressThread:
         pm = mock.MagicMock()
         stop_event = mock.MagicMock()
 
-        with mock.patch("subcmds.sync._threading.Thread") as mock_thread:
+        with mock.patch("kanon_cli.repo.subcmds.sync._threading.Thread") as mock_thread:
             # Test lines 2017-2022
             sync_cmd._CreateSyncProgressThread(pm, stop_event)
             mock_thread.assert_called_once()
@@ -892,7 +892,7 @@ class TestSyncPhased:
         fetch_result.all_projects = []
 
         with mock.patch("multiprocessing.Manager"):
-            with mock.patch("subcmds.sync.ssh.ProxyManager"):
+            with mock.patch("kanon_cli.repo.subcmds.sync.ssh.ProxyManager"):
                 with mock.patch.object(sync_cmd, "_FetchMain", return_value=fetch_result):
                     # Test line 2156-2157 (early return on network_only)
                     sync_cmd._SyncPhased(
@@ -945,7 +945,7 @@ class TestSyncInterleaved:
         superproject_logging_data = {}
 
         with mock.patch("multiprocessing.Manager"):
-            with mock.patch("subcmds.sync.ssh.ProxyManager"):
+            with mock.patch("kanon_cli.repo.subcmds.sync.ssh.ProxyManager"):
                 with mock.patch.object(sync_cmd, "ParallelContext"):
                     with mock.patch.object(sync_cmd, "get_parallel_context", return_value={}):
                         with mock.patch.object(sync_cmd, "_CreateSyncProgressThread") as mock_thread:
@@ -998,7 +998,7 @@ class TestPersistentTransport:
         try:
             transport = sync.PersistentTransport("http://example.com")
 
-            with mock.patch("subcmds.sync.GetUrlCookieFile") as mock_get_cookie:
+            with mock.patch("kanon_cli.repo.subcmds.sync.GetUrlCookieFile") as mock_get_cookie:
                 mock_get_cookie.return_value.__enter__.return_value = (
                     cookie_file,
                     None,
@@ -1021,7 +1021,7 @@ class TestPersistentTransport:
         """Test PersistentTransport.request with proxy."""
         transport = sync.PersistentTransport("http://example.com")
 
-        with mock.patch("subcmds.sync.GetUrlCookieFile") as mock_get_cookie:
+        with mock.patch("kanon_cli.repo.subcmds.sync.GetUrlCookieFile") as mock_get_cookie:
             mock_get_cookie.return_value.__enter__.return_value = (
                 None,
                 "http://proxy:8080",
@@ -1041,7 +1041,7 @@ class TestPersistentTransport:
         """Test PersistentTransport.request with persistent-https."""
         transport = sync.PersistentTransport("persistent-https://example.com")
 
-        with mock.patch("subcmds.sync.GetUrlCookieFile") as mock_get_cookie:
+        with mock.patch("kanon_cli.repo.subcmds.sync.GetUrlCookieFile") as mock_get_cookie:
             mock_get_cookie.return_value.__enter__.return_value = (
                 None,
                 "http://proxy:8080",
@@ -1061,7 +1061,7 @@ class TestPersistentTransport:
         """Test PersistentTransport.request with HTTP 501 error."""
         transport = sync.PersistentTransport("http://example.com")
 
-        with mock.patch("subcmds.sync.GetUrlCookieFile") as mock_get_cookie:
+        with mock.patch("kanon_cli.repo.subcmds.sync.GetUrlCookieFile") as mock_get_cookie:
             mock_get_cookie.return_value.__enter__.return_value = (None, None)
 
             with mock.patch("urllib.request.build_opener") as mock_opener:
@@ -1083,7 +1083,7 @@ class TestPersistentTransport:
         """Test PersistentTransport.request with XML parse error."""
         transport = sync.PersistentTransport("http://example.com")
 
-        with mock.patch("subcmds.sync.GetUrlCookieFile") as mock_get_cookie:
+        with mock.patch("kanon_cli.repo.subcmds.sync.GetUrlCookieFile") as mock_get_cookie:
             mock_get_cookie.return_value.__enter__.return_value = (None, None)
 
             with mock.patch("urllib.request.build_opener") as mock_opener:
@@ -1311,7 +1311,7 @@ class TestAdditionalCoverage:
         hook.Run.return_value = False
 
         with mock.patch.object(sync_cmd, "_ExecuteHelper"):
-            with mock.patch("subcmds.sync.RepoHook", return_value=hook):
+            with mock.patch("kanon_cli.repo.subcmds.sync.RepoHook", return_value=hook):
                 # Test line 1865 (hook failure warning)
                 sync_cmd.Execute(opt, args)
 
@@ -1381,7 +1381,7 @@ class TestAdditionalCoverage:
         superproject_logging_data = {}
 
         with mock.patch("multiprocessing.Manager"):
-            with mock.patch("subcmds.sync.ssh.ProxyManager"):
+            with mock.patch("kanon_cli.repo.subcmds.sync.ssh.ProxyManager"):
                 with mock.patch.object(sync_cmd, "ParallelContext"):
                     with mock.patch.object(sync_cmd, "get_parallel_context", return_value={}):
                         with mock.patch.object(sync_cmd, "_CreateSyncProgressThread") as mock_thread:

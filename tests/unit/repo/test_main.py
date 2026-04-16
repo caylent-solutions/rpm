@@ -20,12 +20,8 @@ from unittest import mock
 
 import pytest
 
-import main
-from error import (
-    DownloadError,
-    NoManifestException,
-    NoSuchProjectError,
-)
+from kanon_cli.repo import main
+from kanon_cli.repo.error import DownloadError, NoManifestException, NoSuchProjectError
 
 
 @pytest.mark.unit
@@ -47,9 +43,9 @@ class TestVersionString(unittest.TestCase):
 class TestCheckWrapperVersion(unittest.TestCase):
     """Tests for _CheckWrapperVersion function."""
 
-    @mock.patch("main.Wrapper")
-    @mock.patch("main.WrapperPath")
-    @mock.patch("main.sys.exit")
+    @mock.patch("kanon_cli.repo.main.Wrapper")
+    @mock.patch("kanon_cli.repo.main.WrapperPath")
+    @mock.patch("kanon_cli.repo.main.sys.exit")
     def test_version_too_old(self, mock_exit, mock_wrapper_path, mock_wrapper):
         """Test that old version causes exit."""
         mock_wrapper.return_value.VERSION = (2, 0)
@@ -59,9 +55,9 @@ class TestCheckWrapperVersion(unittest.TestCase):
 
         mock_exit.assert_called_once_with(1)
 
-    @mock.patch("main.Wrapper")
-    @mock.patch("main.WrapperPath")
-    @mock.patch("main.logger")
+    @mock.patch("kanon_cli.repo.main.Wrapper")
+    @mock.patch("kanon_cli.repo.main.WrapperPath")
+    @mock.patch("kanon_cli.repo.main.logger")
     def test_version_needs_upgrade(self, mock_logger, mock_wrapper_path, mock_wrapper):
         """Test that older version triggers warning."""
         mock_wrapper.return_value.VERSION = (2, 5)
@@ -72,9 +68,9 @@ class TestCheckWrapperVersion(unittest.TestCase):
 
         mock_logger.warning.assert_called()
 
-    @mock.patch("main.Wrapper")
-    @mock.patch("main.WrapperPath")
-    @mock.patch("main.logger")
+    @mock.patch("kanon_cli.repo.main.Wrapper")
+    @mock.patch("kanon_cli.repo.main.WrapperPath")
+    @mock.patch("kanon_cli.repo.main.logger")
     def test_version_upgrade_not_writable(self, mock_logger, mock_wrapper_path, mock_wrapper):
         """Test warning when wrapper is not writable."""
         mock_wrapper.return_value.VERSION = (2, 5)
@@ -85,8 +81,8 @@ class TestCheckWrapperVersion(unittest.TestCase):
 
         mock_logger.warning.assert_called()
 
-    @mock.patch("main.Wrapper")
-    @mock.patch("main.WrapperPath")
+    @mock.patch("kanon_cli.repo.main.Wrapper")
+    @mock.patch("kanon_cli.repo.main.WrapperPath")
     def test_version_current(self, mock_wrapper_path, mock_wrapper):
         """Test that current version passes without error."""
         mock_wrapper.return_value.VERSION = (2, 0)
@@ -95,8 +91,8 @@ class TestCheckWrapperVersion(unittest.TestCase):
         # Should not raise or exit
         main._CheckWrapperVersion("2.0", "/repo/path")
 
-    @mock.patch("main.Wrapper")
-    @mock.patch("main.WrapperPath")
+    @mock.patch("kanon_cli.repo.main.Wrapper")
+    @mock.patch("kanon_cli.repo.main.WrapperPath")
     def test_version_newer_than_expected(self, mock_wrapper_path, mock_wrapper):
         """Test that newer version is accepted."""
         mock_wrapper.return_value.VERSION = (2, 0)
@@ -105,8 +101,8 @@ class TestCheckWrapperVersion(unittest.TestCase):
         # Should not raise or exit
         main._CheckWrapperVersion("2.5", "/repo/path")
 
-    @mock.patch("main.Wrapper")
-    @mock.patch("main.WrapperPath")
+    @mock.patch("kanon_cli.repo.main.Wrapper")
+    @mock.patch("kanon_cli.repo.main.WrapperPath")
     def test_default_repo_path(self, mock_wrapper_path, mock_wrapper):
         """Test default repo path when none provided."""
         mock_wrapper.return_value.VERSION = (2, 0)
@@ -120,13 +116,13 @@ class TestCheckWrapperVersion(unittest.TestCase):
 class TestCheckRepoDir(unittest.TestCase):
     """Tests for _CheckRepoDir function."""
 
-    @mock.patch("main.sys.exit")
+    @mock.patch("kanon_cli.repo.main.sys.exit")
     def test_missing_repo_dir(self, mock_exit):
         """Test that missing repo_dir causes exit."""
         main._CheckRepoDir(None)
         mock_exit.assert_called_once_with(1)
 
-    @mock.patch("main.sys.exit")
+    @mock.patch("kanon_cli.repo.main.sys.exit")
     def test_empty_repo_dir(self, mock_exit):
         """Test that empty repo_dir causes exit."""
         main._CheckRepoDir("")
@@ -186,7 +182,7 @@ class TestPruneOptions(unittest.TestCase):
 class TestUserAgentHandler(unittest.TestCase):
     """Tests for _UserAgentHandler class."""
 
-    @mock.patch("main.user_agent")
+    @mock.patch("kanon_cli.repo.main.user_agent")
     def test_http_request_adds_user_agent(self, mock_user_agent):
         """Test that HTTP request gets user agent header."""
         mock_user_agent.repo = "test-user-agent/1.0"
@@ -198,7 +194,7 @@ class TestUserAgentHandler(unittest.TestCase):
         mock_req.add_header.assert_called_once_with("User-Agent", "test-user-agent/1.0")
         self.assertEqual(result, mock_req)
 
-    @mock.patch("main.user_agent")
+    @mock.patch("kanon_cli.repo.main.user_agent")
     def test_https_request_adds_user_agent(self, mock_user_agent):
         """Test that HTTPS request gets user agent header."""
         mock_user_agent.repo = "test-user-agent/1.0"
@@ -321,8 +317,8 @@ class TestRepoClass(unittest.TestCase):
         self.assertEqual(self.repo.repodir, "/test/repodir")
         self.assertIsNotNone(self.repo.commands)
 
-    @mock.patch("main.global_options")
-    @mock.patch("main.Wrapper")
+    @mock.patch("kanon_cli.repo.main.global_options")
+    @mock.patch("kanon_cli.repo.main.Wrapper")
     def test_print_help_short(self, mock_wrapper, mock_global_options):
         """Test short help output."""
         mock_wrapper.return_value.BUG_URL = "http://bugs.example.com"
@@ -334,7 +330,7 @@ class TestRepoClass(unittest.TestCase):
         mock_global_options.print_help.assert_called_once()
         mock_print.assert_called()
 
-    @mock.patch("main.global_options")
+    @mock.patch("kanon_cli.repo.main.global_options")
     def test_print_help_full(self, mock_global_options):
         """Test full help output."""
         mock_help_cmd = mock.Mock()
@@ -345,7 +341,7 @@ class TestRepoClass(unittest.TestCase):
         mock_global_options.print_help.assert_called_once()
         mock_help_cmd.PrintCommonCommandsBody.assert_called_once()
 
-    @mock.patch("main.global_options")
+    @mock.patch("kanon_cli.repo.main.global_options")
     def test_print_help_all_commands(self, mock_global_options):
         """Test help with all commands."""
         mock_help_cmd = mock.Mock()
@@ -377,7 +373,7 @@ class TestRepoClass(unittest.TestCase):
         self.assertEqual(name, "sync")
         self.assertEqual(argv, ["-j4"])
 
-    @mock.patch("main.RepoConfig")
+    @mock.patch("kanon_cli.repo.main.RepoConfig")
     def test_expand_alias_no_alias(self, mock_repo_config):
         """Test expanding non-existent alias."""
         mock_config = mock.Mock()
@@ -391,7 +387,7 @@ class TestRepoClass(unittest.TestCase):
         self.assertEqual(name, "sync")
         self.assertEqual(args, [])
 
-    @mock.patch("main.RepoConfig")
+    @mock.patch("kanon_cli.repo.main.RepoConfig")
     def test_expand_alias_existing_command(self, mock_repo_config):
         """Test that existing commands are not aliased."""
         mock_config = mock.Mock()
@@ -404,7 +400,7 @@ class TestRepoClass(unittest.TestCase):
         self.assertEqual(name, "sync")
         self.assertEqual(args, [])
 
-    @mock.patch("main.RepoConfig")
+    @mock.patch("kanon_cli.repo.main.RepoConfig")
     def test_expand_alias_with_args(self, mock_repo_config):
         """Test expanding alias with arguments."""
         mock_config = mock.Mock()
@@ -416,7 +412,7 @@ class TestRepoClass(unittest.TestCase):
         self.assertEqual(name, "sync")
         self.assertEqual(args, ["-j4"])
 
-    @mock.patch("main.RepoConfig")
+    @mock.patch("kanon_cli.repo.main.RepoConfig")
     def test_expand_alias_from_user_config(self, mock_repo_config):
         """Test expanding alias from user config."""
         mock_repo_conf = mock.Mock()
@@ -440,7 +436,7 @@ class TestRepoRun(unittest.TestCase):
         """Set up test fixtures."""
         self.repo = main._Repo("/test/repodir")
 
-    @mock.patch("main.global_options")
+    @mock.patch("kanon_cli.repo.main.global_options")
     def test_run_help_flag(self, mock_global_options):
         """Test running with --help flag."""
         mock_gopts = mock.Mock()
@@ -453,7 +449,7 @@ class TestRepoRun(unittest.TestCase):
         mock_print_help.assert_called_once_with(short=False, all_commands=False)
         self.assertEqual(result, 0)
 
-    @mock.patch("main.global_options")
+    @mock.patch("kanon_cli.repo.main.global_options")
     def test_run_help_all_flag(self, mock_global_options):
         """Test running with --help-all flag."""
         mock_gopts = mock.Mock()
@@ -466,7 +462,7 @@ class TestRepoRun(unittest.TestCase):
         mock_print_help.assert_called_once_with(short=False, all_commands=True)
         self.assertEqual(result, 0)
 
-    @mock.patch("main.global_options")
+    @mock.patch("kanon_cli.repo.main.global_options")
     def test_run_show_version(self, mock_global_options):
         """Test running with --version flag."""
         mock_gopts = mock.Mock()
@@ -508,8 +504,8 @@ class TestRepoRun(unittest.TestCase):
         mock_print_help.assert_called_once_with(short=True)
         self.assertEqual(result, 1)
 
-    @mock.patch("main.EventLog")
-    @mock.patch("main.Trace")
+    @mock.patch("kanon_cli.repo.main.EventLog")
+    @mock.patch("kanon_cli.repo.main.Trace")
     def test_run_with_trace_python(self, mock_trace, mock_event_log):
         """Test running with --trace-python flag."""
         mock_gopts = mock.Mock()
@@ -533,9 +529,9 @@ class TestRepoRunLong(unittest.TestCase):
         """Set up test fixtures."""
         self.repo = main._Repo("/test/repodir")
 
-    @mock.patch("main.RepoClient")
-    @mock.patch("main.SetDefaultColoring")
-    @mock.patch("main.Editor")
+    @mock.patch("kanon_cli.repo.main.RepoClient")
+    @mock.patch("kanon_cli.repo.main.SetDefaultColoring")
+    @mock.patch("kanon_cli.repo.main.Editor")
     def test_runlong_unknown_command(self, mock_editor, mock_color, mock_client):
         """Test running unknown command."""
         mock_gopts = mock.Mock()
@@ -547,10 +543,10 @@ class TestRepoRunLong(unittest.TestCase):
 
         self.assertEqual(result, 1)
 
-    @mock.patch("main.RepoClient")
-    @mock.patch("main.SetDefaultColoring")
-    @mock.patch("main.Editor")
-    @mock.patch("main.time")
+    @mock.patch("kanon_cli.repo.main.RepoClient")
+    @mock.patch("kanon_cli.repo.main.SetDefaultColoring")
+    @mock.patch("kanon_cli.repo.main.Editor")
+    @mock.patch("kanon_cli.repo.main.time")
     def test_runlong_no_manifest_exception(self, mock_time, mock_editor, mock_color, mock_client):
         """Test handling NoManifestException."""
         mock_gopts = mock.Mock()
@@ -581,10 +577,10 @@ class TestRepoExceptionHandling(unittest.TestCase):
         """Set up test fixtures."""
         self.repo = main._Repo("/test/repodir")
 
-    @mock.patch("main.RepoClient")
-    @mock.patch("main.SetDefaultColoring")
-    @mock.patch("main.Editor")
-    @mock.patch("main.time")
+    @mock.patch("kanon_cli.repo.main.RepoClient")
+    @mock.patch("kanon_cli.repo.main.SetDefaultColoring")
+    @mock.patch("kanon_cli.repo.main.Editor")
+    @mock.patch("kanon_cli.repo.main.time")
     def test_download_error_handling(self, mock_time, mock_editor, mock_color, mock_client):
         """Test handling DownloadError."""
         mock_gopts = mock.Mock()
@@ -616,10 +612,10 @@ class TestRepoExceptionHandling(unittest.TestCase):
 
         self.assertNotEqual(result, 0)
 
-    @mock.patch("main.RepoClient")
-    @mock.patch("main.SetDefaultColoring")
-    @mock.patch("main.Editor")
-    @mock.patch("main.time")
+    @mock.patch("kanon_cli.repo.main.RepoClient")
+    @mock.patch("kanon_cli.repo.main.SetDefaultColoring")
+    @mock.patch("kanon_cli.repo.main.Editor")
+    @mock.patch("kanon_cli.repo.main.time")
     def test_no_such_project_error(self, mock_time, mock_editor, mock_color, mock_client):
         """Test handling NoSuchProjectError."""
         mock_gopts = mock.Mock()
@@ -651,10 +647,10 @@ class TestRepoExceptionHandling(unittest.TestCase):
 
         self.assertNotEqual(result, 0)
 
-    @mock.patch("main.RepoClient")
-    @mock.patch("main.SetDefaultColoring")
-    @mock.patch("main.Editor")
-    @mock.patch("main.time")
+    @mock.patch("kanon_cli.repo.main.RepoClient")
+    @mock.patch("kanon_cli.repo.main.SetDefaultColoring")
+    @mock.patch("kanon_cli.repo.main.Editor")
+    @mock.patch("kanon_cli.repo.main.time")
     def test_keyboard_interrupt(self, mock_time, mock_editor, mock_color, mock_client):
         """Test handling KeyboardInterrupt."""
         mock_gopts = mock.Mock()
@@ -690,7 +686,7 @@ class TestRepoExceptionHandling(unittest.TestCase):
 class TestBasicAuthHandler(unittest.TestCase):
     """Tests for _BasicAuthHandler class."""
 
-    @mock.patch("main._AddPasswordFromUserInput")
+    @mock.patch("kanon_cli.repo.main._AddPasswordFromUserInput")
     @mock.patch("urllib.request.HTTPBasicAuthHandler.http_error_401")
     def test_http_error_401(self, mock_parent_handler, mock_add_password):
         """Test handling 401 error."""
@@ -707,7 +703,7 @@ class TestBasicAuthHandler(unittest.TestCase):
 class TestDigestAuthHandler(unittest.TestCase):
     """Tests for _DigestAuthHandler class."""
 
-    @mock.patch("main._AddPasswordFromUserInput")
+    @mock.patch("kanon_cli.repo.main._AddPasswordFromUserInput")
     @mock.patch("urllib.request.HTTPDigestAuthHandler.http_error_401")
     def test_http_error_401(self, mock_parent_handler, mock_add_password):
         """Test handling 401 error."""
@@ -804,10 +800,10 @@ class TestTimeFormatting(unittest.TestCase):
         """Set up test fixtures."""
         self.repo = main._Repo("/test/repodir")
 
-    @mock.patch("main.RepoClient")
-    @mock.patch("main.SetDefaultColoring")
-    @mock.patch("main.Editor")
-    @mock.patch("main.time")
+    @mock.patch("kanon_cli.repo.main.RepoClient")
+    @mock.patch("kanon_cli.repo.main.SetDefaultColoring")
+    @mock.patch("kanon_cli.repo.main.Editor")
+    @mock.patch("kanon_cli.repo.main.time")
     @mock.patch("sys.stderr")
     def test_time_formatting_minutes_only(self, mock_stderr, mock_time, mock_editor, mock_color, mock_client):
         """Test time formatting with minutes only."""
@@ -844,10 +840,10 @@ class TestTimeFormatting(unittest.TestCase):
         time_printed = any("real" in str(call) for call in calls)
         self.assertTrue(time_printed)
 
-    @mock.patch("main.RepoClient")
-    @mock.patch("main.SetDefaultColoring")
-    @mock.patch("main.Editor")
-    @mock.patch("main.time")
+    @mock.patch("kanon_cli.repo.main.RepoClient")
+    @mock.patch("kanon_cli.repo.main.SetDefaultColoring")
+    @mock.patch("kanon_cli.repo.main.Editor")
+    @mock.patch("kanon_cli.repo.main.time")
     def test_time_formatting_with_hours(self, mock_time, mock_editor, mock_color, mock_client):
         """Test time formatting with hours."""
         mock_gopts = mock.Mock()

@@ -18,8 +18,8 @@ from unittest import mock
 
 import pytest
 
-from error import UpdateManifestError
-from subcmds.init import Init
+from kanon_cli.repo.error import UpdateManifestError
+from kanon_cli.repo.subcmds.init import Init
 
 
 @pytest.mark.unit

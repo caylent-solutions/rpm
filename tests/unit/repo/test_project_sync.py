@@ -18,7 +18,7 @@ from unittest import mock
 
 import pytest
 
-import project
+from kanon_cli.repo import project
 
 
 def _make_project(tmp_path):
@@ -96,7 +96,7 @@ class TestInitGitDir:
         proj.gitdir = str(gitdir)
         proj.objdir = str(gitdir)
 
-        with mock.patch("project.GitCommand") as mock_git:
+        with mock.patch("kanon_cli.repo.project.GitCommand") as mock_git:
             mock_cmd = mock.MagicMock()
             mock_cmd.Wait.return_value = 0
             mock_git.return_value = mock_cmd
@@ -116,7 +116,7 @@ class TestBranchManagement:
         proj = _make_project(tmp_path)
 
         with mock.patch.object(proj.bare_git, "rev_parse", return_value="abc123"):
-            with mock.patch("project.GitCommand") as mock_git:
+            with mock.patch("kanon_cli.repo.project.GitCommand") as mock_git:
                 mock_cmd = mock.MagicMock()
                 mock_cmd.Wait.return_value = 0
                 mock_git.return_value = mock_cmd

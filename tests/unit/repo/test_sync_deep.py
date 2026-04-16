@@ -23,11 +23,11 @@ from unittest import mock
 
 import pytest
 
-from error import GitError
-from error import SyncError
-from project import Project
-from project import SyncNetworkHalfResult
-from subcmds import sync
+from kanon_cli.repo.error import GitError
+from kanon_cli.repo.error import SyncError
+from kanon_cli.repo.project import Project
+from kanon_cli.repo.project import SyncNetworkHalfResult
+from kanon_cli.repo.subcmds import sync
 
 
 def _make_sync_cmd():
@@ -187,7 +187,7 @@ def test_smart_sync_error_exception():
 @pytest.mark.unit
 def test_manifest_interrupt_error():
     """Test ManifestInterruptError with output."""
-    from error import RepoError
+    from kanon_cli.repo.error import RepoError
 
     err = sync.ManifestInterruptError("interrupt output")
     assert isinstance(err, RepoError)
@@ -252,7 +252,7 @@ def test_get_current_branch_only_with_superproject():
     opt.current_branch_only = False
     manifest = mock.MagicMock()
 
-    with mock.patch("subcmds.sync.git_superproject.UseSuperproject", return_value=True):
+    with mock.patch("kanon_cli.repo.subcmds.sync.git_superproject.UseSuperproject", return_value=True):
         result = cmd._GetCurrentBranchOnly(opt, manifest)
         assert result is True
 
@@ -266,7 +266,7 @@ def test_get_current_branch_only_without_superproject():
     opt.current_branch_only = True
     manifest = mock.MagicMock()
 
-    with mock.patch("subcmds.sync.git_superproject.UseSuperproject", return_value=False):
+    with mock.patch("kanon_cli.repo.subcmds.sync.git_superproject.UseSuperproject", return_value=False):
         result = cmd._GetCurrentBranchOnly(opt, manifest)
         assert result is True
 
@@ -372,7 +372,7 @@ def test_set_precious_objects_state_enable_precious_objects():
     opt.quiet = True
 
     with mock.patch.object(sync.Sync, "_GetPreciousObjectsState", return_value=True):
-        with mock.patch("subcmds.sync.git_require", return_value=True):
+        with mock.patch("kanon_cli.repo.subcmds.sync.git_require", return_value=True):
             cmd._SetPreciousObjectsState(project, opt)
             project.EnableRepositoryExtension.assert_called_once_with("preciousObjects")
 
@@ -389,7 +389,7 @@ def test_set_precious_objects_state_enable_with_old_git():
     opt.quiet = True
 
     with mock.patch.object(sync.Sync, "_GetPreciousObjectsState", return_value=True):
-        with mock.patch("subcmds.sync.git_require", return_value=False):
+        with mock.patch("kanon_cli.repo.subcmds.sync.git_require", return_value=False):
             cmd._SetPreciousObjectsState(project, opt)
             project.config.SetString.assert_called_once_with("gc.pruneExpire", "never")
 
@@ -442,7 +442,7 @@ def test_checkout_one_success():
     with mock.patch.object(sync.Sync, "get_parallel_context") as mock_ctx:
         mock_ctx.return_value = {"projects": [project]}
 
-        with mock.patch("subcmds.sync.SyncBuffer") as mock_buffer:
+        with mock.patch("kanon_cli.repo.subcmds.sync.SyncBuffer") as mock_buffer:
             buffer_instance = mock.MagicMock()
             buffer_instance.Finish.return_value = True
             mock_buffer.return_value = buffer_instance
@@ -470,7 +470,7 @@ def test_checkout_one_failure():
     with mock.patch.object(sync.Sync, "get_parallel_context") as mock_ctx:
         mock_ctx.return_value = {"projects": [project]}
 
-        with mock.patch("subcmds.sync.SyncBuffer") as mock_buffer:
+        with mock.patch("kanon_cli.repo.subcmds.sync.SyncBuffer") as mock_buffer:
             buffer_instance = mock.MagicMock()
             buffer_instance.Finish.return_value = False
             mock_buffer.return_value = buffer_instance
@@ -497,7 +497,7 @@ def test_checkout_one_git_error():
     with mock.patch.object(sync.Sync, "get_parallel_context") as mock_ctx:
         mock_ctx.return_value = {"projects": [project]}
 
-        with mock.patch("subcmds.sync.SyncBuffer") as mock_buffer:
+        with mock.patch("kanon_cli.repo.subcmds.sync.SyncBuffer") as mock_buffer:
             buffer_instance = mock.MagicMock()
             mock_buffer.return_value = buffer_instance
 
@@ -524,7 +524,7 @@ def test_checkout_one_keyboard_interrupt():
     with mock.patch.object(sync.Sync, "get_parallel_context") as mock_ctx:
         mock_ctx.return_value = {"projects": [project]}
 
-        with mock.patch("subcmds.sync.SyncBuffer") as mock_buffer:
+        with mock.patch("kanon_cli.repo.subcmds.sync.SyncBuffer") as mock_buffer:
             buffer_instance = mock.MagicMock()
             mock_buffer.return_value = buffer_instance
 
@@ -779,9 +779,9 @@ def test_update_repo_project_fetches_when_needed():
     errors = []
 
     with mock.patch("os.path.isdir", return_value=True):
-        with mock.patch("subcmds.sync.multiprocessing.Manager"):
-            with mock.patch("subcmds.sync.ssh.ProxyManager"):
-                with mock.patch("subcmds.sync._PostRepoFetch"):
+        with mock.patch("kanon_cli.repo.subcmds.sync.multiprocessing.Manager"):
+            with mock.patch("kanon_cli.repo.subcmds.sync.ssh.ProxyManager"):
+                with mock.patch("kanon_cli.repo.subcmds.sync._PostRepoFetch"):
                     with mock.patch.dict(os.environ, {"REPO_SKIP_SELF_UPDATE": "1"}):
                         cmd._UpdateRepoProject(opt, manifest, errors)
                         manifest.repoProject.Sync_NetworkHalf.assert_called_once()
@@ -820,8 +820,8 @@ def test_update_repo_project_handles_failure():
     errors = []
 
     with mock.patch("os.path.isdir", return_value=True):
-        with mock.patch("subcmds.sync.multiprocessing.Manager"):
-            with mock.patch("subcmds.sync.ssh.ProxyManager"):
+        with mock.patch("kanon_cli.repo.subcmds.sync.multiprocessing.Manager"):
+            with mock.patch("kanon_cli.repo.subcmds.sync.ssh.ProxyManager"):
                 cmd._UpdateRepoProject(opt, manifest, errors)
                 assert len(errors) == 1
 
@@ -964,7 +964,7 @@ def test_sync_one_project_local_only():
 
     project = _make_project()
 
-    with mock.patch("subcmds.sync.SyncBuffer") as mock_buffer:
+    with mock.patch("kanon_cli.repo.subcmds.sync.SyncBuffer") as mock_buffer:
         buffer_instance = mock.MagicMock()
         buffer_instance.Finish.return_value = True
         mock_buffer.return_value = buffer_instance
@@ -1036,7 +1036,7 @@ def test_sync_one_project_full_sync():
             "ssh_proxy": mock.MagicMock(),
         }
 
-        with mock.patch("subcmds.sync.SyncBuffer") as mock_buffer:
+        with mock.patch("kanon_cli.repo.subcmds.sync.SyncBuffer") as mock_buffer:
             buffer_instance = mock.MagicMock()
             buffer_instance.Finish.return_value = True
             mock_buffer.return_value = buffer_instance
@@ -1109,7 +1109,7 @@ def test_sync_one_project_checkout_fails():
             "ssh_proxy": mock.MagicMock(),
         }
 
-        with mock.patch("subcmds.sync.SyncBuffer") as mock_buffer:
+        with mock.patch("kanon_cli.repo.subcmds.sync.SyncBuffer") as mock_buffer:
             buffer_instance = mock.MagicMock()
             buffer_instance.Finish.return_value = False
             mock_buffer.return_value = buffer_instance
@@ -1140,7 +1140,7 @@ def test_sync_project_list_processes_multiple_projects():
             "sync_dict": {},
         }
 
-        with mock.patch("subcmds.sync.SyncBuffer") as mock_buffer:
+        with mock.patch("kanon_cli.repo.subcmds.sync.SyncBuffer") as mock_buffer:
             buffer_instance = mock.MagicMock()
             buffer_instance.Finish.return_value = True
             mock_buffer.return_value = buffer_instance
@@ -1187,7 +1187,7 @@ def test_init_worker_forces_manager_connection():
 @pytest.mark.unit
 def test_chunksize_calculation():
     """Test _chunksize calculates appropriate chunk size."""
-    from subcmds.sync import _chunksize, WORKER_BATCH_SIZE
+    from kanon_cli.repo.subcmds.sync import _chunksize, WORKER_BATCH_SIZE
 
     # Small number of projects
     assert _chunksize(10, 5) == 2
@@ -1202,7 +1202,7 @@ def test_chunksize_calculation():
 @pytest.mark.unit
 def test_safe_checkout_order_flat_projects():
     """Test _SafeCheckoutOrder with flat project structure."""
-    from subcmds.sync import _SafeCheckoutOrder
+    from kanon_cli.repo.subcmds.sync import _SafeCheckoutOrder
 
     p1 = _make_project("p1", "proj1")
     p2 = _make_project("p2", "proj2")
@@ -1216,7 +1216,7 @@ def test_safe_checkout_order_flat_projects():
 @pytest.mark.unit
 def test_safe_checkout_order_nested_projects():
     """Test _SafeCheckoutOrder with nested project structure."""
-    from subcmds.sync import _SafeCheckoutOrder
+    from kanon_cli.repo.subcmds.sync import _SafeCheckoutOrder
 
     p1 = _make_project("foo", "foo")
     p2 = _make_project("foo/bar", "foo/bar")
@@ -1232,7 +1232,7 @@ def test_safe_checkout_order_nested_projects():
 @pytest.mark.unit
 def test_safe_checkout_order_mixed_hierarchy():
     """Test _SafeCheckoutOrder with mixed flat and nested structure."""
-    from subcmds.sync import _SafeCheckoutOrder
+    from kanon_cli.repo.subcmds.sync import _SafeCheckoutOrder
 
     p1 = _make_project("independent", "independent")
     p2 = _make_project("parent", "parent")
@@ -1476,7 +1476,7 @@ def test_sync_class_attributes():
 @pytest.mark.unit
 def test_sync_inherit_from_command():
     """Test Sync inherits from Command."""
-    from command import Command, MirrorSafeCommand
+    from kanon_cli.repo.command import Command, MirrorSafeCommand
 
     assert issubclass(sync.Sync, Command)
     assert issubclass(sync.Sync, MirrorSafeCommand)
@@ -1485,9 +1485,9 @@ def test_sync_inherit_from_command():
 @pytest.mark.unit
 def test_rlimit_nofile_with_resource():
     """Test _rlimit_nofile returns resource limits when available."""
-    with mock.patch("subcmds.sync.resource") as mock_resource:
+    with mock.patch("kanon_cli.repo.subcmds.sync.resource") as mock_resource:
         mock_resource.getrlimit.return_value = (1024, 4096)
-        from subcmds.sync import _rlimit_nofile
+        from kanon_cli.repo.subcmds.sync import _rlimit_nofile
 
         result = _rlimit_nofile()
         assert result == (1024, 4096)
@@ -1769,7 +1769,7 @@ def test_smart_sync_setup_with_credentials_in_url():
     branch_obj.merge = "refs/heads/main"
     manifest.manifestProject.GetBranch.return_value = branch_obj
 
-    with mock.patch("subcmds.sync.xmlrpc.client.Server") as mock_server:
+    with mock.patch("kanon_cli.repo.subcmds.sync.xmlrpc.client.Server") as mock_server:
         server_instance = mock.MagicMock()
         server_instance.GetApprovedManifest.return_value = [True, "<manifest/>"]
         mock_server.return_value = server_instance
@@ -1798,7 +1798,7 @@ def test_smart_sync_setup_with_username_password_options():
     branch_obj.merge = "refs/heads/main"
     manifest.manifestProject.GetBranch.return_value = branch_obj
 
-    with mock.patch("subcmds.sync.xmlrpc.client.Server") as mock_server:
+    with mock.patch("kanon_cli.repo.subcmds.sync.xmlrpc.client.Server") as mock_server:
         server_instance = mock.MagicMock()
         server_instance.GetApprovedManifest.return_value = [True, "<manifest/>"]
         mock_server.return_value = server_instance
@@ -1822,7 +1822,7 @@ def test_smart_sync_setup_with_smart_tag():
     manifest = mock.MagicMock()
     manifest.manifest_server = "https://example.com/manifest"
 
-    with mock.patch("subcmds.sync.xmlrpc.client.Server") as mock_server:
+    with mock.patch("kanon_cli.repo.subcmds.sync.xmlrpc.client.Server") as mock_server:
         server_instance = mock.MagicMock()
         server_instance.GetManifest.return_value = [True, "<manifest/>"]
         mock_server.return_value = server_instance
@@ -1852,7 +1852,7 @@ def test_smart_sync_setup_server_failure():
     branch_obj.merge = "refs/heads/main"
     manifest.manifestProject.GetBranch.return_value = branch_obj
 
-    with mock.patch("subcmds.sync.xmlrpc.client.Server") as mock_server:
+    with mock.patch("kanon_cli.repo.subcmds.sync.xmlrpc.client.Server") as mock_server:
         server_instance = mock.MagicMock()
         server_instance.GetApprovedManifest.return_value = [
             False,
@@ -1883,7 +1883,7 @@ def test_smart_sync_setup_connection_error():
     branch_obj.merge = "refs/heads/main"
     manifest.manifestProject.GetBranch.return_value = branch_obj
 
-    with mock.patch("subcmds.sync.xmlrpc.client.Server") as mock_server:
+    with mock.patch("kanon_cli.repo.subcmds.sync.xmlrpc.client.Server") as mock_server:
         mock_server.side_effect = OSError("Connection failed")
 
         with pytest.raises(sync.SmartSyncError):
@@ -1932,7 +1932,7 @@ def test_update_copy_linkfile_list_removes_old_files():
     with mock.patch.object(cmd, "GetProjects", return_value=[project]):
         with mock.patch("os.path.exists", return_value=True):
             with mock.patch("builtins.open", mock.mock_open(read_data=old_data)):
-                with mock.patch("subcmds.sync.platform_utils.remove") as mock_remove:
+                with mock.patch("kanon_cli.repo.subcmds.sync.platform_utils.remove") as mock_remove:
                     result = cmd.UpdateCopyLinkfileList(manifest)
                     assert result is True
                     assert mock_remove.call_count == 2
@@ -1978,7 +1978,7 @@ def test_update_all_manifest_projects_with_submanifests():
     errors = []
 
     with mock.patch.object(cmd, "_UpdateManifestProject"):
-        with mock.patch("subcmds.sync.git_superproject.UseSuperproject", return_value=False):
+        with mock.patch("kanon_cli.repo.subcmds.sync.git_superproject.UseSuperproject", return_value=False):
             cmd._UpdateAllManifestProjects(opt, mp, "manifest.xml", errors)
 
 
@@ -2055,14 +2055,14 @@ def test_update_manifest_project_reloads_on_changes():
 
     errors = []
 
-    with mock.patch("subcmds.sync.SyncBuffer") as mock_buffer:
+    with mock.patch("kanon_cli.repo.subcmds.sync.SyncBuffer") as mock_buffer:
         buffer_instance = mock.MagicMock()
         buffer_instance.Finish.return_value = True
         mock_buffer.return_value = buffer_instance
 
         with mock.patch.object(cmd, "_ReloadManifest"):
             with mock.patch(
-                "subcmds.sync.git_superproject.UseSuperproject",
+                "kanon_cli.repo.subcmds.sync.git_superproject.UseSuperproject",
                 return_value=False,
             ):
                 cmd._UpdateManifestProject(opt, mp, "manifest.xml", errors)
@@ -2272,7 +2272,7 @@ def test_persistent_transport_request():
     """Test PersistentTransport.request makes HTTP request."""
     transport = sync.PersistentTransport("https://example.com")
 
-    with mock.patch("subcmds.sync.GetUrlCookieFile") as mock_cookie:
+    with mock.patch("kanon_cli.repo.subcmds.sync.GetUrlCookieFile") as mock_cookie:
         mock_cookie.return_value.__enter__.return_value = (None, None)
 
         with mock.patch("urllib.request.build_opener") as mock_opener:
@@ -2304,9 +2304,9 @@ def test_post_repo_upgrade_creates_symlink():
     manifest.repodir = "/tmp/test/.repo"
     manifest.projects = []
 
-    with mock.patch("subcmds.sync.platform_utils.islink", return_value=False):
-        with mock.patch("subcmds.sync.platform_utils.symlink"):
-            with mock.patch("subcmds.sync.Wrapper"):
+    with mock.patch("kanon_cli.repo.subcmds.sync.platform_utils.islink", return_value=False):
+        with mock.patch("kanon_cli.repo.subcmds.sync.platform_utils.symlink"):
+            with mock.patch("kanon_cli.repo.subcmds.sync.Wrapper"):
                 sync._PostRepoUpgrade(manifest)
 
 
@@ -2317,7 +2317,7 @@ def test_post_repo_fetch_no_changes():
     rp.HasChanges = False
     rp.work_git.describe.return_value = "v2.0"
 
-    with mock.patch("subcmds.sync.HEAD", "HEAD"):
+    with mock.patch("kanon_cli.repo.subcmds.sync.HEAD", "HEAD"):
         sync._PostRepoFetch(rp, repo_verify=True, verbose=True)
 
 
@@ -2330,7 +2330,7 @@ def test_post_repo_fetch_with_changes_same_rev():
     rp.bare_git.describe.return_value = "v2.0"
     rp.bare_git.rev_parse.return_value = "abc123"
 
-    with mock.patch("subcmds.sync.Wrapper") as mock_wrapper:
+    with mock.patch("kanon_cli.repo.subcmds.sync.Wrapper") as mock_wrapper:
         wrapper_instance = mock.MagicMock()
         wrapper_instance.check_repo_rev.return_value = (None, "v2.0")
         mock_wrapper.return_value = wrapper_instance

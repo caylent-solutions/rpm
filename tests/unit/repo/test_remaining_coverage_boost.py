@@ -23,12 +23,12 @@ from unittest import mock
 import pytest
 
 # Import modules to test
-import color
-import git_config
-import main
-import manifest_xml
-import progress
-from error import GitError, ManifestParseError, UploadError
+from kanon_cli.repo import color
+from kanon_cli.repo import git_config
+from kanon_cli.repo import main
+from kanon_cli.repo import manifest_xml
+from kanon_cli.repo import progress
+from kanon_cli.repo.error import GitError, ManifestParseError, UploadError
 
 
 # ============================================================================
@@ -447,13 +447,13 @@ class TestHelpCommand:
     @pytest.mark.unit
     def test_help_print_commands_no_summary(self):
         """Test _PrintCommands with command without helpSummary."""
-        from subcmds.help import Help
+        from kanon_cli.repo.subcmds.help import Help
 
         # Create a mock command without helpSummary
         mock_cmd_class = type("MockCommand", (), {})
         mock_cmd = mock_cmd_class()
 
-        with mock.patch("subcmds.help.all_commands", {"test": lambda: mock_cmd}):
+        with mock.patch("kanon_cli.repo.subcmds.help.all_commands", {"test": lambda: mock_cmd}):
             help_cmd = Help()
             with mock.patch("builtins.print"):
                 help_cmd._PrintCommands(["test"])
@@ -461,7 +461,7 @@ class TestHelpCommand:
     @pytest.mark.unit
     def test_help_print_section_empty_body(self):
         """Test _PrintSection with empty body."""
-        from subcmds.help import Help
+        from kanon_cli.repo.subcmds.help import Help
 
         manifest = mock.Mock()
         manifest.manifestProject.config = mock.Mock()
@@ -484,7 +484,7 @@ class TestHelpCommand:
     @pytest.mark.unit
     def test_help_print_section_none_body(self):
         """Test _PrintSection with None body."""
-        from subcmds.help import Help
+        from kanon_cli.repo.subcmds.help import Help
 
         manifest = mock.Mock()
         manifest.manifestProject.config = mock.Mock()
@@ -507,7 +507,7 @@ class TestHelpCommand:
     @pytest.mark.unit
     def test_execute_all_commands_help(self):
         """Test Execute with --help-all option."""
-        from subcmds.help import Help
+        from kanon_cli.repo.subcmds.help import Help
 
         manifest = mock.Mock()
         manifest.manifestProject.config = mock.Mock()
@@ -525,7 +525,7 @@ class TestHelpCommand:
     @pytest.mark.unit
     def test_execute_invalid_command(self):
         """Test Execute with invalid command name."""
-        from subcmds.help import Help, InvalidHelpCommand
+        from kanon_cli.repo.subcmds.help import Help, InvalidHelpCommand
 
         manifest = mock.Mock()
 
@@ -536,14 +536,14 @@ class TestHelpCommand:
         opt.show_all_help = False
         opt.show_all = False
 
-        with mock.patch("subcmds.help.all_commands", {}):
+        with mock.patch("kanon_cli.repo.subcmds.help.all_commands", {}):
             with pytest.raises(InvalidHelpCommand):
                 help_cmd.Execute(opt, ["nonexistent"])
 
     @pytest.mark.unit
     def test_execute_too_many_args(self):
         """Test Execute with too many arguments."""
-        from subcmds.help import Help
+        from kanon_cli.repo.subcmds.help import Help
 
         manifest = mock.Mock()
 
@@ -571,7 +571,7 @@ class TestStatusCommand:
     def test_status_find_orphans_edge_cases(self, tmp_path):
         """Test _FindOrphans with various cases."""
         # Lines 139-145, 173-174
-        from subcmds.status import Status
+        from kanon_cli.repo.subcmds.status import Status
 
         test_file = tmp_path / "orphan.txt"
         test_file.write_text("content")
@@ -591,7 +591,7 @@ class TestStatusCommand:
         test_file = tmp_path / "orphan.txt"
         test_file.write_text("content")
 
-        from subcmds.status import Status
+        from kanon_cli.repo.subcmds.status import Status
 
         cmd = Status()
 
@@ -614,7 +614,7 @@ class TestStartCommand:
     @pytest.mark.unit
     def test_validate_options_no_args(self):
         """Test ValidateOptions with no arguments."""
-        from subcmds.start import Start
+        from kanon_cli.repo.subcmds.start import Start
 
         cmd = Start()
         # Mock the Usage method which is called when no args
@@ -639,7 +639,7 @@ class TestRebaseCommand:
     def test_rebase_detached_head_single_project(self):
         """Test rebase with detached HEAD on single project."""
         # Line 128
-        from subcmds.rebase import Rebase
+        from kanon_cli.repo.subcmds.rebase import Rebase
 
         manifest = mock.Mock()
         manifest.manifestProject.config = mock.Mock()
@@ -671,7 +671,7 @@ class TestRebaseCommand:
     def test_rebase_no_remote_single_project(self):
         """Test rebase without remote tracking on single project."""
         # Line 160
-        from subcmds.rebase import Rebase
+        from kanon_cli.repo.subcmds.rebase import Rebase
 
         manifest = mock.Mock()
         manifest.manifestProject.config = mock.Mock()
@@ -707,7 +707,7 @@ class TestRebaseCommand:
     def test_rebase_with_stash_failure(self):
         """Test rebase with auto-stash that fails."""
         # Lines 188-189
-        from subcmds.rebase import Rebase
+        from kanon_cli.repo.subcmds.rebase import Rebase
 
         manifest = mock.Mock()
         manifest.manifestProject.config = mock.Mock()
@@ -738,7 +738,7 @@ class TestRebaseCommand:
         opt.auto_stash = True
 
         # Mock GitCommand to fail on stash
-        with mock.patch("subcmds.rebase.GitCommand") as mock_git:
+        with mock.patch("kanon_cli.repo.subcmds.rebase.GitCommand") as mock_git:
             mock_git.return_value.Wait.side_effect = [
                 1,
                 1,
@@ -751,7 +751,7 @@ class TestRebaseCommand:
     def test_rebase_stash_pop_failure(self):
         """Test rebase with stash pop failure."""
         # Line 199
-        from subcmds.rebase import Rebase
+        from kanon_cli.repo.subcmds.rebase import Rebase
 
         manifest = mock.Mock()
         manifest.manifestProject.config = mock.Mock()
@@ -782,7 +782,7 @@ class TestRebaseCommand:
         opt.auto_stash = True
 
         # Mock GitCommand: update-index fails (needs stash), stash succeeds, rebase succeeds, pop fails
-        with mock.patch("subcmds.rebase.GitCommand") as mock_git:
+        with mock.patch("kanon_cli.repo.subcmds.rebase.GitCommand") as mock_git:
             mock_git.return_value.Wait.side_effect = [1, 0, 0, 1]
 
             result = cmd.Execute(opt, ["project1"])
@@ -802,7 +802,7 @@ class TestGrepCommand:
     def test_grep_cached_with_revision_error(self):
         """Test grep with --cached and --revision raises error."""
         # Lines 317-320, 322
-        from subcmds.grep import Grep, InvalidArgumentsError
+        from kanon_cli.repo.subcmds.grep import Grep, InvalidArgumentsError
 
         manifest = mock.Mock()
 
@@ -824,7 +824,7 @@ class TestGrepCommand:
     def test_grep_no_pattern_usage(self):
         """Test grep without pattern shows usage."""
         # Line 356
-        from subcmds.grep import Grep
+        from kanon_cli.repo.subcmds.grep import Grep
 
         manifest = mock.Mock()
 
@@ -875,8 +875,8 @@ class TestProgress:
     def test_progress_end_with_no_total(self, capsys):
         """Test progress.end() with total <= 0."""
         # Lines 223-231
-        with mock.patch("progress._TTY", True):
-            with mock.patch("progress.IsTraceToStderr", return_value=False):
+        with mock.patch("kanon_cli.repo.progress._TTY", True):
+            with mock.patch("kanon_cli.repo.progress.IsTraceToStderr", return_value=False):
                 prog = progress.Progress("Testing", total=0, quiet=False, delay=False)
                 prog._done = 5
                 prog.end()
@@ -974,7 +974,7 @@ class TestGitConfigEdgeCases:
         # Lines 426
         gc = git_config.GitConfig(configfile=git_config.GitConfig._SYSTEM_CONFIG)
 
-        with mock.patch("git_config.GitCommand") as mock_cmd:
+        with mock.patch("kanon_cli.repo.git_config.GitCommand") as mock_cmd:
             mock_process = mock.Mock()
             mock_process.Wait.return_value = 0
             mock_process.stdout = "test"
@@ -992,7 +992,7 @@ class TestGitConfigEdgeCases:
 
         gc = git_config.GitConfig(configfile=str(config_file))
 
-        with mock.patch("git_config.GitCommand") as mock_cmd:
+        with mock.patch("kanon_cli.repo.git_config.GitCommand") as mock_cmd:
             mock_process = mock.Mock()
             mock_process.Wait.return_value = 1
             mock_process.stderr = "error message"
@@ -1095,7 +1095,7 @@ class TestAdditionalGitConfig:
     @pytest.mark.unit
     def test_is_change(self):
         """Test IsChange."""
-        from git_refs import R_CHANGES
+        from kanon_cli.repo.git_refs import R_CHANGES
 
         assert git_config.IsChange(R_CHANGES + "12/1234/1") is True
         assert git_config.IsChange("refs/heads/main") is False
@@ -1104,7 +1104,7 @@ class TestAdditionalGitConfig:
     @pytest.mark.unit
     def test_is_tag(self):
         """Test IsTag."""
-        from git_refs import R_TAGS
+        from kanon_cli.repo.git_refs import R_TAGS
 
         assert git_config.IsTag(R_TAGS + "v1.0") is True
         assert git_config.IsTag("refs/heads/main") is False
@@ -1157,7 +1157,7 @@ class TestProgressMoreEdgeCases:
     @pytest.mark.unit
     def test_progress_no_tty(self):
         """Test progress with no TTY."""
-        with mock.patch("progress._TTY", False):
+        with mock.patch("kanon_cli.repo.progress._TTY", False):
             prog = progress.Progress("Testing", total=10, quiet=False)
             prog.update(1)
             prog.end()
@@ -1400,8 +1400,8 @@ class TestProgressAdditional:
     @pytest.mark.unit
     def test_progress_with_units(self):
         """Test progress with custom units."""
-        with mock.patch("progress._TTY", True):
-            with mock.patch("progress.IsTraceToStderr", return_value=False):
+        with mock.patch("kanon_cli.repo.progress._TTY", True):
+            with mock.patch("kanon_cli.repo.progress.IsTraceToStderr", return_value=False):
                 prog = progress.Progress("Test", total=10, units=" files", quiet=False, delay=False)
                 prog.update(5)
                 prog.end()

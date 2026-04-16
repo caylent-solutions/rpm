@@ -19,7 +19,7 @@ from unittest import mock
 
 import pytest
 
-from subcmds import help as help_cmd
+from kanon_cli.repo.subcmds import help as help_cmd
 
 
 @pytest.mark.unit

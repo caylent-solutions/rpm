@@ -28,15 +28,15 @@ from unittest import mock
 
 import pytest
 
-from error import GitError
-from project import MetaProject
-from project import SyncBuffer
-from project import _DirtyError
-from project import _Failure
-from project import _InfoMessage
-from project import _Later
-from project import _PriorSyncFailedError
-from project import _SyncColoring
+from kanon_cli.repo.error import GitError
+from kanon_cli.repo.project import MetaProject
+from kanon_cli.repo.project import SyncBuffer
+from kanon_cli.repo.project import _DirtyError
+from kanon_cli.repo.project import _Failure
+from kanon_cli.repo.project import _InfoMessage
+from kanon_cli.repo.project import _Later
+from kanon_cli.repo.project import _PriorSyncFailedError
+from kanon_cli.repo.project import _SyncColoring
 
 
 @pytest.mark.unit
@@ -414,7 +414,7 @@ class TestMetaProjectProperties:
         os.makedirs(gitdir, exist_ok=True)
         os.makedirs(worktree, exist_ok=True)
 
-        with mock.patch("project.Project._LoadUserIdentity"):
+        with mock.patch("kanon_cli.repo.project.Project._LoadUserIdentity"):
             meta = MetaProject(
                 manifest=manifest,
                 name="manifests",
@@ -609,7 +609,7 @@ class TestMetaProjectSyncMethod:
 
     def _create_manifest_project(self, tmp_path):
         """Helper to create a ManifestProject instance."""
-        from project import ManifestProject
+        from kanon_cli.repo.project import ManifestProject
 
         manifest = mock.MagicMock()
         manifest.IsMirror = False
@@ -628,7 +628,7 @@ class TestMetaProjectSyncMethod:
         os.makedirs(gitdir, exist_ok=True)
         os.makedirs(worktree, exist_ok=True)
 
-        with mock.patch("project.Project._LoadUserIdentity"):
+        with mock.patch("kanon_cli.repo.project.Project._LoadUserIdentity"):
             mp = ManifestProject(
                 manifest=manifest,
                 name="manifests",
@@ -678,7 +678,7 @@ class TestMetaProjectSyncMethod:
             new_callable=mock.PropertyMock,
             return_value=False,
         ):
-            with mock.patch("project.logger") as mock_logger:
+            with mock.patch("kanon_cli.repo.project.logger") as mock_logger:
                 result = mp.Sync()
 
         assert result is False
@@ -696,7 +696,7 @@ class TestMetaProjectSyncMethod:
             return_value=True,
         ):
             with mock.patch.object(mp.config, "GetString", return_value="https://old.com"):
-                with mock.patch("project.logger") as mock_logger:
+                with mock.patch("kanon_cli.repo.project.logger") as mock_logger:
                     result = mp.Sync(manifest_url="")
 
         assert result is False
@@ -719,11 +719,11 @@ class TestMetaProjectSyncMethod:
         ):
             with mock.patch.object(mp.config, "GetString", return_value=None):
                 with mock.patch.object(mp.config, "ClearCache"):
-                    with mock.patch("platform_utils.rmtree") as mock_rmtree:
+                    with mock.patch("kanon_cli.repo.platform_utils.rmtree") as mock_rmtree:
                         with mock.patch.object(mp, "_InitGitDir"):
                             with mock.patch.object(mp, "GetRemote"):
                                 with mock.patch(
-                                    "fetch.fetch_file",
+                                    "kanon_cli.repo.fetch.fetch_file",
                                     return_value=b"<manifest/>",
                                 ):
                                     with mock.patch.object(mp.manifest, "Link"):
@@ -748,7 +748,7 @@ class TestMetaProjectSyncMethod:
             with mock.patch.object(mp, "_InitGitDir"):
                 with mock.patch.object(mp, "GetRemote"):
                     with mock.patch.object(mp, "ResolveRemoteHead", return_value="refs/heads/main"):
-                        with mock.patch("project.logger"):
+                        with mock.patch("kanon_cli.repo.project.logger"):
                             result = mp.Sync(
                                 manifest_url="https://example.com/manifest",
                                 platform="invalid",
@@ -773,8 +773,8 @@ class TestMetaProjectSyncMethod:
                     with mock.patch.object(mp, "ResolveRemoteHead", return_value="refs/heads/main"):
                         with mock.patch.object(mp, "Sync_NetworkHalf") as mock_network:
                             mock_network.return_value = mock.MagicMock(success=False)
-                            with mock.patch("platform_utils.rmtree") as mock_rmtree:
-                                with mock.patch("project.logger") as mock_logger:
+                            with mock.patch("kanon_cli.repo.platform_utils.rmtree") as mock_rmtree:
+                                with mock.patch("kanon_cli.repo.project.logger") as mock_logger:
                                     result = mp.Sync(
                                         manifest_url="https://example.com/manifest",
                                     )
@@ -800,7 +800,7 @@ class TestMetaProjectSyncMethod:
                         with mock.patch.object(mp, "Sync_NetworkHalf") as mock_network:
                             mock_network.return_value = mock.MagicMock(success=True)
                             with mock.patch.object(mp, "Sync_LocalHalf"):
-                                with mock.patch("project.SyncBuffer"):
+                                with mock.patch("kanon_cli.repo.project.SyncBuffer"):
                                     with mock.patch.object(
                                         type(mp),
                                         "CurrentBranch",
@@ -832,7 +832,7 @@ class TestMetaProjectSyncMethod:
                         with mock.patch.object(mp, "Sync_NetworkHalf") as mock_network:
                             mock_network.return_value = mock.MagicMock(success=True)
                             with mock.patch.object(mp, "Sync_LocalHalf"):
-                                with mock.patch("project.SyncBuffer"):
+                                with mock.patch("kanon_cli.repo.project.SyncBuffer"):
                                     with mock.patch.object(
                                         type(mp),
                                         "CurrentBranch",
@@ -844,7 +844,7 @@ class TestMetaProjectSyncMethod:
                                             "StartBranch",
                                             side_effect=GitError("error"),
                                         ):
-                                            with mock.patch("project.logger"):
+                                            with mock.patch("kanon_cli.repo.project.logger"):
                                                 result = mp.Sync(
                                                     manifest_url="https://example.com/manifest",
                                                 )
@@ -858,7 +858,7 @@ class TestProjectApplyCloneBundle:
 
     def _create_project(self, tmp_path):
         """Helper to create a Project instance."""
-        from project import Project
+        from kanon_cli.repo.project import Project
 
         manifest = mock.MagicMock()
         manifest.IsMirror = False
@@ -874,7 +874,7 @@ class TestProjectApplyCloneBundle:
 
         os.makedirs(gitdir, exist_ok=True)
 
-        with mock.patch("project.Project._LoadUserIdentity"):
+        with mock.patch("kanon_cli.repo.project.Project._LoadUserIdentity"):
             project = Project(
                 manifest=manifest,
                 name="test-project",
@@ -909,7 +909,7 @@ class TestProjectApplyCloneBundle:
         remote.url = "ssh://example.com/repo.git"
 
         with mock.patch.object(project, "GetRemote", return_value=remote):
-            with mock.patch("git_config.GitConfig.ForUser") as mock_config:
+            with mock.patch("kanon_cli.repo.git_config.GitConfig.ForUser") as mock_config:
                 mock_config.return_value.UrlInsteadOf.return_value = "ssh://example.com/repo.git"
                 result = project._ApplyCloneBundle(initial=True, quiet=True, verbose=False)
 
@@ -925,7 +925,7 @@ class TestProjectApplyCloneBundle:
         remote.url = "https://example.com/repo.git"
 
         with mock.patch.object(project, "GetRemote", return_value=remote):
-            with mock.patch("git_config.GitConfig.ForUser") as mock_config:
+            with mock.patch("kanon_cli.repo.git_config.GitConfig.ForUser") as mock_config:
                 mock_config.return_value.UrlInsteadOf.return_value = "https://example.com/repo.git"
                 result = project._ApplyCloneBundle(initial=False, quiet=True, verbose=False)
 
@@ -942,12 +942,12 @@ class TestProjectApplyCloneBundle:
         remote.fetch = []
 
         with mock.patch.object(project, "GetRemote", return_value=remote):
-            with mock.patch("git_config.GitConfig.ForUser") as mock_config:
+            with mock.patch("kanon_cli.repo.git_config.GitConfig.ForUser") as mock_config:
                 mock_config.return_value.UrlInsteadOf.return_value = "https://example.com/repo.git"
                 with mock.patch.object(project, "_FetchBundle", return_value=True):
-                    with mock.patch("project.GitCommand") as mock_git:
+                    with mock.patch("kanon_cli.repo.project.GitCommand") as mock_git:
                         mock_git.return_value.Wait.return_value = 0
-                        with mock.patch("platform_utils.remove"):
+                        with mock.patch("kanon_cli.repo.platform_utils.remove"):
                             result = project._ApplyCloneBundle(initial=True, quiet=True, verbose=False)
 
         assert result is True
@@ -962,7 +962,7 @@ class TestProjectApplyCloneBundle:
         remote.url = "https://example.com/repo.git"
 
         with mock.patch.object(project, "GetRemote", return_value=remote):
-            with mock.patch("git_config.GitConfig.ForUser") as mock_config:
+            with mock.patch("kanon_cli.repo.git_config.GitConfig.ForUser") as mock_config:
                 mock_config.return_value.UrlInsteadOf.return_value = "https://example.com/repo.git"
                 with mock.patch.object(project, "_FetchBundle", return_value=False):
                     result = project._ApplyCloneBundle(initial=True, quiet=True, verbose=False)
@@ -1011,7 +1011,7 @@ class TestProjectCheckoutRebaseOperations:
 
     def _create_project(self, tmp_path):
         """Helper to create a Project instance."""
-        from project import Project
+        from kanon_cli.repo.project import Project
 
         manifest = mock.MagicMock()
         manifest.IsMirror = False
@@ -1026,7 +1026,7 @@ class TestProjectCheckoutRebaseOperations:
 
         os.makedirs(gitdir, exist_ok=True)
 
-        with mock.patch("project.Project._LoadUserIdentity"):
+        with mock.patch("kanon_cli.repo.project.Project._LoadUserIdentity"):
             project = Project(
                 manifest=manifest,
                 name="test-project",
@@ -1046,7 +1046,7 @@ class TestProjectCheckoutRebaseOperations:
         """Test _Checkout succeeds."""
         project = self._create_project(tmp_path)
 
-        with mock.patch("project.GitCommand") as mock_git:
+        with mock.patch("kanon_cli.repo.project.GitCommand") as mock_git:
             mock_git.return_value.Wait.return_value = 0
             project._Checkout("abc123", quiet=True)
 
@@ -1057,7 +1057,7 @@ class TestProjectCheckoutRebaseOperations:
         """Test _Checkout with force_checkout."""
         project = self._create_project(tmp_path)
 
-        with mock.patch("project.GitCommand") as mock_git:
+        with mock.patch("kanon_cli.repo.project.GitCommand") as mock_git:
             mock_git.return_value.Wait.return_value = 0
             project._Checkout("abc123", force_checkout=True, quiet=False)
 
@@ -1069,7 +1069,7 @@ class TestProjectCheckoutRebaseOperations:
         """Test _CherryPick succeeds."""
         project = self._create_project(tmp_path)
 
-        with mock.patch("project.GitCommand") as mock_git:
+        with mock.patch("kanon_cli.repo.project.GitCommand") as mock_git:
             mock_git.return_value.Wait.return_value = 0
             project._CherryPick("abc123")
 
@@ -1080,7 +1080,7 @@ class TestProjectCheckoutRebaseOperations:
         """Test _CherryPick with ffonly."""
         project = self._create_project(tmp_path)
 
-        with mock.patch("project.GitCommand") as mock_git:
+        with mock.patch("kanon_cli.repo.project.GitCommand") as mock_git:
             mock_git.return_value.Wait.return_value = 0
             project._CherryPick("abc123", ffonly=True)
 
@@ -1092,7 +1092,7 @@ class TestProjectCheckoutRebaseOperations:
         """Test _CherryPick with record_origin."""
         project = self._create_project(tmp_path)
 
-        with mock.patch("project.GitCommand") as mock_git:
+        with mock.patch("kanon_cli.repo.project.GitCommand") as mock_git:
             mock_git.return_value.Wait.return_value = 0
             project._CherryPick("abc123", record_origin=True)
 
@@ -1104,7 +1104,7 @@ class TestProjectCheckoutRebaseOperations:
         """Test _Rebase succeeds."""
         project = self._create_project(tmp_path)
 
-        with mock.patch("project.GitCommand") as mock_git:
+        with mock.patch("kanon_cli.repo.project.GitCommand") as mock_git:
             mock_git.return_value.Wait.return_value = 0
             project._Rebase("upstream")
 
@@ -1115,7 +1115,7 @@ class TestProjectCheckoutRebaseOperations:
         """Test _Rebase with onto."""
         project = self._create_project(tmp_path)
 
-        with mock.patch("project.GitCommand") as mock_git:
+        with mock.patch("kanon_cli.repo.project.GitCommand") as mock_git:
             mock_git.return_value.Wait.return_value = 0
             project._Rebase("upstream", onto="target")
 
@@ -1128,7 +1128,7 @@ class TestProjectCheckoutRebaseOperations:
         """Test _Rebase raises GitError on failure."""
         project = self._create_project(tmp_path)
 
-        with mock.patch("project.GitCommand") as mock_git:
+        with mock.patch("kanon_cli.repo.project.GitCommand") as mock_git:
             mock_git.return_value.Wait.return_value = 1
             with pytest.raises(GitError):
                 project._Rebase("upstream")
@@ -1138,7 +1138,7 @@ class TestProjectCheckoutRebaseOperations:
         """Test _FastForward succeeds."""
         project = self._create_project(tmp_path)
 
-        with mock.patch("project.GitCommand") as mock_git:
+        with mock.patch("kanon_cli.repo.project.GitCommand") as mock_git:
             mock_git.return_value.Wait.return_value = 0
             project._FastForward("abc123")
 
@@ -1149,7 +1149,7 @@ class TestProjectCheckoutRebaseOperations:
         """Test _FastForward with ffonly."""
         project = self._create_project(tmp_path)
 
-        with mock.patch("project.GitCommand") as mock_git:
+        with mock.patch("kanon_cli.repo.project.GitCommand") as mock_git:
             mock_git.return_value.Wait.return_value = 0
             project._FastForward("abc123", ffonly=True)
 
@@ -1161,7 +1161,7 @@ class TestProjectCheckoutRebaseOperations:
         """Test _ResetHard succeeds."""
         project = self._create_project(tmp_path)
 
-        with mock.patch("project.GitCommand") as mock_git:
+        with mock.patch("kanon_cli.repo.project.GitCommand") as mock_git:
             mock_git.return_value.Wait.return_value = 0
             project._ResetHard("abc123")
 
@@ -1172,7 +1172,7 @@ class TestProjectCheckoutRebaseOperations:
         """Test _ResetHard raises GitError on failure."""
         project = self._create_project(tmp_path)
 
-        with mock.patch("project.GitCommand") as mock_git:
+        with mock.patch("kanon_cli.repo.project.GitCommand") as mock_git:
             mock_git.return_value.Wait.return_value = 1
             with pytest.raises(GitError):
                 project._ResetHard("abc123")
@@ -1182,7 +1182,7 @@ class TestProjectCheckoutRebaseOperations:
         """Test _Revert succeeds."""
         project = self._create_project(tmp_path)
 
-        with mock.patch("project.GitCommand") as mock_git:
+        with mock.patch("kanon_cli.repo.project.GitCommand") as mock_git:
             mock_git.return_value.Wait.return_value = 0
             project._Revert("abc123")
 
@@ -1195,7 +1195,7 @@ class TestProjectCheckoutRebaseOperations:
         """Test _LsRemote returns stdout."""
         project = self._create_project(tmp_path)
 
-        with mock.patch("project.GitCommand") as mock_git:
+        with mock.patch("kanon_cli.repo.project.GitCommand") as mock_git:
             mock_git.return_value.Wait.return_value = 0
             mock_git.return_value.stdout = "abc123\trefs/heads/main\n"
             result = project._LsRemote("refs/heads/*")
@@ -1207,7 +1207,7 @@ class TestProjectCheckoutRebaseOperations:
         """Test _LsRemote returns None on failure."""
         project = self._create_project(tmp_path)
 
-        with mock.patch("project.GitCommand") as mock_git:
+        with mock.patch("kanon_cli.repo.project.GitCommand") as mock_git:
             mock_git.return_value.Wait.return_value = 1
             result = project._LsRemote("refs/heads/*")
 
@@ -1218,7 +1218,7 @@ class TestProjectCheckoutRebaseOperations:
         """Test _SyncSubmodules succeeds."""
         project = self._create_project(tmp_path)
 
-        with mock.patch("project.GitCommand") as mock_git:
+        with mock.patch("kanon_cli.repo.project.GitCommand") as mock_git:
             mock_git.return_value.Wait.return_value = 0
             project._SyncSubmodules(quiet=False)
 
@@ -1229,7 +1229,7 @@ class TestProjectCheckoutRebaseOperations:
         """Test _InitSubmodules succeeds."""
         project = self._create_project(tmp_path)
 
-        with mock.patch("project.GitCommand") as mock_git:
+        with mock.patch("kanon_cli.repo.project.GitCommand") as mock_git:
             mock_git.return_value.Wait.return_value = 0
             project._InitSubmodules(quiet=True)
 
@@ -1242,7 +1242,7 @@ class TestProjectGetLogs:
 
     def _create_project(self, tmp_path):
         """Helper to create a Project instance."""
-        from project import Project
+        from kanon_cli.repo.project import Project
 
         manifest = mock.MagicMock()
         manifest.IsMirror = False
@@ -1258,7 +1258,7 @@ class TestProjectGetLogs:
         os.makedirs(gitdir, exist_ok=True)
         os.makedirs(worktree, exist_ok=True)
 
-        with mock.patch("project.Project._LoadUserIdentity"):
+        with mock.patch("kanon_cli.repo.project.Project._LoadUserIdentity"):
             project = Project(
                 manifest=manifest,
                 name="test-project",
@@ -1287,7 +1287,7 @@ class TestProjectGetLogs:
         """Test _getLogs returns log output."""
         project = self._create_project(tmp_path)
 
-        with mock.patch("project.GitCommand") as mock_git:
+        with mock.patch("kanon_cli.repo.project.GitCommand") as mock_git:
             mock_git.return_value.Wait.return_value = 0
             mock_git.return_value.stdout = "commit abc123\n"
             result = project._getLogs("abc123", "def456")
@@ -1299,7 +1299,7 @@ class TestProjectGetLogs:
         """Test _getLogs with oneline option."""
         project = self._create_project(tmp_path)
 
-        with mock.patch("project.GitCommand") as mock_git:
+        with mock.patch("kanon_cli.repo.project.GitCommand") as mock_git:
             mock_git.return_value.Wait.return_value = 0
             mock_git.return_value.stdout = "abc123 commit message\n"
             project._getLogs("abc123", "def456", oneline=True)
@@ -1313,10 +1313,10 @@ class TestProjectGetLogs:
         """Test _getLogs with color option."""
         project = self._create_project(tmp_path)
 
-        with mock.patch("project.GitCommand") as mock_git:
+        with mock.patch("kanon_cli.repo.project.GitCommand") as mock_git:
             mock_git.return_value.Wait.return_value = 0
             mock_git.return_value.stdout = "commit abc123\n"
-            with mock.patch("project.DiffColoring") as mock_coloring:
+            with mock.patch("kanon_cli.repo.project.DiffColoring") as mock_coloring:
                 mock_coloring.return_value.is_on = True
                 project._getLogs("abc123", "def456", color=True)
 
@@ -1328,7 +1328,7 @@ class TestProjectGetLogs:
         """Test _getLogs with pretty_format option."""
         project = self._create_project(tmp_path)
 
-        with mock.patch("project.GitCommand") as mock_git:
+        with mock.patch("kanon_cli.repo.project.GitCommand") as mock_git:
             mock_git.return_value.Wait.return_value = 0
             mock_git.return_value.stdout = "abc123|message\n"
             project._getLogs("abc123", "def456", pretty_format="%h|%s")
@@ -1344,7 +1344,7 @@ class TestProjectGetLogs:
         # Remove worktree
         os.rmdir(project.worktree)
 
-        with mock.patch("project.GitCommand", side_effect=GitError("error")):
+        with mock.patch("kanon_cli.repo.project.GitCommand", side_effect=GitError("error")):
             with mock.patch.object(project.bare_git, "log", return_value="log output") as mock_log:
                 project._getLogs("abc123", "def456")
 
@@ -1355,6 +1355,6 @@ class TestProjectGetLogs:
         """Test _getLogs re-raises GitError when worktree exists."""
         project = self._create_project(tmp_path)
 
-        with mock.patch("project.GitCommand", side_effect=GitError("error")):
+        with mock.patch("kanon_cli.repo.project.GitCommand", side_effect=GitError("error")):
             with pytest.raises(GitError):
                 project._getLogs("abc123", "def456")

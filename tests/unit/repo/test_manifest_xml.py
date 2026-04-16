@@ -24,9 +24,9 @@ from unittest import mock
 import pytest
 import xml.dom.minidom
 
-import error
-import manifest_xml
-import project
+from kanon_cli.repo import error
+from kanon_cli.repo import manifest_xml
+from kanon_cli.repo import project
 
 
 # Invalid paths that we don't want in the filesystem.

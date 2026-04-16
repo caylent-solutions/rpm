@@ -19,7 +19,7 @@ from unittest import mock
 
 import pytest
 
-from subcmds import checkout
+from kanon_cli.repo.subcmds import checkout
 
 
 @pytest.mark.unit
@@ -51,7 +51,7 @@ class TestCheckoutCommand:
 
     def test_parallel_jobs(self):
         """Test Checkout has parallel jobs configured."""
-        from command import DEFAULT_LOCAL_JOBS
+        from kanon_cli.repo.command import DEFAULT_LOCAL_JOBS
 
         assert checkout.Checkout.PARALLEL_JOBS == DEFAULT_LOCAL_JOBS
 
@@ -62,7 +62,7 @@ class TestCheckoutValidateOptions:
 
     def test_validate_options_no_branch_fails(self):
         """Test ValidateOptions fails with no branch name."""
-        from command import UsageError
+        from kanon_cli.repo.command import UsageError
 
         cmd = checkout.Checkout()
         opts, args = cmd.OptionParser.parse_args([])

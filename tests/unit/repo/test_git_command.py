@@ -23,15 +23,15 @@ from unittest import mock
 
 import pytest
 
-import git_command
-import wrapper
+from kanon_cli.repo import git_command
+from kanon_cli.repo import wrapper
 
 
 class GitCommandTest(unittest.TestCase):
     """Tests the GitCommand class (via git_command.git)."""
 
     def setUp(self):
-        def realpath_mock(val):
+        def realpath_mock(val, **kwargs):
             return val
 
         mock.patch.object(os.path, "realpath", side_effect=realpath_mock).start()
@@ -78,7 +78,7 @@ class GitCommandWaitTest(unittest.TestCase):
         def popen_mock(*args, **kwargs):
             return popen
 
-        def realpath_mock(val):
+        def realpath_mock(val, **kwargs):
             return val
 
         mock.patch.object(subprocess, "Popen", side_effect=popen_mock).start()
@@ -554,7 +554,7 @@ class TestGetEventTargetPath(unittest.TestCase):
 
     def test_GetEventTargetPath_returns_none_when_not_set(self):
         """Test GetEventTargetPath returns None when config not set."""
-        with mock.patch("git_command.GitCommand") as mock_git_cmd:
+        with mock.patch("kanon_cli.repo.git_command.GitCommand") as mock_git_cmd:
             mock_instance = mock.MagicMock()
             mock_instance.Wait.return_value = 1
             mock_git_cmd.return_value = mock_instance
@@ -566,7 +566,7 @@ class TestGetEventTargetPath(unittest.TestCase):
 
     def test_GetEventTargetPath_returns_path_when_set(self):
         """Test GetEventTargetPath returns path when config is set."""
-        with mock.patch("git_command.GitCommand") as mock_git_cmd:
+        with mock.patch("kanon_cli.repo.git_command.GitCommand") as mock_git_cmd:
             mock_instance = mock.MagicMock()
             mock_instance.Wait.return_value = 0
             mock_instance.stdout = "/path/to/trace\n"
@@ -594,7 +594,7 @@ class TestGitCallExtended(unittest.TestCase):
 
     def test_git_call_attribute_conversion(self):
         """Test _GitCall converts underscores to dashes."""
-        with mock.patch("git_command.GitCommand") as mock_git_cmd:
+        with mock.patch("kanon_cli.repo.git_command.GitCommand") as mock_git_cmd:
             mock_instance = mock.MagicMock()
             mock_instance.Wait.return_value = 0
             mock_git_cmd.return_value = mock_instance

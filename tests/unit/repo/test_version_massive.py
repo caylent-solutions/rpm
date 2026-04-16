@@ -18,7 +18,7 @@ from unittest import mock
 
 import pytest
 
-from subcmds.version import Version
+from kanon_cli.repo.subcmds.version import Version
 
 
 def _make_cmd():
@@ -48,15 +48,15 @@ def test_execute_basic():
     rp.bare_git.describe.return_value = "v2.1.0"
     rp.bare_git.log.return_value = "Mon, 01 Jan 2024 12:00:00 +0000"
 
-    with mock.patch("subcmds.version.RepoSourceVersion", return_value="v2.1.0"):
-        with mock.patch("subcmds.version.user_agent") as mock_ua:
+    with mock.patch("kanon_cli.repo.subcmds.version.RepoSourceVersion", return_value="v2.1.0"):
+        with mock.patch("kanon_cli.repo.subcmds.version.user_agent") as mock_ua:
             mock_ua.repo = "repo/2.1.0"
             mock_ua.git = "git/2.40.0"
-            with mock.patch("subcmds.version.git") as mock_git:
+            with mock.patch("kanon_cli.repo.subcmds.version.git") as mock_git:
                 version_tuple = mock.MagicMock()
                 version_tuple.full = "2.40.0"
                 mock_git.version_tuple.return_value = version_tuple
-                with mock.patch("subcmds.version.Wrapper") as mock_wrapper:
+                with mock.patch("kanon_cli.repo.subcmds.version.Wrapper") as mock_wrapper:
                     wrapper_instance = mock.MagicMock()
                     wrapper_instance.BUG_URL = "https://bugs.example.com"
                     mock_wrapper.return_value = wrapper_instance
@@ -88,15 +88,15 @@ def test_execute_with_wrapper_version():
     rp.bare_git.describe.return_value = "v2.1.0"
     rp.bare_git.log.return_value = "Mon, 01 Jan 2024 12:00:00 +0000"
 
-    with mock.patch("subcmds.version.RepoSourceVersion", return_value="v2.1.0"):
-        with mock.patch("subcmds.version.user_agent") as mock_ua:
+    with mock.patch("kanon_cli.repo.subcmds.version.RepoSourceVersion", return_value="v2.1.0"):
+        with mock.patch("kanon_cli.repo.subcmds.version.user_agent") as mock_ua:
             mock_ua.repo = "repo/2.1.0"
             mock_ua.git = "git/2.40.0"
-            with mock.patch("subcmds.version.git") as mock_git:
+            with mock.patch("kanon_cli.repo.subcmds.version.git") as mock_git:
                 version_tuple = mock.MagicMock()
                 version_tuple.full = "2.40.0"
                 mock_git.version_tuple.return_value = version_tuple
-                with mock.patch("subcmds.version.Wrapper") as mock_wrapper:
+                with mock.patch("kanon_cli.repo.subcmds.version.Wrapper") as mock_wrapper:
                     wrapper_instance = mock.MagicMock()
                     wrapper_instance.BUG_URL = "https://bugs.example.com"
                     mock_wrapper.return_value = wrapper_instance
@@ -129,15 +129,15 @@ def test_execute_version_mismatch():
     rp.bare_git.describe.return_value = "v2.1.0"
     rp.bare_git.log.return_value = "Mon, 01 Jan 2024 12:00:00 +0000"
 
-    with mock.patch("subcmds.version.RepoSourceVersion", return_value="v2.0.0"):
-        with mock.patch("subcmds.version.user_agent") as mock_ua:
+    with mock.patch("kanon_cli.repo.subcmds.version.RepoSourceVersion", return_value="v2.0.0"):
+        with mock.patch("kanon_cli.repo.subcmds.version.user_agent") as mock_ua:
             mock_ua.repo = "repo/2.1.0"
             mock_ua.git = "git/2.40.0"
-            with mock.patch("subcmds.version.git") as mock_git:
+            with mock.patch("kanon_cli.repo.subcmds.version.git") as mock_git:
                 version_tuple = mock.MagicMock()
                 version_tuple.full = "2.40.0"
                 mock_git.version_tuple.return_value = version_tuple
-                with mock.patch("subcmds.version.Wrapper") as mock_wrapper:
+                with mock.patch("kanon_cli.repo.subcmds.version.Wrapper") as mock_wrapper:
                     wrapper_instance = mock.MagicMock()
                     wrapper_instance.BUG_URL = "https://bugs.example.com"
                     mock_wrapper.return_value = wrapper_instance
@@ -168,15 +168,15 @@ def test_execute_prints_remote_url():
     rp.bare_git.describe.return_value = "v2.1.0"
     rp.bare_git.log.return_value = "Mon, 01 Jan 2024 12:00:00 +0000"
 
-    with mock.patch("subcmds.version.RepoSourceVersion", return_value="v2.1.0"):
-        with mock.patch("subcmds.version.user_agent") as mock_ua:
+    with mock.patch("kanon_cli.repo.subcmds.version.RepoSourceVersion", return_value="v2.1.0"):
+        with mock.patch("kanon_cli.repo.subcmds.version.user_agent") as mock_ua:
             mock_ua.repo = "repo/2.1.0"
             mock_ua.git = "git/2.40.0"
-            with mock.patch("subcmds.version.git") as mock_git:
+            with mock.patch("kanon_cli.repo.subcmds.version.git") as mock_git:
                 version_tuple = mock.MagicMock()
                 version_tuple.full = "2.40.0"
                 mock_git.version_tuple.return_value = version_tuple
-                with mock.patch("subcmds.version.Wrapper") as mock_wrapper:
+                with mock.patch("kanon_cli.repo.subcmds.version.Wrapper") as mock_wrapper:
                     wrapper_instance = mock.MagicMock()
                     wrapper_instance.BUG_URL = "https://bugs.example.com"
                     mock_wrapper.return_value = wrapper_instance
@@ -206,15 +206,15 @@ def test_execute_prints_tracking_branch():
     rp.bare_git.describe.return_value = "v2.1.0"
     rp.bare_git.log.return_value = "Mon, 01 Jan 2024 12:00:00 +0000"
 
-    with mock.patch("subcmds.version.RepoSourceVersion", return_value="v2.1.0"):
-        with mock.patch("subcmds.version.user_agent") as mock_ua:
+    with mock.patch("kanon_cli.repo.subcmds.version.RepoSourceVersion", return_value="v2.1.0"):
+        with mock.patch("kanon_cli.repo.subcmds.version.user_agent") as mock_ua:
             mock_ua.repo = "repo/2.1.0"
             mock_ua.git = "git/2.40.0"
-            with mock.patch("subcmds.version.git") as mock_git:
+            with mock.patch("kanon_cli.repo.subcmds.version.git") as mock_git:
                 version_tuple = mock.MagicMock()
                 version_tuple.full = "2.40.0"
                 mock_git.version_tuple.return_value = version_tuple
-                with mock.patch("subcmds.version.Wrapper") as mock_wrapper:
+                with mock.patch("kanon_cli.repo.subcmds.version.Wrapper") as mock_wrapper:
                     wrapper_instance = mock.MagicMock()
                     wrapper_instance.BUG_URL = "https://bugs.example.com"
                     mock_wrapper.return_value = wrapper_instance
@@ -244,15 +244,15 @@ def test_execute_prints_user_agents():
     rp.bare_git.describe.return_value = "v2.1.0"
     rp.bare_git.log.return_value = "Mon, 01 Jan 2024 12:00:00 +0000"
 
-    with mock.patch("subcmds.version.RepoSourceVersion", return_value="v2.1.0"):
-        with mock.patch("subcmds.version.user_agent") as mock_ua:
+    with mock.patch("kanon_cli.repo.subcmds.version.RepoSourceVersion", return_value="v2.1.0"):
+        with mock.patch("kanon_cli.repo.subcmds.version.user_agent") as mock_ua:
             mock_ua.repo = "repo/2.1.0 custom"
             mock_ua.git = "git/2.40.0 custom"
-            with mock.patch("subcmds.version.git") as mock_git:
+            with mock.patch("kanon_cli.repo.subcmds.version.git") as mock_git:
                 version_tuple = mock.MagicMock()
                 version_tuple.full = "2.40.0"
                 mock_git.version_tuple.return_value = version_tuple
-                with mock.patch("subcmds.version.Wrapper") as mock_wrapper:
+                with mock.patch("kanon_cli.repo.subcmds.version.Wrapper") as mock_wrapper:
                     wrapper_instance = mock.MagicMock()
                     wrapper_instance.BUG_URL = "https://bugs.example.com"
                     mock_wrapper.return_value = wrapper_instance
@@ -282,15 +282,15 @@ def test_execute_prints_python_version():
     rp.bare_git.describe.return_value = "v2.1.0"
     rp.bare_git.log.return_value = "Mon, 01 Jan 2024 12:00:00 +0000"
 
-    with mock.patch("subcmds.version.RepoSourceVersion", return_value="v2.1.0"):
-        with mock.patch("subcmds.version.user_agent") as mock_ua:
+    with mock.patch("kanon_cli.repo.subcmds.version.RepoSourceVersion", return_value="v2.1.0"):
+        with mock.patch("kanon_cli.repo.subcmds.version.user_agent") as mock_ua:
             mock_ua.repo = "repo/2.1.0"
             mock_ua.git = "git/2.40.0"
-            with mock.patch("subcmds.version.git") as mock_git:
+            with mock.patch("kanon_cli.repo.subcmds.version.git") as mock_git:
                 version_tuple = mock.MagicMock()
                 version_tuple.full = "2.40.0"
                 mock_git.version_tuple.return_value = version_tuple
-                with mock.patch("subcmds.version.Wrapper") as mock_wrapper:
+                with mock.patch("kanon_cli.repo.subcmds.version.Wrapper") as mock_wrapper:
                     wrapper_instance = mock.MagicMock()
                     wrapper_instance.BUG_URL = "https://bugs.example.com"
                     mock_wrapper.return_value = wrapper_instance
@@ -320,15 +320,15 @@ def test_execute_prints_os_info():
     rp.bare_git.describe.return_value = "v2.1.0"
     rp.bare_git.log.return_value = "Mon, 01 Jan 2024 12:00:00 +0000"
 
-    with mock.patch("subcmds.version.RepoSourceVersion", return_value="v2.1.0"):
-        with mock.patch("subcmds.version.user_agent") as mock_ua:
+    with mock.patch("kanon_cli.repo.subcmds.version.RepoSourceVersion", return_value="v2.1.0"):
+        with mock.patch("kanon_cli.repo.subcmds.version.user_agent") as mock_ua:
             mock_ua.repo = "repo/2.1.0"
             mock_ua.git = "git/2.40.0"
-            with mock.patch("subcmds.version.git") as mock_git:
+            with mock.patch("kanon_cli.repo.subcmds.version.git") as mock_git:
                 version_tuple = mock.MagicMock()
                 version_tuple.full = "2.40.0"
                 mock_git.version_tuple.return_value = version_tuple
-                with mock.patch("subcmds.version.Wrapper") as mock_wrapper:
+                with mock.patch("kanon_cli.repo.subcmds.version.Wrapper") as mock_wrapper:
                     wrapper_instance = mock.MagicMock()
                     wrapper_instance.BUG_URL = "https://bugs.example.com"
                     mock_wrapper.return_value = wrapper_instance
@@ -359,15 +359,15 @@ def test_execute_prints_bug_url():
     rp.bare_git.describe.return_value = "v2.1.0"
     rp.bare_git.log.return_value = "Mon, 01 Jan 2024 12:00:00 +0000"
 
-    with mock.patch("subcmds.version.RepoSourceVersion", return_value="v2.1.0"):
-        with mock.patch("subcmds.version.user_agent") as mock_ua:
+    with mock.patch("kanon_cli.repo.subcmds.version.RepoSourceVersion", return_value="v2.1.0"):
+        with mock.patch("kanon_cli.repo.subcmds.version.user_agent") as mock_ua:
             mock_ua.repo = "repo/2.1.0"
             mock_ua.git = "git/2.40.0"
-            with mock.patch("subcmds.version.git") as mock_git:
+            with mock.patch("kanon_cli.repo.subcmds.version.git") as mock_git:
                 version_tuple = mock.MagicMock()
                 version_tuple.full = "2.40.0"
                 mock_git.version_tuple.return_value = version_tuple
-                with mock.patch("subcmds.version.Wrapper") as mock_wrapper:
+                with mock.patch("kanon_cli.repo.subcmds.version.Wrapper") as mock_wrapper:
                     wrapper_instance = mock.MagicMock()
                     wrapper_instance.BUG_URL = "https://bugs.example.com"
                     mock_wrapper.return_value = wrapper_instance
@@ -397,15 +397,15 @@ def test_execute_calls_describe():
     rp.bare_git.describe.return_value = "v2.1.0-5-gabc1234"
     rp.bare_git.log.return_value = "Mon, 01 Jan 2024 12:00:00 +0000"
 
-    with mock.patch("subcmds.version.RepoSourceVersion", return_value="v2.1.0"):
-        with mock.patch("subcmds.version.user_agent") as mock_ua:
+    with mock.patch("kanon_cli.repo.subcmds.version.RepoSourceVersion", return_value="v2.1.0"):
+        with mock.patch("kanon_cli.repo.subcmds.version.user_agent") as mock_ua:
             mock_ua.repo = "repo/2.1.0"
             mock_ua.git = "git/2.40.0"
-            with mock.patch("subcmds.version.git") as mock_git:
+            with mock.patch("kanon_cli.repo.subcmds.version.git") as mock_git:
                 version_tuple = mock.MagicMock()
                 version_tuple.full = "2.40.0"
                 mock_git.version_tuple.return_value = version_tuple
-                with mock.patch("subcmds.version.Wrapper") as mock_wrapper:
+                with mock.patch("kanon_cli.repo.subcmds.version.Wrapper") as mock_wrapper:
                     wrapper_instance = mock.MagicMock()
                     wrapper_instance.BUG_URL = "https://bugs.example.com"
                     mock_wrapper.return_value = wrapper_instance
@@ -413,7 +413,7 @@ def test_execute_calls_describe():
                         cmd.Execute(opt, args)
 
                         # Should call describe with HEAD
-                        from git_refs import HEAD
+                        from kanon_cli.repo.git_refs import HEAD
 
                         rp.bare_git.describe.assert_called_once_with(HEAD)
 
@@ -437,15 +437,15 @@ def test_execute_calls_log():
     rp.bare_git.describe.return_value = "v2.1.0"
     rp.bare_git.log.return_value = "Mon, 01 Jan 2024 12:00:00 +0000"
 
-    with mock.patch("subcmds.version.RepoSourceVersion", return_value="v2.1.0"):
-        with mock.patch("subcmds.version.user_agent") as mock_ua:
+    with mock.patch("kanon_cli.repo.subcmds.version.RepoSourceVersion", return_value="v2.1.0"):
+        with mock.patch("kanon_cli.repo.subcmds.version.user_agent") as mock_ua:
             mock_ua.repo = "repo/2.1.0"
             mock_ua.git = "git/2.40.0"
-            with mock.patch("subcmds.version.git") as mock_git:
+            with mock.patch("kanon_cli.repo.subcmds.version.git") as mock_git:
                 version_tuple = mock.MagicMock()
                 version_tuple.full = "2.40.0"
                 mock_git.version_tuple.return_value = version_tuple
-                with mock.patch("subcmds.version.Wrapper") as mock_wrapper:
+                with mock.patch("kanon_cli.repo.subcmds.version.Wrapper") as mock_wrapper:
                     wrapper_instance = mock.MagicMock()
                     wrapper_instance.BUG_URL = "https://bugs.example.com"
                     mock_wrapper.return_value = wrapper_instance
@@ -453,6 +453,6 @@ def test_execute_calls_log():
                         cmd.Execute(opt, args)
 
                         # Should call log
-                        from git_refs import HEAD
+                        from kanon_cli.repo.git_refs import HEAD
 
                         rp.bare_git.log.assert_called_once_with("-1", "--format=%cD", HEAD)

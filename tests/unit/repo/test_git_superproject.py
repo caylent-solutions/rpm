@@ -24,9 +24,9 @@ from unittest import mock
 import pytest
 from test_manifest_xml import sort_attributes
 
-import git_superproject
-import git_trace2_event_log
-import manifest_xml
+from kanon_cli.repo import git_superproject
+from kanon_cli.repo import git_trace2_event_log
+from kanon_cli.repo import manifest_xml
 
 
 class SuperprojectTestCase(unittest.TestCase):
@@ -435,8 +435,8 @@ class SuperprojectTestCase(unittest.TestCase):
         os.mkdir(self._superproject._superproject_path)
         os.mkdir(self._superproject._work_git)
         with mock.patch.object(self._superproject, "_Init", return_value=True):
-            with mock.patch("git_superproject.GitCommand", autospec=True) as mock_git_command:
-                with mock.patch("git_superproject.GitRefs.get", autospec=True) as mock_git_refs:
+            with mock.patch("kanon_cli.repo.git_superproject.GitCommand", autospec=True) as mock_git_command:
+                with mock.patch("kanon_cli.repo.git_superproject.GitRefs.get", autospec=True) as mock_git_refs:
                     instance = mock_git_command.return_value
                     instance.Wait.return_value = 0
                     mock_git_refs.side_effect = ["", "1234"]

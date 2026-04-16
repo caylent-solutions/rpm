@@ -19,7 +19,7 @@ from unittest import mock
 
 import pytest
 
-import progress
+from kanon_cli.repo import progress
 
 
 @pytest.mark.unit
@@ -370,7 +370,7 @@ class TestProgressDisplayMessage(unittest.TestCase):
     @mock.patch("sys.stderr")
     def test_display_message_writes_message(self, mock_stderr):
         """display_message should write message to stderr."""
-        with mock.patch("progress.IsTraceToStderr", return_value=False):
+        with mock.patch("kanon_cli.repo.progress.IsTraceToStderr", return_value=False):
             p = progress.Progress("Test", total=5, delay=False, quiet=False)
             p.display_message("test message")
             # Should write the message
@@ -390,7 +390,7 @@ class TestProgressDisplayMessage(unittest.TestCase):
     @mock.patch("sys.stderr")
     def test_display_message_returns_early_when_quiet(self, mock_stderr):
         """display_message should return early when quiet."""
-        with mock.patch("progress.IsTraceToStderr", return_value=False):
+        with mock.patch("kanon_cli.repo.progress.IsTraceToStderr", return_value=False):
             p = progress.Progress("Test", total=5, delay=False, quiet=True)
             p.display_message("test message")
             mock_stderr.write.assert_not_called()
@@ -404,7 +404,7 @@ class TestProgressWrite(unittest.TestCase):
     @mock.patch("sys.stderr")
     def test_write_prepends_carriage_return(self, mock_stderr):
         """_write should prepend carriage return to output."""
-        with mock.patch("progress.IsTraceToStderr", return_value=False):
+        with mock.patch("kanon_cli.repo.progress.IsTraceToStderr", return_value=False):
             with mock.patch("os.get_terminal_size", return_value=mock.Mock(columns=80)):
                 p = progress.Progress("Test", total=5, delay=False, quiet=False, elide=True)
                 p._write("test content")
@@ -415,7 +415,7 @@ class TestProgressWrite(unittest.TestCase):
     @mock.patch("sys.stderr")
     def test_write_elides_long_content(self, mock_stderr):
         """_write should elide content longer than terminal width."""
-        with mock.patch("progress.IsTraceToStderr", return_value=False):
+        with mock.patch("kanon_cli.repo.progress.IsTraceToStderr", return_value=False):
             mock_size = mock.Mock()
             mock_size.columns = 20
             with mock.patch("os.get_terminal_size", return_value=mock_size):
@@ -429,7 +429,7 @@ class TestProgressWrite(unittest.TestCase):
     @mock.patch("sys.stderr")
     def test_write_calls_flush(self, mock_stderr):
         """_write should flush stderr after writing."""
-        with mock.patch("progress.IsTraceToStderr", return_value=False):
+        with mock.patch("kanon_cli.repo.progress.IsTraceToStderr", return_value=False):
             with mock.patch("os.get_terminal_size", return_value=mock.Mock(columns=80)):
                 p = progress.Progress("Test", total=5, delay=False, quiet=False, elide=True)
                 p._write("test")
@@ -444,7 +444,7 @@ class TestProgressUpdateWithTotal(unittest.TestCase):
     @mock.patch("sys.stderr")
     def test_update_shows_percentage(self, mock_stderr):
         """update should show percentage when total is set."""
-        with mock.patch("progress.IsTraceToStderr", return_value=False):
+        with mock.patch("kanon_cli.repo.progress.IsTraceToStderr", return_value=False):
             with mock.patch("os.get_terminal_size", return_value=mock.Mock(columns=100)):
                 p = progress.Progress("Test", total=10, delay=False, quiet=False, elide=True)
                 p.update(inc=5)
@@ -455,7 +455,7 @@ class TestProgressUpdateWithTotal(unittest.TestCase):
     @mock.patch("sys.stderr")
     def test_update_shows_elapsed_time(self, mock_stderr):
         """update should show elapsed time when show_elapsed is True."""
-        with mock.patch("progress.IsTraceToStderr", return_value=False):
+        with mock.patch("kanon_cli.repo.progress.IsTraceToStderr", return_value=False):
             mock_size = mock.Mock()
             mock_size.columns = 100
             with mock.patch("os.get_terminal_size", return_value=mock_size):
@@ -478,7 +478,7 @@ class TestProgressUpdateWithTotal(unittest.TestCase):
     @mock.patch("sys.stderr")
     def test_update_shows_jobs_when_active(self, mock_stderr):
         """update should show job count when _show_jobs is True."""
-        with mock.patch("progress.IsTraceToStderr", return_value=False):
+        with mock.patch("kanon_cli.repo.progress.IsTraceToStderr", return_value=False):
             with mock.patch("os.get_terminal_size", return_value=mock.Mock(columns=100)):
                 p = progress.Progress("Test", total=10, delay=False, quiet=False, elide=True)
                 p.start("job1")
@@ -496,7 +496,7 @@ class TestProgressUpdateWithoutTotal(unittest.TestCase):
     @mock.patch("sys.stderr")
     def test_update_shows_count_without_total(self, mock_stderr):
         """update should show count when total is 0."""
-        with mock.patch("progress.IsTraceToStderr", return_value=False):
+        with mock.patch("kanon_cli.repo.progress.IsTraceToStderr", return_value=False):
             with mock.patch("os.get_terminal_size", return_value=mock.Mock(columns=100)):
                 p = progress.Progress("Test", total=0, delay=False, quiet=False, elide=True)
                 p.update(inc=1)
@@ -513,7 +513,7 @@ class TestProgressUpdateDelay(unittest.TestCase):
     @mock.patch("sys.stderr")
     def test_update_respects_delay(self, mock_stderr):
         """update should not display until delay passes."""
-        with mock.patch("progress.IsTraceToStderr", return_value=False):
+        with mock.patch("kanon_cli.repo.progress.IsTraceToStderr", return_value=False):
             with mock.patch("time.time", side_effect=[0, 0.3, 0.6]):
                 p = progress.Progress("Test", total=10, delay=True, quiet=False)
                 p.update(inc=1)
@@ -525,7 +525,7 @@ class TestProgressUpdateDelay(unittest.TestCase):
     @mock.patch("sys.stderr")
     def test_update_shows_immediately_when_no_delay(self, mock_stderr):
         """update should display immediately when delay=False."""
-        with mock.patch("progress.IsTraceToStderr", return_value=False):
+        with mock.patch("kanon_cli.repo.progress.IsTraceToStderr", return_value=False):
             with mock.patch("os.get_terminal_size", return_value=mock.Mock(columns=100)):
                 p = progress.Progress("Test", total=10, delay=False, quiet=False, elide=True)
                 p.update(inc=1)

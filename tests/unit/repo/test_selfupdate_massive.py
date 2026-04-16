@@ -18,8 +18,8 @@ from unittest import mock
 
 import pytest
 
-from error import GitError
-from subcmds.selfupdate import Selfupdate, SelfupdateError
+from kanon_cli.repo.error import GitError
+from kanon_cli.repo.subcmds.selfupdate import Selfupdate, SelfupdateError
 
 
 def _make_cmd():
@@ -57,7 +57,7 @@ def test_execute_normal_sync():
     sync_result.error = None
     rp.Sync_NetworkHalf.return_value = sync_result
 
-    with mock.patch("subcmds.selfupdate._PostRepoFetch") as mock_post_fetch:
+    with mock.patch("kanon_cli.repo.subcmds.selfupdate._PostRepoFetch") as mock_post_fetch:
         cmd.Execute(opt, args)
 
         rp.PreSync.assert_called_once()
@@ -96,7 +96,7 @@ def test_execute_repo_upgraded():
     opt.repo_verify = True
     args = []
 
-    with mock.patch("subcmds.selfupdate._PostRepoUpgrade") as mock_post_upgrade:
+    with mock.patch("kanon_cli.repo.subcmds.selfupdate._PostRepoUpgrade") as mock_post_upgrade:
         cmd.Execute(opt, args)
 
         cmd.manifest.repoProject.PreSync.assert_called_once()
@@ -117,7 +117,7 @@ def test_execute_no_repo_verify():
     sync_result.error = None
     rp.Sync_NetworkHalf.return_value = sync_result
 
-    with mock.patch("subcmds.selfupdate._PostRepoFetch") as mock_post_fetch:
+    with mock.patch("kanon_cli.repo.subcmds.selfupdate._PostRepoFetch") as mock_post_fetch:
         cmd.Execute(opt, args)
 
         mock_post_fetch.assert_called_once_with(rp, repo_verify=False, verbose=True)
@@ -137,7 +137,7 @@ def test_execute_calls_presync():
     sync_result.error = None
     rp.Sync_NetworkHalf.return_value = sync_result
 
-    with mock.patch("subcmds.selfupdate._PostRepoFetch"):
+    with mock.patch("kanon_cli.repo.subcmds.selfupdate._PostRepoFetch"):
         cmd.Execute(opt, args)
 
         # PreSync should be called before Sync_NetworkHalf
@@ -161,7 +161,7 @@ def test_execute_calls_gc():
     sync_result.error = None
     rp.Sync_NetworkHalf.return_value = sync_result
 
-    with mock.patch("subcmds.selfupdate._PostRepoFetch"):
+    with mock.patch("kanon_cli.repo.subcmds.selfupdate._PostRepoFetch"):
         cmd.Execute(opt, args)
 
         rp.bare_git.gc.assert_called_once_with("--auto")
@@ -181,7 +181,7 @@ def test_execute_verbose_flag():
     sync_result.error = None
     rp.Sync_NetworkHalf.return_value = sync_result
 
-    with mock.patch("subcmds.selfupdate._PostRepoFetch") as mock_post_fetch:
+    with mock.patch("kanon_cli.repo.subcmds.selfupdate._PostRepoFetch") as mock_post_fetch:
         cmd.Execute(opt, args)
 
         # Check that verbose=True was passed
@@ -206,7 +206,7 @@ def test_execute_upgrade_path():
 
     rp = cmd.manifest.repoProject
 
-    with mock.patch("subcmds.selfupdate._PostRepoUpgrade") as mock_post_upgrade:
+    with mock.patch("kanon_cli.repo.subcmds.selfupdate._PostRepoUpgrade") as mock_post_upgrade:
         cmd.Execute(opt, args)
 
         # Should not call Sync_NetworkHalf in upgrade path

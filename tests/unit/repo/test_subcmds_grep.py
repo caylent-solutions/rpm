@@ -18,8 +18,8 @@ from unittest import mock
 
 import pytest
 
-from error import GitError
-from subcmds import grep
+from kanon_cli.repo.error import GitError
+from kanon_cli.repo.subcmds import grep
 
 
 @pytest.mark.unit
@@ -211,13 +211,13 @@ class TestGrepCommand:
 
     def test_is_paged_command(self):
         """Test Grep is a PagedCommand."""
-        from command import PagedCommand
+        from kanon_cli.repo.command import PagedCommand
 
         assert issubclass(grep.Grep, PagedCommand)
 
     def test_parallel_jobs(self):
         """Test Grep has parallel jobs configured."""
-        from command import DEFAULT_LOCAL_JOBS
+        from kanon_cli.repo.command import DEFAULT_LOCAL_JOBS
 
         assert grep.Grep.PARALLEL_JOBS == DEFAULT_LOCAL_JOBS
 
@@ -266,7 +266,7 @@ class TestGrepCommandError:
 
     def test_grep_command_error_inheritance(self):
         """Test GrepCommandError is a SilentRepoExitError."""
-        from error import SilentRepoExitError
+        from kanon_cli.repo.error import SilentRepoExitError
 
         err = grep.GrepCommandError("grep failed")
         assert isinstance(err, SilentRepoExitError)
@@ -294,7 +294,7 @@ class TestGrepExecute:
 
         with cmd.ParallelContext():
             cmd.get_parallel_context()["projects"] = [project]
-            with mock.patch("subcmds.grep.GitCommand") as mock_git:
+            with mock.patch("kanon_cli.repo.subcmds.grep.GitCommand") as mock_git:
                 mock_git_instance = mock.MagicMock()
                 mock_git_instance.Wait.return_value = 0
                 mock_git_instance.stdout = "match"
@@ -319,7 +319,7 @@ class TestGrepExecute:
 
         with cmd.ParallelContext():
             cmd.get_parallel_context()["projects"] = [project]
-            with mock.patch("subcmds.grep.GitCommand") as mock_git:
+            with mock.patch("kanon_cli.repo.subcmds.grep.GitCommand") as mock_git:
                 mock_git.side_effect = GitError("git error")
 
                 result = cmd._ExecuteOne(opt, 0)

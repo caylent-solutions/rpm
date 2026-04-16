@@ -18,7 +18,7 @@ from unittest import mock
 
 import pytest
 
-from subcmds.prune import Prune
+from kanon_cli.repo.subcmds.prune import Prune
 
 
 def _make_cmd():

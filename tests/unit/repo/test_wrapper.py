@@ -25,9 +25,9 @@ from unittest import mock
 
 import pytest
 
-import git_command
-import main
-import wrapper
+from kanon_cli.repo import git_command
+from kanon_cli.repo import main
+from kanon_cli.repo import wrapper
 
 
 def fixture(*paths):
@@ -524,8 +524,8 @@ class TestMainEntryPoint:
 
     def test_main_injects_required_args(self):
         """main() must inject --repo-dir, --wrapper-version, and --wrapper-path."""
-        with mock.patch("main._Main") as mock_Main:
-            with mock.patch("main._FindRepoDir", return_value="/fake/.repo"):
+        with mock.patch("kanon_cli.repo.main._Main") as mock_Main:
+            with mock.patch("kanon_cli.repo.main._FindRepoDir", return_value="/fake/.repo"):
                 with mock.patch("sys.argv", ["repo", "version"]):
                     main.main()
         args = mock_Main.call_args[0][0]
@@ -537,8 +537,8 @@ class TestMainEntryPoint:
 
     def test_main_appends_user_args(self):
         """main() must pass user argv after the injected sentinel --."""
-        with mock.patch("main._Main") as mock_Main:
-            with mock.patch("main._FindRepoDir", return_value="/fake/.repo"):
+        with mock.patch("kanon_cli.repo.main._Main") as mock_Main:
+            with mock.patch("kanon_cli.repo.main._FindRepoDir", return_value="/fake/.repo"):
                 with mock.patch("sys.argv", ["repo", "init", "-u", "http://x"]):
                     main.main()
         args = mock_Main.call_args[0][0]
@@ -588,7 +588,7 @@ class WrapperTests(unittest.TestCase):
     def test_wrapper_loads_from_wrapper_path(self):
         """Wrapper should load module from WrapperPath."""
         wrapper.Wrapper.cache_clear()
-        with mock.patch("wrapper.WrapperPath", return_value="/fake/repo"):
+        with mock.patch("kanon_cli.repo.wrapper.WrapperPath", return_value="/fake/repo"):
             with mock.patch("importlib.machinery.SourceFileLoader") as mock_loader:
                 mock_spec = mock.Mock()
                 mock_module = mock.Mock()

@@ -19,7 +19,7 @@ from unittest import mock
 
 import pytest
 
-from subcmds import info
+from kanon_cli.repo.subcmds import info
 
 
 @pytest.mark.unit
@@ -98,7 +98,7 @@ class TestInfoCommand:
 
     def test_is_paged_command(self):
         """Test Info is a PagedCommand."""
-        from command import PagedCommand
+        from kanon_cli.repo.command import PagedCommand
 
         assert issubclass(info.Info, PagedCommand)
 

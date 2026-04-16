@@ -22,11 +22,11 @@ from unittest import mock
 
 import pytest
 
-import command
-from error import GitError
-from error import RepoExitError
-from project import SyncNetworkHalfResult
-from subcmds import sync
+from kanon_cli.repo import command
+from kanon_cli.repo.error import GitError
+from kanon_cli.repo.error import RepoExitError
+from kanon_cli.repo.project import SyncNetworkHalfResult
+from kanon_cli.repo.subcmds import sync
 
 
 @pytest.mark.parametrize(
@@ -49,7 +49,7 @@ def test_get_current_branch_only(use_superproject, cli_args, result):
     cmd = sync.Sync()
     opts, _ = cmd.OptionParser.parse_args(cli_args)
 
-    with mock.patch("git_superproject.UseSuperproject", return_value=use_superproject):
+    with mock.patch("kanon_cli.repo.git_superproject.UseSuperproject", return_value=use_superproject):
         assert cmd._GetCurrentBranchOnly(opts, cmd.manifest) == result
 
 
@@ -640,7 +640,7 @@ class InterleavedSyncTest(unittest.TestCase):
         mock.patch.object(sync, "_PostRepoFetch").start()
 
         # Mock parallel context for worker tests.
-        self.parallel_context_patcher = mock.patch("subcmds.sync.Sync.get_parallel_context")
+        self.parallel_context_patcher = mock.patch("kanon_cli.repo.subcmds.sync.Sync.get_parallel_context")
         self.mock_get_parallel_context = self.parallel_context_patcher.start()
         self.sync_dict = {}
         self.mock_context = {
@@ -755,7 +755,7 @@ class InterleavedSyncTest(unittest.TestCase):
         project.manifest.manifestProject.config = mock.MagicMock()
         self.mock_context["projects"] = [project]
 
-        with mock.patch("subcmds.sync.SyncBuffer") as mock_sync_buffer:
+        with mock.patch("kanon_cli.repo.subcmds.sync.SyncBuffer") as mock_sync_buffer:
             mock_sync_buf_instance = mock.MagicMock()
             mock_sync_buf_instance.Finish.return_value = True
             mock_sync_buffer.return_value = mock_sync_buf_instance
@@ -820,7 +820,7 @@ class InterleavedSyncTest(unittest.TestCase):
         project.manifest.manifestProject.config = mock.MagicMock()
         self.mock_context["projects"] = [project]
 
-        with mock.patch("subcmds.sync.SyncBuffer"):
+        with mock.patch("kanon_cli.repo.subcmds.sync.SyncBuffer"):
             result_obj = self.cmd._SyncProjectList(opt, [0])
             result = result_obj.results[0]
 
@@ -840,7 +840,7 @@ class InterleavedSyncTest(unittest.TestCase):
         project.manifest.manifestProject.config = mock.MagicMock()
         self.mock_context["projects"] = [project]
 
-        with mock.patch("subcmds.sync.SyncBuffer") as mock_sync_buffer:
+        with mock.patch("kanon_cli.repo.subcmds.sync.SyncBuffer") as mock_sync_buffer:
             mock_sync_buf_instance = mock.MagicMock()
             mock_sync_buf_instance.Finish.return_value = True
             mock_sync_buffer.return_value = mock_sync_buf_instance
@@ -924,7 +924,7 @@ class TestPostRepoUpgrade:
         manifest.repodir = str(repodir)
         manifest.projects = []
 
-        with mock.patch("wrapper.Wrapper") as mock_wrapper:
+        with mock.patch("kanon_cli.repo.wrapper.Wrapper") as mock_wrapper:
             mock_wrapper.return_value.NeedSetupGnuPG.return_value = False
             sync._PostRepoUpgrade(manifest, quiet=True)
 
@@ -940,7 +940,7 @@ class TestPostRepoUpgrade:
         manifest.repodir = str(repodir)
         manifest.projects = []
 
-        with mock.patch("subcmds.sync.Wrapper") as mock_wrapper_cls:
+        with mock.patch("kanon_cli.repo.subcmds.sync.Wrapper") as mock_wrapper_cls:
             mock_wrapper = mock_wrapper_cls.return_value
             mock_wrapper.NeedSetupGnuPG.return_value = True
             mock_wrapper.SetupGnuPG = mock.Mock()
@@ -966,7 +966,7 @@ class TestPostRepoUpgrade:
         manifest.repodir = str(repodir)
         manifest.projects = [project1, project2]
 
-        with mock.patch("subcmds.sync.Wrapper") as mock_wrapper:
+        with mock.patch("kanon_cli.repo.subcmds.sync.Wrapper") as mock_wrapper:
             mock_wrapper.return_value.NeedSetupGnuPG.return_value = False
             sync._PostRepoUpgrade(manifest)
 
@@ -1008,8 +1008,8 @@ class TestPostRepoFetch:
         wrapper = mock.MagicMock()
         wrapper.check_repo_rev.return_value = (None, "v2.0")
 
-        with mock.patch("subcmds.sync.Wrapper", return_value=wrapper):
-            with mock.patch("subcmds.sync.logger"):
+        with mock.patch("kanon_cli.repo.subcmds.sync.Wrapper", return_value=wrapper):
+            with mock.patch("kanon_cli.repo.subcmds.sync.logger"):
                 sync._PostRepoFetch(rp)
 
     def test_has_changes_different_revision_success(self):
@@ -1025,10 +1025,10 @@ class TestPostRepoFetch:
         wrapper = mock.MagicMock()
         wrapper.check_repo_rev.return_value = (None, "v2.1")
 
-        from error import RepoChangedException
+        from kanon_cli.repo.error import RepoChangedException
 
-        with mock.patch("subcmds.sync.Wrapper", return_value=wrapper):
-            with mock.patch("subcmds.sync.logger"):
+        with mock.patch("kanon_cli.repo.subcmds.sync.Wrapper", return_value=wrapper):
+            with mock.patch("kanon_cli.repo.subcmds.sync.logger"):
                 with mock.patch("builtins.print"):
                     with pytest.raises(RepoChangedException):
                         sync._PostRepoFetch(rp)
@@ -1276,7 +1276,7 @@ class TestUpdateProjectList:
         kept_project = mock.MagicMock(relpath="kept_project")
 
         with mock.patch.object(cmd, "GetProjects", return_value=[kept_project]):
-            with mock.patch("subcmds.sync.Project") as mock_project_cls:
+            with mock.patch("kanon_cli.repo.subcmds.sync.Project") as mock_project_cls:
                 mock_project = mock_project_cls.return_value
                 mock_project.DeleteWorktree = mock.Mock()
 
@@ -1355,7 +1355,7 @@ class TestCheckoutOne:
         mock_context = {"projects": [project]}
 
         with mock.patch.object(sync.Sync, "get_parallel_context", return_value=mock_context):
-            with mock.patch("subcmds.sync.SyncBuffer") as mock_syncbuf:
+            with mock.patch("kanon_cli.repo.subcmds.sync.SyncBuffer") as mock_syncbuf:
                 mock_buf = mock_syncbuf.return_value
                 mock_buf.Finish.return_value = True
 
@@ -1383,8 +1383,8 @@ class TestCheckoutOne:
         mock_context = {"projects": [project]}
 
         with mock.patch.object(sync.Sync, "get_parallel_context", return_value=mock_context):
-            with mock.patch("subcmds.sync.SyncBuffer"):
-                with mock.patch("subcmds.sync.logger"):
+            with mock.patch("kanon_cli.repo.subcmds.sync.SyncBuffer"):
+                with mock.patch("kanon_cli.repo.subcmds.sync.logger"):
                     result = sync.Sync._CheckoutOne(
                         detach_head=False,
                         force_sync=False,
@@ -1408,11 +1408,11 @@ class TestCheckoutOne:
         mock_context = {"projects": [project]}
 
         with mock.patch.object(sync.Sync, "get_parallel_context", return_value=mock_context):
-            with mock.patch("subcmds.sync.SyncBuffer") as mock_syncbuf:
+            with mock.patch("kanon_cli.repo.subcmds.sync.SyncBuffer") as mock_syncbuf:
                 mock_buf = mock_syncbuf.return_value
                 mock_buf.Finish.return_value = False
 
-                with mock.patch("subcmds.sync.logger"):
+                with mock.patch("kanon_cli.repo.subcmds.sync.logger"):
                     result = sync.Sync._CheckoutOne(
                         detach_head=False,
                         force_sync=False,
@@ -1595,7 +1595,7 @@ class TestPersistentTransport:
         """Test request method without cookies."""
         transport = sync.PersistentTransport("http://example.com")
 
-        with mock.patch("git_config.GetUrlCookieFile") as mock_get_cookie:
+        with mock.patch("kanon_cli.repo.git_config.GetUrlCookieFile") as mock_get_cookie:
             mock_get_cookie.return_value.__enter__ = mock.Mock(return_value=(None, None))
             mock_get_cookie.return_value.__exit__ = mock.Mock(return_value=False)
 

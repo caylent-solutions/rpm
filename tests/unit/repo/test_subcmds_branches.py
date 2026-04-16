@@ -18,7 +18,7 @@ from unittest import mock
 
 import pytest
 
-from subcmds import branches
+from kanon_cli.repo.subcmds import branches
 
 
 @pytest.mark.unit
@@ -51,7 +51,7 @@ class TestBranchesCommand:
     def test_is_paged_command(self):
         """Test Branches is not a PagedCommand (it's just a Command)."""
         # Branches is a Command, not PagedCommand
-        from command import Command
+        from kanon_cli.repo.command import Command
 
         assert issubclass(branches.Branches, Command)
 

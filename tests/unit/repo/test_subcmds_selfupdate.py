@@ -18,7 +18,7 @@ import optparse
 
 import pytest
 
-from subcmds import selfupdate
+from kanon_cli.repo.subcmds import selfupdate
 
 
 @pytest.mark.unit

@@ -20,7 +20,7 @@ import unittest
 
 import pytest
 
-import git_config
+from kanon_cli.repo import git_config
 
 
 def fixture(*paths):

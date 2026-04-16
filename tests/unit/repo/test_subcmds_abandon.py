@@ -19,7 +19,7 @@ from unittest import mock
 
 import pytest
 
-from subcmds import abandon
+from kanon_cli.repo.subcmds import abandon
 
 
 @pytest.mark.unit
@@ -57,7 +57,7 @@ class TestAbandonCommand:
 
     def test_parallel_jobs(self):
         """Test Abandon has parallel jobs configured."""
-        from command import DEFAULT_LOCAL_JOBS
+        from kanon_cli.repo.command import DEFAULT_LOCAL_JOBS
 
         assert abandon.Abandon.PARALLEL_JOBS == DEFAULT_LOCAL_JOBS
 
@@ -68,7 +68,7 @@ class TestAbandonValidateOptions:
 
     def test_validate_options_no_branch_fails(self):
         """Test ValidateOptions fails with no branch name."""
-        from command import UsageError
+        from kanon_cli.repo.command import UsageError
 
         cmd = abandon.Abandon()
         opts, args = cmd.OptionParser.parse_args([])

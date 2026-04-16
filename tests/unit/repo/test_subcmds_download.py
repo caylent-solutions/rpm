@@ -16,7 +16,7 @@
 
 import pytest
 
-from subcmds import download
+from kanon_cli.repo.subcmds import download
 
 
 @pytest.mark.unit

@@ -18,7 +18,7 @@ from unittest import mock
 
 import pytest
 
-from subcmds.status import Status
+from kanon_cli.repo.subcmds.status import Status
 
 
 def _make_cmd():
@@ -79,7 +79,7 @@ def test_find_orphans_file():
     cmd = _make_cmd()
     outstring = []
 
-    with mock.patch("platform_utils.isdir", return_value=False):
+    with mock.patch("kanon_cli.repo.platform_utils.isdir", return_value=False):
         cmd._FindOrphans(["file.txt"], set(), set(), outstring)
 
     assert len(outstring) == 1
@@ -92,7 +92,7 @@ def test_find_orphans_in_proj_dirs():
     cmd = _make_cmd()
     outstring = []
 
-    with mock.patch("platform_utils.isdir", return_value=True):
+    with mock.patch("kanon_cli.repo.platform_utils.isdir", return_value=True):
         cmd._FindOrphans(["project1"], {"project1"}, set(), outstring)
 
     assert len(outstring) == 0
@@ -104,7 +104,7 @@ def test_find_orphans_recursive():
     cmd = _make_cmd()
     outstring = []
 
-    with mock.patch("platform_utils.isdir", return_value=True):
+    with mock.patch("kanon_cli.repo.platform_utils.isdir", return_value=True):
         with mock.patch("glob.glob", return_value=["subdir/file.txt"]):
             cmd._FindOrphans(["orphan"], set(), {"orphan"}, outstring)
 
@@ -118,7 +118,7 @@ def test_find_orphans_directory_marker():
     cmd = _make_cmd()
     outstring = []
 
-    with mock.patch("platform_utils.isdir", return_value=True):
+    with mock.patch("kanon_cli.repo.platform_utils.isdir", return_value=True):
         with mock.patch("glob.glob", return_value=[]):
             cmd._FindOrphans(["orphan_dir"], set(), set(), outstring)
 
@@ -195,7 +195,7 @@ def test_execute_with_orphans():
     with mock.patch("os.getcwd", return_value="/tmp/test"):
         with mock.patch("os.chdir"):
             with mock.patch("glob.glob", return_value=[".git", "file.txt"]):
-                with mock.patch("platform_utils.isdir", return_value=False):
+                with mock.patch("kanon_cli.repo.platform_utils.isdir", return_value=False):
                     with mock.patch("builtins.print"):
                         cmd.Execute(opt, [])
 

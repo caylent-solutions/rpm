@@ -21,7 +21,7 @@ from unittest.mock import call
 from unittest.mock import mock_open
 from unittest.mock import patch
 
-from subcmds import envsubst
+from kanon_cli.repo.subcmds import envsubst
 
 
 def _mock_os_env_var_resolve(var_name):

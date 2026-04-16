@@ -18,8 +18,8 @@ from unittest import mock
 
 import pytest
 
-from subcmds.diffmanifests import _Coloring
-from subcmds.diffmanifests import Diffmanifests
+from kanon_cli.repo.subcmds.diffmanifests import _Coloring
+from kanon_cli.repo.subcmds.diffmanifests import Diffmanifests
 
 
 @pytest.mark.unit
@@ -402,7 +402,7 @@ class TestDiffmanifestsExecute:
             "missing": [],
         }
 
-        with mock.patch("subcmds.diffmanifests.RepoClient", return_value=manifest1):
+        with mock.patch("kanon_cli.repo.subcmds.diffmanifests.RepoClient", return_value=manifest1):
             diffmanifests.Execute(opt, ["manifest1.xml"])
 
             diffmanifests._printDiff.assert_called_once()
@@ -437,7 +437,7 @@ class TestDiffmanifestsExecute:
             "missing": [],
         }
 
-        with mock.patch("subcmds.diffmanifests.RepoClient", return_value=manifest):
+        with mock.patch("kanon_cli.repo.subcmds.diffmanifests.RepoClient", return_value=manifest):
             diffmanifests.Execute(opt, ["manifest1.xml", "manifest2.xml"])
 
             diffmanifests._printDiff.assert_called_once()
@@ -471,7 +471,7 @@ class TestDiffmanifestsExecute:
             "unreachable": [],
         }
 
-        with mock.patch("subcmds.diffmanifests.RepoClient", return_value=manifest):
+        with mock.patch("kanon_cli.repo.subcmds.diffmanifests.RepoClient", return_value=manifest):
             diffmanifests.Execute(opt, ["manifest1.xml"])
 
             diffmanifests._printRawDiff.assert_called_once()
@@ -502,7 +502,7 @@ class TestDiffmanifestsExecute:
             "missing": [],
         }
 
-        with mock.patch("subcmds.diffmanifests.RepoClient", return_value=manifest):
+        with mock.patch("kanon_cli.repo.subcmds.diffmanifests.RepoClient", return_value=manifest):
             diffmanifests.Execute(opt, ["manifest1.xml"])
 
             # When color is False, all printers should be set to printText

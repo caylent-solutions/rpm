@@ -18,7 +18,7 @@ from unittest import mock
 
 import pytest
 
-from subcmds.stage import Stage, _AddI, _ProjectList
+from kanon_cli.repo.subcmds.stage import Stage, _AddI, _ProjectList
 
 
 def _make_cmd():
@@ -148,7 +148,7 @@ class TestStageCommand:
     @pytest.mark.unit
     @mock.patch.object(Stage, "GetProjects")
     @mock.patch("sys.stdin.readline")
-    @mock.patch("subcmds.stage._AddI")
+    @mock.patch("kanon_cli.repo.subcmds.stage._AddI")
     def test_interactive_select_by_index(self, mock_addi, mock_readline, mock_get_projects):
         """Test _Interactive with project selection by index."""
         cmd = _make_cmd()
@@ -186,7 +186,7 @@ class TestStageCommand:
     @pytest.mark.unit
     @mock.patch.object(Stage, "GetProjects")
     @mock.patch("sys.stdin.readline")
-    @mock.patch("subcmds.stage._AddI")
+    @mock.patch("kanon_cli.repo.subcmds.stage._AddI")
     def test_interactive_select_by_name(self, mock_addi, mock_readline, mock_get_projects):
         """Test _Interactive with project selection by name."""
         cmd = _make_cmd()
@@ -207,7 +207,7 @@ class TestStageCommand:
     @pytest.mark.unit
     @mock.patch.object(Stage, "GetProjects")
     @mock.patch("sys.stdin.readline")
-    @mock.patch("subcmds.stage._AddI")
+    @mock.patch("kanon_cli.repo.subcmds.stage._AddI")
     def test_interactive_select_by_path(self, mock_addi, mock_readline, mock_get_projects):
         """Test _Interactive with project selection by path."""
         cmd = _make_cmd()
@@ -284,7 +284,7 @@ class TestAddI:
     """Test _AddI function."""
 
     @pytest.mark.unit
-    @mock.patch("subcmds.stage.GitCommand")
+    @mock.patch("kanon_cli.repo.subcmds.stage.GitCommand")
     def test_addi_success(self, mock_git_command):
         """Test _AddI with successful git command."""
         mock_project = mock.MagicMock()
@@ -296,7 +296,7 @@ class TestAddI:
         mock_git_command.assert_called_once_with(mock_project, ["add", "--interactive"], bare=False)
 
     @pytest.mark.unit
-    @mock.patch("subcmds.stage.GitCommand")
+    @mock.patch("kanon_cli.repo.subcmds.stage.GitCommand")
     def test_addi_failure(self, mock_git_command):
         """Test _AddI with failed git command."""
         mock_project = mock.MagicMock()

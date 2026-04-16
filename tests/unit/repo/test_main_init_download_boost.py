@@ -20,8 +20,8 @@ from unittest import mock
 
 import pytest
 
-import main
-from error import (
+from kanon_cli.repo import main
+from kanon_cli.repo.error import (
     GitError,
     InvalidProjectGroupsError,
     ManifestInvalidRevisionError,
@@ -33,8 +33,8 @@ from error import (
     RepoUnhandledExceptionError,
     SilentRepoExitError,
 )
-from subcmds.download import Download, DownloadCommandError
-from subcmds.init import Init
+from kanon_cli.repo.subcmds.download import Download, DownloadCommandError
+from kanon_cli.repo.subcmds.init import Init
 
 
 # ---------------------------------------------------------------------------
@@ -421,12 +421,12 @@ class TestKerberosAuthHandlerMethods:
 class TestMainFunction:
     """Tests for _Main function."""
 
-    @mock.patch("main.TerminatePager")
-    @mock.patch("main.init_http")
-    @mock.patch("main._CheckRepoDir")
-    @mock.patch("main._CheckWrapperVersion")
-    @mock.patch("main._PruneOptions")
-    @mock.patch("main.Version")
+    @mock.patch("kanon_cli.repo.main.TerminatePager")
+    @mock.patch("kanon_cli.repo.main.init_http")
+    @mock.patch("kanon_cli.repo.main._CheckRepoDir")
+    @mock.patch("kanon_cli.repo.main._CheckWrapperVersion")
+    @mock.patch("kanon_cli.repo.main._PruneOptions")
+    @mock.patch("kanon_cli.repo.main.Version")
     def test_main_basic_run(
         self,
         mock_version,
@@ -447,17 +447,17 @@ class TestMainFunction:
         mock_repo._ParseArgs.return_value = (None, mock.MagicMock(), [])
         mock_repo._Run.return_value = 1
 
-        with mock.patch("main._Repo", return_value=mock_repo):
+        with mock.patch("kanon_cli.repo.main._Repo", return_value=mock_repo):
             with pytest.raises(SystemExit) as exc_info:
                 main._Main(argv)
             assert exc_info.value.code == 1
 
-    @mock.patch("main.TerminatePager")
-    @mock.patch("main.init_http")
-    @mock.patch("main._CheckRepoDir")
-    @mock.patch("main._CheckWrapperVersion")
-    @mock.patch("main._PruneOptions")
-    @mock.patch("main.Version")
+    @mock.patch("kanon_cli.repo.main.TerminatePager")
+    @mock.patch("kanon_cli.repo.main.init_http")
+    @mock.patch("kanon_cli.repo.main._CheckRepoDir")
+    @mock.patch("kanon_cli.repo.main._CheckWrapperVersion")
+    @mock.patch("kanon_cli.repo.main._PruneOptions")
+    @mock.patch("kanon_cli.repo.main.Version")
     def test_main_keyboard_interrupt(
         self,
         mock_version,
@@ -482,17 +482,17 @@ class TestMainFunction:
         )
         mock_repo._Run.side_effect = KeyboardInterrupt()
 
-        with mock.patch("main._Repo", return_value=mock_repo):
+        with mock.patch("kanon_cli.repo.main._Repo", return_value=mock_repo):
             with pytest.raises(SystemExit) as exc_info:
                 main._Main(argv)
             assert exc_info.value.code == main.KEYBOARD_INTERRUPT_EXIT
 
-    @mock.patch("main.TerminatePager")
-    @mock.patch("main.init_http")
-    @mock.patch("main._CheckRepoDir")
-    @mock.patch("main._CheckWrapperVersion")
-    @mock.patch("main._PruneOptions")
-    @mock.patch("main.Version")
+    @mock.patch("kanon_cli.repo.main.TerminatePager")
+    @mock.patch("kanon_cli.repo.main.init_http")
+    @mock.patch("kanon_cli.repo.main._CheckRepoDir")
+    @mock.patch("kanon_cli.repo.main._CheckWrapperVersion")
+    @mock.patch("kanon_cli.repo.main._PruneOptions")
+    @mock.patch("kanon_cli.repo.main.Version")
     def test_main_repo_exit_error(
         self,
         mock_version,
@@ -517,17 +517,17 @@ class TestMainFunction:
         )
         mock_repo._Run.side_effect = RepoExitError(exit_code=42)
 
-        with mock.patch("main._Repo", return_value=mock_repo):
+        with mock.patch("kanon_cli.repo.main._Repo", return_value=mock_repo):
             with pytest.raises(SystemExit) as exc_info:
                 main._Main(argv)
             assert exc_info.value.code == 42
 
-    @mock.patch("main.TerminatePager")
-    @mock.patch("main.init_http")
-    @mock.patch("main._CheckRepoDir")
-    @mock.patch("main._CheckWrapperVersion")
-    @mock.patch("main._PruneOptions")
-    @mock.patch("main.Version")
+    @mock.patch("kanon_cli.repo.main.TerminatePager")
+    @mock.patch("kanon_cli.repo.main.init_http")
+    @mock.patch("kanon_cli.repo.main._CheckRepoDir")
+    @mock.patch("kanon_cli.repo.main._CheckWrapperVersion")
+    @mock.patch("kanon_cli.repo.main._PruneOptions")
+    @mock.patch("kanon_cli.repo.main.Version")
     def test_main_silent_repo_exit_error(
         self,
         mock_version,
@@ -552,19 +552,19 @@ class TestMainFunction:
         )
         mock_repo._Run.side_effect = SilentRepoExitError(exit_code=3)
 
-        with mock.patch("main._Repo", return_value=mock_repo):
-            with mock.patch("main.logger") as mock_logger:
+        with mock.patch("kanon_cli.repo.main._Repo", return_value=mock_repo):
+            with mock.patch("kanon_cli.repo.main.logger") as mock_logger:
                 with pytest.raises(SystemExit) as exc_info:
                     main._Main(argv)
                 assert exc_info.value.code == 3
                 mock_logger.log_aggregated_errors.assert_not_called()
 
-    @mock.patch("main.TerminatePager")
-    @mock.patch("main.init_http")
-    @mock.patch("main._CheckRepoDir")
-    @mock.patch("main._CheckWrapperVersion")
-    @mock.patch("main._PruneOptions")
-    @mock.patch("main.Version")
+    @mock.patch("kanon_cli.repo.main.TerminatePager")
+    @mock.patch("kanon_cli.repo.main.init_http")
+    @mock.patch("kanon_cli.repo.main._CheckRepoDir")
+    @mock.patch("kanon_cli.repo.main._CheckWrapperVersion")
+    @mock.patch("kanon_cli.repo.main._PruneOptions")
+    @mock.patch("kanon_cli.repo.main.Version")
     def test_main_repo_changed_exception(
         self,
         mock_version,
@@ -589,20 +589,20 @@ class TestMainFunction:
         )
         mock_repo._Run.side_effect = RepoChangedException(extra_args=["--extra"])
 
-        with mock.patch("main._Repo", return_value=mock_repo):
+        with mock.patch("kanon_cli.repo.main._Repo", return_value=mock_repo):
             with mock.patch("os.execv", side_effect=OSError("exec failed")):
                 with pytest.raises(SystemExit) as exc_info:
                     main._Main(argv)
                 assert exc_info.value.code == 128
 
-    @mock.patch("main.TerminatePager")
-    @mock.patch("main.init_http")
-    @mock.patch("main._CheckRepoDir")
-    @mock.patch("main._CheckWrapperVersion")
-    @mock.patch("main._PruneOptions")
-    @mock.patch("main.Version")
-    @mock.patch("main.SetTrace")
-    @mock.patch("main.SetTraceToStderr")
+    @mock.patch("kanon_cli.repo.main.TerminatePager")
+    @mock.patch("kanon_cli.repo.main.init_http")
+    @mock.patch("kanon_cli.repo.main._CheckRepoDir")
+    @mock.patch("kanon_cli.repo.main._CheckWrapperVersion")
+    @mock.patch("kanon_cli.repo.main._PruneOptions")
+    @mock.patch("kanon_cli.repo.main.Version")
+    @mock.patch("kanon_cli.repo.main.SetTrace")
+    @mock.patch("kanon_cli.repo.main.SetTraceToStderr")
     def test_main_with_trace_opts(
         self,
         mock_set_trace_stderr,
@@ -634,7 +634,7 @@ class TestMainFunction:
         )
         mock_repo._Run.return_value = 0
 
-        with mock.patch("main._Repo", return_value=mock_repo):
+        with mock.patch("kanon_cli.repo.main._Repo", return_value=mock_repo):
             with pytest.raises(SystemExit):
                 main._Main(argv)
         mock_set_trace.assert_called_once()
@@ -648,9 +648,9 @@ class TestMainFunction:
 class TestRunLongSubmanifestPath:
     """Tests for _RunLong with submanifest_path set."""
 
-    @mock.patch("main.RepoClient")
-    @mock.patch("main.SetDefaultColoring")
-    @mock.patch("main.Editor")
+    @mock.patch("kanon_cli.repo.main.RepoClient")
+    @mock.patch("kanon_cli.repo.main.SetDefaultColoring")
+    @mock.patch("kanon_cli.repo.main.Editor")
     def test_runlong_with_submanifest_path(self, mock_editor, mock_color, mock_client):
         """Test _RunLong creates submanifest repo client."""
         repo = main._Repo("/test/repodir")
@@ -693,12 +693,12 @@ class TestRunLongPagerLogic:
         repo.commands = {"testcmd": lambda **kwargs: mock_cmd}
         return repo, mock_cmd, copts
 
-    @mock.patch("main.RepoClient")
-    @mock.patch("main.SetDefaultColoring")
-    @mock.patch("main.Editor")
-    @mock.patch("main.time")
-    @mock.patch("main.RunPager")
-    @mock.patch("main.isinstance", return_value=False)
+    @mock.patch("kanon_cli.repo.main.RepoClient")
+    @mock.patch("kanon_cli.repo.main.SetDefaultColoring")
+    @mock.patch("kanon_cli.repo.main.Editor")
+    @mock.patch("kanon_cli.repo.main.time")
+    @mock.patch("kanon_cli.repo.main.RunPager")
+    @mock.patch("kanon_cli.repo.main.isinstance", return_value=False)
     def test_pager_explicit_true(
         self,
         mock_isinstance_fn,
@@ -725,10 +725,10 @@ class TestRunLongPagerLogic:
         mock_git_log = mock.MagicMock()
         repo._RunLong("testcmd", mock_gopts, [], mock_git_log)
 
-    @mock.patch("main.RepoClient")
-    @mock.patch("main.SetDefaultColoring")
-    @mock.patch("main.Editor")
-    @mock.patch("main.time")
+    @mock.patch("kanon_cli.repo.main.RepoClient")
+    @mock.patch("kanon_cli.repo.main.SetDefaultColoring")
+    @mock.patch("kanon_cli.repo.main.Editor")
+    @mock.patch("kanon_cli.repo.main.time")
     def test_pager_config_fallback(self, mock_time, mock_editor, mock_color, mock_client):
         """Test pager uses config when gopts.pager is None."""
         repo, mock_cmd, copts = self._setup_cmd_and_repo()
@@ -770,10 +770,10 @@ class TestRunLongMultiManifest:
         repo.commands = {"testcmd": lambda **kwargs: mock_cmd}
         return repo, mock_cmd, copts
 
-    @mock.patch("main.RepoClient")
-    @mock.patch("main.SetDefaultColoring")
-    @mock.patch("main.Editor")
-    @mock.patch("main.time")
+    @mock.patch("kanon_cli.repo.main.RepoClient")
+    @mock.patch("kanon_cli.repo.main.SetDefaultColoring")
+    @mock.patch("kanon_cli.repo.main.Editor")
+    @mock.patch("kanon_cli.repo.main.time")
     def test_non_multi_manifest_no_submanifests(self, mock_time, mock_editor, mock_color, mock_client):
         """Test non-multi-manifest command with no submanifests."""
         repo, mock_cmd, copts = self._make_repo_with_cmd(multi_manifest=False)
@@ -793,10 +793,10 @@ class TestRunLongMultiManifest:
         result = repo._RunLong("testcmd", mock_gopts, [], mock_git_log)
         assert result == 0
 
-    @mock.patch("main.RepoClient")
-    @mock.patch("main.SetDefaultColoring")
-    @mock.patch("main.Editor")
-    @mock.patch("main.time")
+    @mock.patch("kanon_cli.repo.main.RepoClient")
+    @mock.patch("kanon_cli.repo.main.SetDefaultColoring")
+    @mock.patch("kanon_cli.repo.main.Editor")
+    @mock.patch("kanon_cli.repo.main.time")
     def test_outer_manifest_is_submanifest(self, mock_time, mock_editor, mock_color, mock_client):
         """Test outer_manifest=True with submanifest re-runs at outer."""
         repo, mock_cmd, copts = self._make_repo_with_cmd(multi_manifest=False)
@@ -818,10 +818,10 @@ class TestRunLongMultiManifest:
             repo._RunLong("testcmd", mock_gopts, [], mock_git_log)
             mock_run.assert_called_once()
 
-    @mock.patch("main.RepoClient")
-    @mock.patch("main.SetDefaultColoring")
-    @mock.patch("main.Editor")
-    @mock.patch("main.time")
+    @mock.patch("kanon_cli.repo.main.RepoClient")
+    @mock.patch("kanon_cli.repo.main.SetDefaultColoring")
+    @mock.patch("kanon_cli.repo.main.Editor")
+    @mock.patch("kanon_cli.repo.main.time")
     def test_non_multi_with_submanifests(self, mock_time, mock_editor, mock_color, mock_client):
         """Test non-multi-manifest command iterates submanifests."""
         repo, mock_cmd, copts = self._make_repo_with_cmd(multi_manifest=False)
@@ -878,10 +878,10 @@ class TestRunLongExceptionLogging:
         repo.commands = {"testcmd": lambda **kwargs: mock_cmd}
         return repo, mock_cmd
 
-    @mock.patch("main.RepoClient")
-    @mock.patch("main.SetDefaultColoring")
-    @mock.patch("main.Editor")
-    @mock.patch("main.time")
+    @mock.patch("kanon_cli.repo.main.RepoClient")
+    @mock.patch("kanon_cli.repo.main.SetDefaultColoring")
+    @mock.patch("kanon_cli.repo.main.Editor")
+    @mock.patch("kanon_cli.repo.main.time")
     def test_repo_unhandled_exception_error(self, mock_time, mock_editor, mock_color, mock_client):
         """Test RepoUnhandledExceptionError logs inner error type."""
         repo, mock_cmd = self._make_repo_setup()
@@ -901,10 +901,10 @@ class TestRunLongExceptionLogging:
         with pytest.raises(RepoUnhandledExceptionError):
             repo._RunLong("testcmd", mock_gopts, [], mock_git_log)
 
-    @mock.patch("main.RepoClient")
-    @mock.patch("main.SetDefaultColoring")
-    @mock.patch("main.Editor")
-    @mock.patch("main.time")
+    @mock.patch("kanon_cli.repo.main.RepoClient")
+    @mock.patch("kanon_cli.repo.main.SetDefaultColoring")
+    @mock.patch("kanon_cli.repo.main.Editor")
+    @mock.patch("kanon_cli.repo.main.time")
     def test_repo_exit_error_with_aggregate_errors(self, mock_time, mock_editor, mock_color, mock_client):
         """Test RepoExitError with aggregate_errors logs each error."""
         repo, mock_cmd = self._make_repo_setup()
@@ -928,10 +928,10 @@ class TestRunLongExceptionLogging:
         # Verify ErrorEvent was called for aggregate errors
         assert mock_git_log.ErrorEvent.call_count >= 2
 
-    @mock.patch("main.RepoClient")
-    @mock.patch("main.SetDefaultColoring")
-    @mock.patch("main.Editor")
-    @mock.patch("main.time")
+    @mock.patch("kanon_cli.repo.main.RepoClient")
+    @mock.patch("kanon_cli.repo.main.SetDefaultColoring")
+    @mock.patch("kanon_cli.repo.main.Editor")
+    @mock.patch("kanon_cli.repo.main.time")
     def test_system_exit_zero(self, mock_time, mock_editor, mock_color, mock_client):
         """Test SystemExit(0) is not treated as error."""
         repo, mock_cmd = self._make_repo_setup()
@@ -950,10 +950,10 @@ class TestRunLongExceptionLogging:
         with pytest.raises(SystemExit):
             repo._RunLong("testcmd", mock_gopts, [], mock_git_log)
 
-    @mock.patch("main.RepoClient")
-    @mock.patch("main.SetDefaultColoring")
-    @mock.patch("main.Editor")
-    @mock.patch("main.time")
+    @mock.patch("kanon_cli.repo.main.RepoClient")
+    @mock.patch("kanon_cli.repo.main.SetDefaultColoring")
+    @mock.patch("kanon_cli.repo.main.Editor")
+    @mock.patch("kanon_cli.repo.main.time")
     def test_system_exit_nonzero(self, mock_time, mock_editor, mock_color, mock_client):
         """Test SystemExit with non-zero code is re-raised."""
         repo, mock_cmd = self._make_repo_setup()
@@ -973,10 +973,10 @@ class TestRunLongExceptionLogging:
             repo._RunLong("testcmd", mock_gopts, [], mock_git_log)
         assert exc_info.value.code == 42
 
-    @mock.patch("main.RepoClient")
-    @mock.patch("main.SetDefaultColoring")
-    @mock.patch("main.Editor")
-    @mock.patch("main.time")
+    @mock.patch("kanon_cli.repo.main.RepoClient")
+    @mock.patch("kanon_cli.repo.main.SetDefaultColoring")
+    @mock.patch("kanon_cli.repo.main.Editor")
+    @mock.patch("kanon_cli.repo.main.time")
     def test_generic_exception_returns_1(self, mock_time, mock_editor, mock_color, mock_client):
         """Test generic Exception sets result=1 and re-raises."""
         repo, mock_cmd = self._make_repo_setup()
@@ -995,10 +995,10 @@ class TestRunLongExceptionLogging:
         with pytest.raises(RuntimeError, match="unexpected"):
             repo._RunLong("testcmd", mock_gopts, [], mock_git_log)
 
-    @mock.patch("main.RepoClient")
-    @mock.patch("main.SetDefaultColoring")
-    @mock.patch("main.Editor")
-    @mock.patch("main.time")
+    @mock.patch("kanon_cli.repo.main.RepoClient")
+    @mock.patch("kanon_cli.repo.main.SetDefaultColoring")
+    @mock.patch("kanon_cli.repo.main.Editor")
+    @mock.patch("kanon_cli.repo.main.time")
     def test_no_such_project_no_name(self, mock_time, mock_editor, mock_color, mock_client):
         """Test NoSuchProjectError with no name."""
         repo, mock_cmd = self._make_repo_setup()
@@ -1017,10 +1017,10 @@ class TestRunLongExceptionLogging:
         result = repo._RunLong("testcmd", mock_gopts, [], mock_git_log)
         assert result != 0
 
-    @mock.patch("main.RepoClient")
-    @mock.patch("main.SetDefaultColoring")
-    @mock.patch("main.Editor")
-    @mock.patch("main.time")
+    @mock.patch("kanon_cli.repo.main.RepoClient")
+    @mock.patch("kanon_cli.repo.main.SetDefaultColoring")
+    @mock.patch("kanon_cli.repo.main.Editor")
+    @mock.patch("kanon_cli.repo.main.time")
     def test_invalid_project_groups_no_name(self, mock_time, mock_editor, mock_color, mock_client):
         """Test InvalidProjectGroupsError with no name."""
         repo, mock_cmd = self._make_repo_setup()
@@ -1039,10 +1039,10 @@ class TestRunLongExceptionLogging:
         result = repo._RunLong("testcmd", mock_gopts, [], mock_git_log)
         assert result != 0
 
-    @mock.patch("main.RepoClient")
-    @mock.patch("main.SetDefaultColoring")
-    @mock.patch("main.Editor")
-    @mock.patch("main.time")
+    @mock.patch("kanon_cli.repo.main.RepoClient")
+    @mock.patch("kanon_cli.repo.main.SetDefaultColoring")
+    @mock.patch("kanon_cli.repo.main.Editor")
+    @mock.patch("kanon_cli.repo.main.time")
     def test_invalid_project_groups_with_name(self, mock_time, mock_editor, mock_color, mock_client):
         """Test InvalidProjectGroupsError with project name."""
         repo, mock_cmd = self._make_repo_setup()
@@ -1061,10 +1061,10 @@ class TestRunLongExceptionLogging:
         result = repo._RunLong("testcmd", mock_gopts, [], mock_git_log)
         assert result != 0
 
-    @mock.patch("main.RepoClient")
-    @mock.patch("main.SetDefaultColoring")
-    @mock.patch("main.Editor")
-    @mock.patch("main.time")
+    @mock.patch("kanon_cli.repo.main.RepoClient")
+    @mock.patch("kanon_cli.repo.main.SetDefaultColoring")
+    @mock.patch("kanon_cli.repo.main.Editor")
+    @mock.patch("kanon_cli.repo.main.time")
     def test_no_manifest_in_execute(self, mock_time, mock_editor, mock_color, mock_client):
         """Test NoManifestException during Execute."""
         repo, mock_cmd = self._make_repo_setup()
@@ -1083,10 +1083,10 @@ class TestRunLongExceptionLogging:
         result = repo._RunLong("testcmd", mock_gopts, [], mock_git_log)
         assert result != 0
 
-    @mock.patch("main.RepoClient")
-    @mock.patch("main.SetDefaultColoring")
-    @mock.patch("main.Editor")
-    @mock.patch("main.time")
+    @mock.patch("kanon_cli.repo.main.RepoClient")
+    @mock.patch("kanon_cli.repo.main.SetDefaultColoring")
+    @mock.patch("kanon_cli.repo.main.Editor")
+    @mock.patch("kanon_cli.repo.main.time")
     def test_manifest_invalid_revision_error(self, mock_time, mock_editor, mock_color, mock_client):
         """Test ManifestInvalidRevisionError during Execute."""
         repo, mock_cmd = self._make_repo_setup()
@@ -1105,10 +1105,10 @@ class TestRunLongExceptionLogging:
         result = repo._RunLong("testcmd", mock_gopts, [], mock_git_log)
         assert result != 0
 
-    @mock.patch("main.RepoClient")
-    @mock.patch("main.SetDefaultColoring")
-    @mock.patch("main.Editor")
-    @mock.patch("main.time")
+    @mock.patch("kanon_cli.repo.main.RepoClient")
+    @mock.patch("kanon_cli.repo.main.SetDefaultColoring")
+    @mock.patch("kanon_cli.repo.main.Editor")
+    @mock.patch("kanon_cli.repo.main.time")
     def test_event_log_write(self, mock_time, mock_editor, mock_color, mock_client):
         """Test event_log.Write is called when gopts.event_log is set."""
         repo, mock_cmd = self._make_repo_setup()
@@ -1128,10 +1128,10 @@ class TestRunLongExceptionLogging:
 
         mock_cmd.event_log.Write.assert_called_once()
 
-    @mock.patch("main.RepoClient")
-    @mock.patch("main.SetDefaultColoring")
-    @mock.patch("main.Editor")
-    @mock.patch("main.time")
+    @mock.patch("kanon_cli.repo.main.RepoClient")
+    @mock.patch("kanon_cli.repo.main.SetDefaultColoring")
+    @mock.patch("kanon_cli.repo.main.Editor")
+    @mock.patch("kanon_cli.repo.main.time")
     def test_repo_exit_error_in_runlong(self, mock_time, mock_editor, mock_color, mock_client):
         """Test RepoExitError is re-raised from _RunLong."""
         repo, mock_cmd = self._make_repo_setup()
@@ -1150,10 +1150,10 @@ class TestRunLongExceptionLogging:
         with pytest.raises(RepoExitError):
             repo._RunLong("testcmd", mock_gopts, [], mock_git_log)
 
-    @mock.patch("main.RepoClient")
-    @mock.patch("main.SetDefaultColoring")
-    @mock.patch("main.Editor")
-    @mock.patch("main.time")
+    @mock.patch("kanon_cli.repo.main.RepoClient")
+    @mock.patch("kanon_cli.repo.main.SetDefaultColoring")
+    @mock.patch("kanon_cli.repo.main.Editor")
+    @mock.patch("kanon_cli.repo.main.time")
     def test_mirror_safe_check(self, mock_time, mock_editor, mock_color, mock_client):
         """Test that non-MirrorSafe command with mirror repo returns 1."""
         repo = main._Repo("/test/repodir")
@@ -1787,9 +1787,9 @@ class TestInitExecuteMethod:
         cmd.git_event_log = mock.MagicMock()
         return cmd
 
-    @mock.patch("subcmds.init.Wrapper")
-    @mock.patch("subcmds.init.WrapperDir")
-    @mock.patch("subcmds.init.git_require")
+    @mock.patch("kanon_cli.repo.subcmds.init.Wrapper")
+    @mock.patch("kanon_cli.repo.subcmds.init.WrapperDir")
+    @mock.patch("kanon_cli.repo.subcmds.init.git_require")
     @mock.patch("os.isatty", return_value=False)
     def test_execute_basic(self, mock_isatty, mock_git_require, mock_wrapper_dir, mock_wrapper):
         """Test Execute basic path (non-interactive)."""
@@ -1814,9 +1814,9 @@ class TestInitExecuteMethod:
         cmd._SyncManifest.assert_called_once_with(opt)
         cmd._DisplayResult.assert_called_once()
 
-    @mock.patch("subcmds.init.Wrapper")
-    @mock.patch("subcmds.init.WrapperDir")
-    @mock.patch("subcmds.init.git_require")
+    @mock.patch("kanon_cli.repo.subcmds.init.Wrapper")
+    @mock.patch("kanon_cli.repo.subcmds.init.WrapperDir")
+    @mock.patch("kanon_cli.repo.subcmds.init.git_require")
     @mock.patch("os.isatty", return_value=False)
     def test_execute_with_repo_url(self, mock_isatty, mock_git_require, mock_wrapper_dir, mock_wrapper):
         """Test Execute handles --repo-url."""
@@ -1840,9 +1840,9 @@ class TestInitExecuteMethod:
         assert remote.url == "http://new-repo.com"
         remote.Save.assert_called_once()
 
-    @mock.patch("subcmds.init.Wrapper")
-    @mock.patch("subcmds.init.WrapperDir")
-    @mock.patch("subcmds.init.git_require")
+    @mock.patch("kanon_cli.repo.subcmds.init.Wrapper")
+    @mock.patch("kanon_cli.repo.subcmds.init.WrapperDir")
+    @mock.patch("kanon_cli.repo.subcmds.init.git_require")
     @mock.patch("os.isatty", return_value=False)
     @mock.patch("os.path.isdir", return_value=True)
     def test_execute_with_repo_rev(
@@ -1878,9 +1878,9 @@ class TestInitExecuteMethod:
 
         wrapper_instance.check_repo_rev.assert_called_once()
 
-    @mock.patch("subcmds.init.Wrapper")
-    @mock.patch("subcmds.init.WrapperDir")
-    @mock.patch("subcmds.init.git_require")
+    @mock.patch("kanon_cli.repo.subcmds.init.Wrapper")
+    @mock.patch("kanon_cli.repo.subcmds.init.WrapperDir")
+    @mock.patch("kanon_cli.repo.subcmds.init.git_require")
     @mock.patch("os.isatty", return_value=False)
     @mock.patch("os.path.isdir", return_value=True)
     def test_execute_repo_rev_clone_failure(
@@ -1913,9 +1913,9 @@ class TestInitExecuteMethod:
         with pytest.raises(RepoUnhandledExceptionError):
             cmd.Execute(opt, [])
 
-    @mock.patch("subcmds.init.Wrapper")
-    @mock.patch("subcmds.init.WrapperDir")
-    @mock.patch("subcmds.init.git_require")
+    @mock.patch("kanon_cli.repo.subcmds.init.Wrapper")
+    @mock.patch("kanon_cli.repo.subcmds.init.WrapperDir")
+    @mock.patch("kanon_cli.repo.subcmds.init.git_require")
     @mock.patch("os.isatty", return_value=True)
     def test_execute_interactive_configure_user(self, mock_isatty, mock_git_require, mock_wrapper_dir, mock_wrapper):
         """Test Execute runs user configuration in interactive mode."""
@@ -1943,9 +1943,9 @@ class TestInitExecuteMethod:
         cmd._ConfigureUser.assert_called_once_with(opt)
         cmd._ConfigureColor.assert_called_once()
 
-    @mock.patch("subcmds.init.Wrapper")
-    @mock.patch("subcmds.init.WrapperDir")
-    @mock.patch("subcmds.init.git_require")
+    @mock.patch("kanon_cli.repo.subcmds.init.Wrapper")
+    @mock.patch("kanon_cli.repo.subcmds.init.WrapperDir")
+    @mock.patch("kanon_cli.repo.subcmds.init.git_require")
     @mock.patch("os.isatty", return_value=False)
     def test_execute_worktree_requires_git_2_15(self, mock_isatty, mock_git_require, mock_wrapper_dir, mock_wrapper):
         """Test Execute calls git_require for worktree mode."""
@@ -1970,9 +1970,9 @@ class TestInitExecuteMethod:
         worktree_call = [c for c in calls if len(c[0]) > 0 and c[0][0] == (2, 15, 0)]
         assert len(worktree_call) == 1
 
-    @mock.patch("subcmds.init.Wrapper")
-    @mock.patch("subcmds.init.WrapperDir")
-    @mock.patch("subcmds.init.git_require")
+    @mock.patch("kanon_cli.repo.subcmds.init.Wrapper")
+    @mock.patch("kanon_cli.repo.subcmds.init.WrapperDir")
+    @mock.patch("kanon_cli.repo.subcmds.init.git_require")
     @mock.patch("os.isatty", return_value=False)
     def test_execute_existing_checkout_prints_notice(
         self, mock_isatty, mock_git_require, mock_wrapper_dir, mock_wrapper
@@ -2000,9 +2000,9 @@ class TestInitExecuteMethod:
             reuse_msg = any("reusing" in s for s in print_calls)
             assert reuse_msg
 
-    @mock.patch("subcmds.init.Wrapper")
-    @mock.patch("subcmds.init.WrapperDir")
-    @mock.patch("subcmds.init.git_require")
+    @mock.patch("kanon_cli.repo.subcmds.init.Wrapper")
+    @mock.patch("kanon_cli.repo.subcmds.init.WrapperDir")
+    @mock.patch("kanon_cli.repo.subcmds.init.git_require")
     @mock.patch("os.isatty", return_value=False)
     def test_execute_soft_git_version_warning(self, mock_isatty, mock_git_require, mock_wrapper_dir, mock_wrapper):
         """Test Execute warns when git version is below soft minimum."""
@@ -2022,13 +2022,13 @@ class TestInitExecuteMethod:
 
         cmd._SyncManifest = mock.Mock()
 
-        with mock.patch("subcmds.init.logger") as mock_logger:
+        with mock.patch("kanon_cli.repo.subcmds.init.logger") as mock_logger:
             cmd.Execute(opt, [])
             mock_logger.warning.assert_called()
 
-    @mock.patch("subcmds.init.Wrapper")
-    @mock.patch("subcmds.init.WrapperDir")
-    @mock.patch("subcmds.init.git_require")
+    @mock.patch("kanon_cli.repo.subcmds.init.Wrapper")
+    @mock.patch("kanon_cli.repo.subcmds.init.WrapperDir")
+    @mock.patch("kanon_cli.repo.subcmds.init.git_require")
     @mock.patch("os.isatty", return_value=True)
     def test_execute_interactive_should_configure_user(
         self, mock_isatty, mock_git_require, mock_wrapper_dir, mock_wrapper
@@ -2058,9 +2058,9 @@ class TestInitExecuteMethod:
         cmd._ShouldConfigureUser.assert_called_once()
         cmd._ConfigureUser.assert_called_once_with(opt)
 
-    @mock.patch("subcmds.init.Wrapper")
-    @mock.patch("subcmds.init.WrapperDir")
-    @mock.patch("subcmds.init.git_require")
+    @mock.patch("kanon_cli.repo.subcmds.init.Wrapper")
+    @mock.patch("kanon_cli.repo.subcmds.init.WrapperDir")
+    @mock.patch("kanon_cli.repo.subcmds.init.git_require")
     @mock.patch("os.isatty", return_value=True)
     def test_execute_mirror_skips_user_config(self, mock_isatty, mock_git_require, mock_wrapper_dir, mock_wrapper):
         """Test Execute skips user configuration for mirror repos."""

@@ -18,8 +18,8 @@ from unittest import mock
 
 import pytest
 
-import error
-import project
+from kanon_cli.repo import error
+from kanon_cli.repo import project
 
 
 def _simple_project(tmp_path):

@@ -188,6 +188,25 @@ def setup_user_identity(monkeysession, scope="session"):
 
 
 # ---------------------------------------------------------------------------
+# Kanon repo root fixture
+# ---------------------------------------------------------------------------
+
+
+@pytest.fixture()
+def repo_root() -> str:
+    """Return the absolute path to the kanon repository root as a string.
+
+    This fixture provides the repository root directory to tests that need
+    to locate files relative to the project root (e.g., pyproject.toml,
+    .yamllint, tests/fixtures/).
+
+    Returns:
+        Absolute path string for the kanon repository root.
+    """
+    return str(REPO_ROOT)
+
+
+# ---------------------------------------------------------------------------
 # Fixtures loaded from tests/unit/repo/fixtures/
 # ---------------------------------------------------------------------------
 

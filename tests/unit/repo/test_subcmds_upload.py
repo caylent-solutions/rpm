@@ -20,9 +20,9 @@ from unittest import mock
 
 import pytest
 
-from error import GitError
-from error import UploadError
-from subcmds import upload
+from kanon_cli.repo.error import GitError
+from kanon_cli.repo.error import UploadError
+from kanon_cli.repo.subcmds import upload
 
 
 class UnexpectedError(Exception):
@@ -292,7 +292,7 @@ class TestUploadCommand:
         cmd = upload.Upload()
         project = mock.MagicMock()
 
-        with mock.patch("subcmds.upload.GitCommand") as mock_git:
+        with mock.patch("kanon_cli.repo.subcmds.upload.GitCommand") as mock_git:
             mock_git.return_value.stdout = "refs/heads/main"
             mock_git.return_value.Wait.return_value = None
 
@@ -341,7 +341,7 @@ class TestUploadCommand:
 
     def test_upload_exit_error_inheritance(self):
         """Test UploadExitError is a SilentRepoExitError."""
-        from error import SilentRepoExitError
+        from kanon_cli.repo.error import SilentRepoExitError
 
         err = upload.UploadExitError("test")
         assert isinstance(err, SilentRepoExitError)

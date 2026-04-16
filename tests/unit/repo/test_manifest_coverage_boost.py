@@ -22,9 +22,9 @@ from unittest import mock
 import pytest
 import xml.dom.minidom
 
-import error
-import manifest_xml
-from manifest_xml import (
+from kanon_cli.repo import error
+from kanon_cli.repo import manifest_xml
+from kanon_cli.repo.manifest_xml import (
     LOCAL_MANIFEST_GROUP_PREFIX,
     MAX_SUBMANIFEST_DEPTH,
     SUBMANIFEST_DIR,

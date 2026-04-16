@@ -19,7 +19,7 @@ from unittest import mock
 
 import pytest
 
-from subcmds import diff
+from kanon_cli.repo.subcmds import diff
 
 
 @pytest.mark.unit

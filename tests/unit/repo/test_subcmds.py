@@ -17,7 +17,7 @@
 import optparse
 import unittest
 
-import subcmds
+from kanon_cli.repo import subcmds
 
 
 class AllCommands(unittest.TestCase):

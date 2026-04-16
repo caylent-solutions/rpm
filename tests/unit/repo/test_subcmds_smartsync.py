@@ -18,7 +18,7 @@ import optparse
 
 import pytest
 
-from subcmds import smartsync
+from kanon_cli.repo.subcmds import smartsync
 
 
 @pytest.mark.unit

@@ -20,13 +20,13 @@ from unittest import mock
 
 import pytest
 
-from ssh import _get_git_protocol_version
-from ssh import _parse_ssh_version
-from ssh import _run_ssh_version
-from ssh import ProxyManager
-from ssh import URI_ALL
-from ssh import URI_SCP
-from ssh import version
+from kanon_cli.repo.ssh import _get_git_protocol_version
+from kanon_cli.repo.ssh import _parse_ssh_version
+from kanon_cli.repo.ssh import _run_ssh_version
+from kanon_cli.repo.ssh import ProxyManager
+from kanon_cli.repo.ssh import URI_ALL
+from kanon_cli.repo.ssh import URI_SCP
+from kanon_cli.repo.ssh import version
 
 
 @pytest.mark.unit
@@ -89,7 +89,7 @@ class TestVersion:
 
     def test_version_file_not_found(self):
         """Test version exits when ssh not found."""
-        with mock.patch("ssh._run_ssh_version", side_effect=FileNotFoundError()):
+        with mock.patch("kanon_cli.repo.ssh._run_ssh_version", side_effect=FileNotFoundError()):
             version.cache_clear()
             with pytest.raises(SystemExit):
                 version()
@@ -97,7 +97,7 @@ class TestVersion:
     def test_version_called_process_error(self):
         """Test version exits on CalledProcessError."""
         error = subprocess.CalledProcessError(1, "ssh", output=b"error")
-        with mock.patch("ssh._run_ssh_version", side_effect=error):
+        with mock.patch("kanon_cli.repo.ssh._run_ssh_version", side_effect=error):
             version.cache_clear()
             with pytest.raises(SystemExit):
                 version()
@@ -212,7 +212,7 @@ class TestProxyManagerSock:
         manager = multiprocessing.Manager()
         pm = ProxyManager(manager)
 
-        with mock.patch("ssh.version", return_value=(6, 8)):
+        with mock.patch("kanon_cli.repo.ssh.version", return_value=(6, 8)):
             with mock.patch("tempfile.mkdtemp", return_value="/tmp/ssh-test"):
                 sock = pm.sock(create=True)
                 assert sock is not None
@@ -231,7 +231,7 @@ class TestProxyManagerSock:
         manager = multiprocessing.Manager()
         pm = ProxyManager(manager)
 
-        with mock.patch("ssh.version", return_value=(6, 6)):
+        with mock.patch("kanon_cli.repo.ssh.version", return_value=(6, 6)):
             with mock.patch("tempfile.mkdtemp", return_value="/tmp/ssh-test"):
                 sock = pm.sock(create=True)
                 assert "%r@%h:%p" in sock
@@ -241,7 +241,7 @@ class TestProxyManagerSock:
         manager = multiprocessing.Manager()
         pm = ProxyManager(manager)
 
-        with mock.patch("ssh.version", return_value=(6, 7)):
+        with mock.patch("kanon_cli.repo.ssh.version", return_value=(6, 7)):
             with mock.patch("tempfile.mkdtemp", return_value="/tmp/ssh-test"):
                 sock = pm.sock(create=True)
                 assert "%C" in sock
@@ -368,7 +368,7 @@ class TestGetGitProtocolVersion:
         """Test getting protocol version when config key not found."""
         error = subprocess.CalledProcessError(1, "git config", stderr=b"")
         with mock.patch("subprocess.check_output", side_effect=error):
-            with mock.patch("git_command.git.version_tuple", return_value=(2, 26, 0)):
+            with mock.patch("kanon_cli.repo.git_command.git.version_tuple", return_value=(2, 26, 0)):
                 _get_git_protocol_version.cache_clear()
                 result = _get_git_protocol_version()
                 assert result == "2"
@@ -377,7 +377,7 @@ class TestGetGitProtocolVersion:
         """Test getting protocol version with old git."""
         error = subprocess.CalledProcessError(1, "git config", stderr=b"")
         with mock.patch("subprocess.check_output", side_effect=error):
-            with mock.patch("git_command.git.version_tuple", return_value=(2, 25, 0)):
+            with mock.patch("kanon_cli.repo.git_command.git.version_tuple", return_value=(2, 25, 0)):
                 _get_git_protocol_version.cache_clear()
                 result = _get_git_protocol_version()
                 assert result == "1"
@@ -403,7 +403,7 @@ class TestProxyManagerClose:
 
         with mock.patch("os.kill"):
             with mock.patch("os.waitpid"):
-                with mock.patch("platform_utils.rmdir"):
+                with mock.patch("kanon_cli.repo.platform_utils.rmdir"):
                     with mock.patch("os.path.dirname", return_value="/tmp/ssh-test"):
                         pm.close()
 
@@ -415,7 +415,7 @@ class TestProxyManagerClose:
 
         with mock.patch("os.kill", side_effect=OSError()):
             with mock.patch("os.waitpid"):
-                with mock.patch("platform_utils.rmdir", side_effect=OSError()):
+                with mock.patch("kanon_cli.repo.platform_utils.rmdir", side_effect=OSError()):
                     with mock.patch("os.path.dirname", return_value="/tmp/ssh-test"):
                         # Should not raise
                         pm.close()

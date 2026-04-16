@@ -25,8 +25,8 @@ import os
 
 import pytest
 
-import error
-import version_constraints
+from kanon_cli.repo import error
+from kanon_cli.repo import version_constraints
 
 _FIXTURES_DIR = os.path.join(os.path.dirname(__file__), "fixtures")
 

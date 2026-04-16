@@ -20,7 +20,7 @@ import unittest
 
 import pytest
 
-import git_refs
+from kanon_cli.repo import git_refs
 
 
 @pytest.mark.unit

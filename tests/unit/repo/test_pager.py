@@ -21,7 +21,7 @@ from unittest import mock
 
 import pytest
 
-import pager
+from kanon_cli.repo import pager
 
 
 @pytest.mark.unit
@@ -31,48 +31,48 @@ class RunPagerTests(unittest.TestCase):
     def test_run_pager_returns_early_if_not_tty_stdin(self):
         """RunPager should return early if stdin is not a TTY."""
         with mock.patch("os.isatty", side_effect=lambda fd: fd != 0):
-            with mock.patch("pager._SelectPager") as mock_select:
+            with mock.patch("kanon_cli.repo.pager._SelectPager") as mock_select:
                 pager.RunPager(mock.Mock())
                 mock_select.assert_not_called()
 
     def test_run_pager_returns_early_if_not_tty_stdout(self):
         """RunPager should return early if stdout is not a TTY."""
         with mock.patch("os.isatty", side_effect=lambda fd: fd != 1):
-            with mock.patch("pager._SelectPager") as mock_select:
+            with mock.patch("kanon_cli.repo.pager._SelectPager") as mock_select:
                 pager.RunPager(mock.Mock())
                 mock_select.assert_not_called()
 
     def test_run_pager_returns_early_for_empty_pager(self):
         """RunPager should return early if pager is empty string."""
         with mock.patch("os.isatty", return_value=True):
-            with mock.patch("pager._SelectPager", return_value=""):
-                with mock.patch("pager._ForkPager") as mock_fork:
+            with mock.patch("kanon_cli.repo.pager._SelectPager", return_value=""):
+                with mock.patch("kanon_cli.repo.pager._ForkPager") as mock_fork:
                     pager.RunPager(mock.Mock())
                     mock_fork.assert_not_called()
 
     def test_run_pager_returns_early_for_cat_pager(self):
         """RunPager should return early if pager is 'cat'."""
         with mock.patch("os.isatty", return_value=True):
-            with mock.patch("pager._SelectPager", return_value="cat"):
-                with mock.patch("pager._ForkPager") as mock_fork:
+            with mock.patch("kanon_cli.repo.pager._SelectPager", return_value="cat"):
+                with mock.patch("kanon_cli.repo.pager._ForkPager") as mock_fork:
                     pager.RunPager(mock.Mock())
                     mock_fork.assert_not_called()
 
     def test_run_pager_uses_pipe_pager_on_windows(self):
         """RunPager should use _PipePager on Windows."""
         with mock.patch("os.isatty", return_value=True):
-            with mock.patch("pager._SelectPager", return_value="less"):
-                with mock.patch("platform_utils.isWindows", return_value=True):
-                    with mock.patch("pager._PipePager") as mock_pipe:
+            with mock.patch("kanon_cli.repo.pager._SelectPager", return_value="less"):
+                with mock.patch("kanon_cli.repo.platform_utils.isWindows", return_value=True):
+                    with mock.patch("kanon_cli.repo.pager._PipePager") as mock_pipe:
                         pager.RunPager(mock.Mock())
                         mock_pipe.assert_called_once_with("less")
 
     def test_run_pager_uses_fork_pager_on_unix(self):
         """RunPager should use _ForkPager on Unix."""
         with mock.patch("os.isatty", return_value=True):
-            with mock.patch("pager._SelectPager", return_value="less"):
-                with mock.patch("platform_utils.isWindows", return_value=False):
-                    with mock.patch("pager._ForkPager") as mock_fork:
+            with mock.patch("kanon_cli.repo.pager._SelectPager", return_value="less"):
+                with mock.patch("kanon_cli.repo.platform_utils.isWindows", return_value=False):
+                    with mock.patch("kanon_cli.repo.pager._ForkPager") as mock_fork:
                         pager.RunPager(mock.Mock())
                         mock_fork.assert_called_once_with("less")
 
@@ -383,7 +383,7 @@ class ForkPagerTests(unittest.TestCase):
             with mock.patch("os.fork", return_value=12345):  # Parent process
                 with mock.patch("os.dup2"):
                     with mock.patch("os.close"):
-                        with mock.patch("pager._BecomePager") as mock_become:
+                        with mock.patch("kanon_cli.repo.pager._BecomePager") as mock_become:
                             pager._ForkPager("less")
                             mock_become.assert_called_once_with("less")
 

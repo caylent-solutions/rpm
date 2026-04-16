@@ -20,7 +20,7 @@ from unittest import mock
 
 import pytest
 
-import repo_trace
+from kanon_cli.repo import repo_trace
 
 
 class TraceTests(unittest.TestCase):
@@ -38,7 +38,7 @@ class TraceTests(unittest.TestCase):
         self.assertGreater(os.path.getsize(repo_trace._TRACE_FILE), first_trace_size)
 
         # Check we clear everything is the last chunk is larger than _MAX_SIZE.
-        with mock.patch("repo_trace._MAX_SIZE", 0):
+        with mock.patch("kanon_cli.repo.repo_trace._MAX_SIZE", 0):
             with repo_trace.Trace(content, first_trace=True):
                 pass
             self.assertEqual(first_trace_size, os.path.getsize(repo_trace._TRACE_FILE))
@@ -79,8 +79,8 @@ class TraceContextManagerTests(unittest.TestCase):
 
     def test_trace_enter_returns_self(self):
         """Trace.__enter__ should return self."""
-        with mock.patch("repo_trace.IsTrace", return_value=True):
-            with mock.patch("repo_trace._TRACE_FILE", "/tmp/test"):
+        with mock.patch("kanon_cli.repo.repo_trace.IsTrace", return_value=True):
+            with mock.patch("kanon_cli.repo.repo_trace._TRACE_FILE", "/tmp/test"):
                 with mock.patch("builtins.open", mock.mock_open()):
                     t = repo_trace.Trace("test")
                     result = t.__enter__()
@@ -88,8 +88,8 @@ class TraceContextManagerTests(unittest.TestCase):
 
     def test_trace_exit_returns_false(self):
         """Trace.__exit__ should return False."""
-        with mock.patch("repo_trace.IsTrace", return_value=True):
-            with mock.patch("repo_trace._TRACE_FILE", "/tmp/test"):
+        with mock.patch("kanon_cli.repo.repo_trace.IsTrace", return_value=True):
+            with mock.patch("kanon_cli.repo.repo_trace._TRACE_FILE", "/tmp/test"):
                 with mock.patch("builtins.open", mock.mock_open()):
                     t = repo_trace.Trace("test")
                     t.__enter__()
@@ -105,8 +105,8 @@ class TraceContextManagerTests(unittest.TestCase):
             call_count[0] += 1
             return "result"
 
-        with mock.patch("repo_trace.IsTrace", return_value=True):
-            with mock.patch("repo_trace._TRACE_FILE", "/tmp/test"):
+        with mock.patch("kanon_cli.repo.repo_trace.IsTrace", return_value=True):
+            with mock.patch("kanon_cli.repo.repo_trace._TRACE_FILE", "/tmp/test"):
                 with mock.patch("builtins.open", mock.mock_open()):
                     result = test_func()
                     self.assertEqual(result, "result")
@@ -114,7 +114,7 @@ class TraceContextManagerTests(unittest.TestCase):
 
     def test_trace_noop_when_disabled(self):
         """Trace should be no-op when tracing is disabled."""
-        with mock.patch("repo_trace.IsTrace", return_value=False):
+        with mock.patch("kanon_cli.repo.repo_trace.IsTrace", return_value=False):
             with mock.patch("builtins.open") as mock_open:
                 with repo_trace.Trace("test"):
                     pass
@@ -127,8 +127,8 @@ class TraceWritingTests(unittest.TestCase):
 
     def test_trace_writes_start_message(self):
         """Trace should write START message on enter."""
-        with mock.patch("repo_trace.IsTrace", return_value=True):
-            with mock.patch("repo_trace._TRACE_FILE", "/tmp/test"):
+        with mock.patch("kanon_cli.repo.repo_trace.IsTrace", return_value=True):
+            with mock.patch("kanon_cli.repo.repo_trace._TRACE_FILE", "/tmp/test"):
                 mock_file = mock.mock_open()
                 with mock.patch("builtins.open", mock_file):
                     with repo_trace.Trace("test message"):
@@ -141,8 +141,8 @@ class TraceWritingTests(unittest.TestCase):
 
     def test_trace_writes_end_message(self):
         """Trace should write END message on exit."""
-        with mock.patch("repo_trace.IsTrace", return_value=True):
-            with mock.patch("repo_trace._TRACE_FILE", "/tmp/test"):
+        with mock.patch("kanon_cli.repo.repo_trace.IsTrace", return_value=True):
+            with mock.patch("kanon_cli.repo.repo_trace._TRACE_FILE", "/tmp/test"):
                 mock_file = mock.mock_open()
                 with mock.patch("builtins.open", mock_file):
                     with repo_trace.Trace("test message"):
@@ -154,8 +154,8 @@ class TraceWritingTests(unittest.TestCase):
 
     def test_trace_includes_pid(self):
         """Trace messages should include PID."""
-        with mock.patch("repo_trace.IsTrace", return_value=True):
-            with mock.patch("repo_trace._TRACE_FILE", "/tmp/test"):
+        with mock.patch("kanon_cli.repo.repo_trace.IsTrace", return_value=True):
+            with mock.patch("kanon_cli.repo.repo_trace._TRACE_FILE", "/tmp/test"):
                 mock_file = mock.mock_open()
                 with mock.patch("builtins.open", mock_file):
                     with mock.patch("os.getpid", return_value=12345):
@@ -168,8 +168,8 @@ class TraceWritingTests(unittest.TestCase):
 
     def test_trace_formats_message(self):
         """Trace should format message with args."""
-        with mock.patch("repo_trace.IsTrace", return_value=True):
-            with mock.patch("repo_trace._TRACE_FILE", "/tmp/test"):
+        with mock.patch("kanon_cli.repo.repo_trace.IsTrace", return_value=True):
+            with mock.patch("kanon_cli.repo.repo_trace._TRACE_FILE", "/tmp/test"):
                 mock_file = mock.mock_open()
                 with mock.patch("builtins.open", mock_file):
                     with repo_trace.Trace("msg %s %d", "test", 42):
@@ -186,11 +186,11 @@ class TraceFirstTraceTests(unittest.TestCase):
 
     def test_first_trace_adds_separator(self):
         """first_trace=True should add separator to message."""
-        with mock.patch("repo_trace.IsTrace", return_value=True):
-            with mock.patch("repo_trace._TRACE_FILE", "/tmp/test"):
+        with mock.patch("kanon_cli.repo.repo_trace.IsTrace", return_value=True):
+            with mock.patch("kanon_cli.repo.repo_trace._TRACE_FILE", "/tmp/test"):
                 mock_file = mock.mock_open()
                 with mock.patch("builtins.open", mock_file):
-                    with mock.patch("repo_trace._ClearOldTraces"):
+                    with mock.patch("kanon_cli.repo.repo_trace._ClearOldTraces"):
                         with repo_trace.Trace("test", first_trace=True):
                             pass
                         handle = mock_file()
@@ -200,10 +200,10 @@ class TraceFirstTraceTests(unittest.TestCase):
 
     def test_first_trace_calls_clear_old_traces(self):
         """first_trace=True should call _ClearOldTraces."""
-        with mock.patch("repo_trace.IsTrace", return_value=True):
-            with mock.patch("repo_trace._TRACE_FILE", "/tmp/test"):
+        with mock.patch("kanon_cli.repo.repo_trace.IsTrace", return_value=True):
+            with mock.patch("kanon_cli.repo.repo_trace._TRACE_FILE", "/tmp/test"):
                 with mock.patch("builtins.open", mock.mock_open()):
-                    with mock.patch("repo_trace._ClearOldTraces") as mock_clear:
+                    with mock.patch("kanon_cli.repo.repo_trace._ClearOldTraces") as mock_clear:
                         with repo_trace.Trace("test", first_trace=True):
                             pass
                         mock_clear.assert_called_once()
@@ -215,9 +215,9 @@ class TraceToStderrTests(unittest.TestCase):
 
     def test_trace_writes_to_stderr_when_enabled(self):
         """Trace should write to stderr when _TRACE_TO_STDERR is True."""
-        with mock.patch("repo_trace.IsTrace", return_value=True):
-            with mock.patch("repo_trace._TRACE_FILE", "/tmp/test"):
-                with mock.patch("repo_trace._TRACE_TO_STDERR", True):
+        with mock.patch("kanon_cli.repo.repo_trace.IsTrace", return_value=True):
+            with mock.patch("kanon_cli.repo.repo_trace._TRACE_FILE", "/tmp/test"):
+                with mock.patch("kanon_cli.repo.repo_trace._TRACE_TO_STDERR", True):
                     with mock.patch("builtins.open", mock.mock_open()):
                         with mock.patch("builtins.print") as mock_print:
                             with repo_trace.Trace("test"):
@@ -233,9 +233,9 @@ class IsTraceTests(unittest.TestCase):
 
     def test_is_trace_returns_trace_value(self):
         """IsTrace should return _TRACE value."""
-        with mock.patch("repo_trace._TRACE", True):
+        with mock.patch("kanon_cli.repo.repo_trace._TRACE", True):
             self.assertTrue(repo_trace.IsTrace())
-        with mock.patch("repo_trace._TRACE", False):
+        with mock.patch("kanon_cli.repo.repo_trace._TRACE", False):
             self.assertFalse(repo_trace.IsTrace())
 
 
@@ -245,9 +245,9 @@ class IsTraceToStderrTests(unittest.TestCase):
 
     def test_is_trace_to_stderr_returns_value(self):
         """IsTraceToStderr should return _TRACE_TO_STDERR value."""
-        with mock.patch("repo_trace._TRACE_TO_STDERR", True):
+        with mock.patch("kanon_cli.repo.repo_trace._TRACE_TO_STDERR", True):
             self.assertTrue(repo_trace.IsTraceToStderr())
-        with mock.patch("repo_trace._TRACE_TO_STDERR", False):
+        with mock.patch("kanon_cli.repo.repo_trace._TRACE_TO_STDERR", False):
             self.assertFalse(repo_trace.IsTraceToStderr())
 
 
@@ -304,8 +304,8 @@ class ClearOldTracesTests(unittest.TestCase):
             f.write("small content\n")
             temp_file = f.name
         try:
-            with mock.patch("repo_trace._TRACE_FILE", temp_file):
-                with mock.patch("repo_trace._MAX_SIZE", 1):
+            with mock.patch("kanon_cli.repo.repo_trace._TRACE_FILE", temp_file):
+                with mock.patch("kanon_cli.repo.repo_trace._MAX_SIZE", 1):
                     # Should not raise
                     repo_trace._ClearOldTraces()
         finally:
@@ -313,7 +313,7 @@ class ClearOldTracesTests(unittest.TestCase):
 
     def test_clear_old_traces_handles_missing_file(self):
         """_ClearOldTraces should handle missing trace file."""
-        with mock.patch("repo_trace._TRACE_FILE", "/nonexistent/file"):
+        with mock.patch("kanon_cli.repo.repo_trace._TRACE_FILE", "/nonexistent/file"):
             # Should not raise
             repo_trace._ClearOldTraces()
 
@@ -327,9 +327,9 @@ class ClearOldTracesTests(unittest.TestCase):
             f.write(content * 1000)
             temp_file = f.name
         try:
-            with mock.patch("repo_trace._TRACE_FILE", temp_file):
-                with mock.patch("repo_trace._MAX_SIZE", 0.001):  # Very small limit
-                    with mock.patch("platform_utils.rename"):
+            with mock.patch("kanon_cli.repo.repo_trace._TRACE_FILE", temp_file):
+                with mock.patch("kanon_cli.repo.repo_trace._MAX_SIZE", 0.001):  # Very small limit
+                    with mock.patch("kanon_cli.repo.platform_utils.rename"):
                         repo_trace._ClearOldTraces()
         finally:
             os.remove(temp_file)

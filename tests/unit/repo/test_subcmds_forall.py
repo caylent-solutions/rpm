@@ -24,10 +24,10 @@ from unittest import mock
 
 import pytest
 
-import git_command
-import manifest_xml
-import project
-import subcmds
+from kanon_cli.repo import git_command
+from kanon_cli.repo import manifest_xml
+from kanon_cli.repo import project
+from kanon_cli.repo import subcmds
 
 
 class AllCommands(unittest.TestCase):
@@ -150,7 +150,7 @@ class CmdOptionTests(unittest.TestCase):
 
     def test_cmd_option_fallback_to_command(self):
         """When option.dest is None/empty, should fall back to 'command'."""
-        from subcmds.forall import Forall
+        from kanon_cli.repo.subcmds.forall import Forall
 
         mock_option = unittest.mock.MagicMock()
         mock_option.dest = None
@@ -167,7 +167,7 @@ class CmdOptionTests(unittest.TestCase):
 
     def test_cmd_option_uses_explicit_dest(self):
         """When option.dest is set, should use it."""
-        from subcmds.forall import Forall
+        from kanon_cli.repo.subcmds.forall import Forall
 
         mock_option = unittest.mock.MagicMock()
         mock_option.dest = "my_command"
@@ -187,7 +187,7 @@ class TestForallOptions:
 
     def test_options_setup(self):
         """Verify Forall command option parser is set up correctly."""
-        from subcmds.forall import Forall
+        from kanon_cli.repo.subcmds.forall import Forall
 
         cmd = Forall()
         opts, args = cmd.OptionParser.parse_args(["-c", "echo"])
@@ -198,7 +198,7 @@ class TestForallOptions:
 
     def test_options_with_command(self):
         """Test parsing -c option."""
-        from subcmds.forall import Forall
+        from kanon_cli.repo.subcmds.forall import Forall
 
         cmd = Forall()
         opts, args = cmd.OptionParser.parse_args(["-c", "git", "status"])
@@ -206,7 +206,7 @@ class TestForallOptions:
 
     def test_options_with_regex(self):
         """Test parsing -r option."""
-        from subcmds.forall import Forall
+        from kanon_cli.repo.subcmds.forall import Forall
 
         cmd = Forall()
         opts, args = cmd.OptionParser.parse_args(["-r", "-c", "echo", "path.*"])
@@ -215,7 +215,7 @@ class TestForallOptions:
 
     def test_options_with_inverse_regex(self):
         """Test parsing -i option."""
-        from subcmds.forall import Forall
+        from kanon_cli.repo.subcmds.forall import Forall
 
         cmd = Forall()
         opts, args = cmd.OptionParser.parse_args(["-i", "-c", "echo", "test"])
@@ -224,7 +224,7 @@ class TestForallOptions:
 
     def test_options_project_header(self):
         """Test parsing -p option."""
-        from subcmds.forall import Forall
+        from kanon_cli.repo.subcmds.forall import Forall
 
         cmd = Forall()
         opts, args = cmd.OptionParser.parse_args(["-p", "-c", "echo"])
@@ -232,7 +232,7 @@ class TestForallOptions:
 
     def test_options_verbose(self):
         """Test parsing -v option sets output_mode."""
-        from subcmds.forall import Forall
+        from kanon_cli.repo.subcmds.forall import Forall
 
         cmd = Forall()
         opts, args = cmd.OptionParser.parse_args(["-v", "-c", "echo"])
@@ -241,7 +241,7 @@ class TestForallOptions:
 
     def test_options_abort_on_errors(self):
         """Test parsing -e option."""
-        from subcmds.forall import Forall
+        from kanon_cli.repo.subcmds.forall import Forall
 
         cmd = Forall()
         opts, args = cmd.OptionParser.parse_args(["-e", "-c", "echo"])
@@ -254,8 +254,8 @@ class TestForallValidateOptions:
 
     def test_validate_options_no_command_fails(self):
         """Test ValidateOptions fails when no command specified."""
-        from subcmds.forall import Forall
-        from command import UsageError
+        from kanon_cli.repo.subcmds.forall import Forall
+        from kanon_cli.repo.command import UsageError
 
         cmd = Forall()
         opts, args = cmd.OptionParser.parse_args([])
@@ -267,7 +267,7 @@ class TestForallValidateOptions:
 
     def test_validate_options_with_command_passes(self):
         """Test ValidateOptions passes with valid command."""
-        from subcmds.forall import Forall
+        from kanon_cli.repo.subcmds.forall import Forall
 
         cmd = Forall()
         opts, args = cmd.OptionParser.parse_args(["-c", "echo", "test"])
@@ -277,7 +277,7 @@ class TestForallValidateOptions:
 
     def test_validate_options_interactive_sets_jobs(self):
         """Test ValidateOptions with interactive option."""
-        from subcmds.forall import Forall
+        from kanon_cli.repo.subcmds.forall import Forall
 
         cmd = Forall()
         opts, args = cmd.OptionParser.parse_args(["--interactive", "-c", "echo"])
@@ -292,7 +292,7 @@ class TestForallWantPager:
 
     def test_want_pager_with_project_header(self):
         """Test WantPager with project header option."""
-        from subcmds.forall import Forall
+        from kanon_cli.repo.subcmds.forall import Forall
 
         cmd = Forall()
         opts, args = cmd.OptionParser.parse_args(["-p", "-c", "echo"])
@@ -304,7 +304,7 @@ class TestForallWantPager:
 
     def test_want_pager_without_project_header(self):
         """Test WantPager without project header option."""
-        from subcmds.forall import Forall
+        from kanon_cli.repo.subcmds.forall import Forall
 
         cmd = Forall()
         opts, args = cmd.OptionParser.parse_args(["-c", "echo"])
@@ -321,7 +321,7 @@ class TestForallColoring:
 
     def test_forall_coloring_init(self):
         """Test ForallColoring initializes correctly."""
-        from subcmds.forall import ForallColoring
+        from kanon_cli.repo.subcmds.forall import ForallColoring
 
         config = mock.MagicMock()
         coloring = ForallColoring(config)
@@ -336,27 +336,27 @@ class TestForallCommand:
 
     def test_common_flag(self):
         """Test Forall command is not marked as COMMON."""
-        from subcmds.forall import Forall
+        from kanon_cli.repo.subcmds.forall import Forall
 
         assert Forall.COMMON is False
 
     def test_help_summary(self):
         """Test Forall command has help summary."""
-        from subcmds.forall import Forall
+        from kanon_cli.repo.subcmds.forall import Forall
 
         assert Forall.helpSummary is not None
         assert len(Forall.helpSummary) > 0
 
     def test_help_usage(self):
         """Test Forall command has help usage."""
-        from subcmds.forall import Forall
+        from kanon_cli.repo.subcmds.forall import Forall
 
         assert Forall.helpUsage is not None
         assert "-c" in Forall.helpUsage
 
     def test_mirror_safe_command(self):
         """Test Forall is a MirrorSafeCommand."""
-        from subcmds.forall import Forall
-        from command import MirrorSafeCommand
+        from kanon_cli.repo.subcmds.forall import Forall
+        from kanon_cli.repo.command import MirrorSafeCommand
 
         assert issubclass(Forall, MirrorSafeCommand)

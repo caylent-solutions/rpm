@@ -16,8 +16,8 @@
 
 import pytest
 
-import error
-import manifest_xml
+from kanon_cli.repo import error
+from kanon_cli.repo import manifest_xml
 
 
 @pytest.mark.unit

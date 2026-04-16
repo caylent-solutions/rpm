@@ -18,8 +18,8 @@ from unittest import mock
 
 import pytest
 
-from error import GitError
-from subcmds.cherry_pick import CherryPick, CHANGE_ID_RE
+from kanon_cli.repo.error import GitError
+from kanon_cli.repo.subcmds.cherry_pick import CherryPick, CHANGE_ID_RE
 
 
 def _make_cmd():
@@ -151,7 +151,7 @@ class TestCherryPickCommand:
         assert "(cherry picked from commit abc123)" in result
 
     @pytest.mark.unit
-    @mock.patch("subcmds.cherry_pick.GitCommand")
+    @mock.patch("kanon_cli.repo.subcmds.cherry_pick.GitCommand")
     def test_execute_rev_parse_failure(self, mock_git_command):
         """Test Execute with rev-parse failure."""
         cmd = _make_cmd()
@@ -166,7 +166,7 @@ class TestCherryPickCommand:
             cmd.Execute(opt, ["invalid-ref"])
 
     @pytest.mark.unit
-    @mock.patch("subcmds.cherry_pick.GitCommand")
+    @mock.patch("kanon_cli.repo.subcmds.cherry_pick.GitCommand")
     def test_execute_cat_file_failure(self, mock_git_command):
         """Test Execute with cat-file failure."""
         cmd = _make_cmd()
@@ -185,7 +185,7 @@ class TestCherryPickCommand:
             cmd.Execute(opt, ["abc123"])
 
     @pytest.mark.unit
-    @mock.patch("subcmds.cherry_pick.GitCommand")
+    @mock.patch("kanon_cli.repo.subcmds.cherry_pick.GitCommand")
     def test_execute_cherry_pick_failure(self, mock_git_command):
         """Test Execute with cherry-pick failure."""
         cmd = _make_cmd()
@@ -212,7 +212,7 @@ class TestCherryPickCommand:
             cmd.Execute(opt, ["abc123"])
 
     @pytest.mark.unit
-    @mock.patch("subcmds.cherry_pick.GitCommand")
+    @mock.patch("kanon_cli.repo.subcmds.cherry_pick.GitCommand")
     def test_execute_commit_amend_failure(self, mock_git_command):
         """Test Execute with commit amend failure."""
         cmd = _make_cmd()
@@ -245,7 +245,7 @@ class TestCherryPickCommand:
             cmd.Execute(opt, ["abc123"])
 
     @pytest.mark.unit
-    @mock.patch("subcmds.cherry_pick.GitCommand")
+    @mock.patch("kanon_cli.repo.subcmds.cherry_pick.GitCommand")
     def test_execute_success(self, mock_git_command):
         """Test Execute with successful cherry-pick."""
         cmd = _make_cmd()
@@ -277,7 +277,7 @@ class TestCherryPickCommand:
         cmd.Execute(opt, ["abc123"])
 
     @pytest.mark.unit
-    @mock.patch("subcmds.cherry_pick.GitCommand")
+    @mock.patch("kanon_cli.repo.subcmds.cherry_pick.GitCommand")
     def test_execute_with_stderr_output(self, mock_git_command):
         """Test Execute prints stderr output."""
         cmd = _make_cmd()

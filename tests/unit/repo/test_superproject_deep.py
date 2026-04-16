@@ -18,11 +18,11 @@ from unittest import mock
 
 import pytest
 
-from git_superproject import _UseSuperprojectFromConfiguration
-from git_superproject import CommitIdsResult
-from git_superproject import PrintMessages
-from git_superproject import Superproject
-from git_superproject import UseSuperproject
+from kanon_cli.repo.git_superproject import _UseSuperprojectFromConfiguration
+from kanon_cli.repo.git_superproject import CommitIdsResult
+from kanon_cli.repo.git_superproject import PrintMessages
+from kanon_cli.repo.git_superproject import Superproject
+from kanon_cli.repo.git_superproject import UseSuperproject
 
 
 @pytest.mark.unit
@@ -81,7 +81,7 @@ class TestSuperprojectProperties:
 
         sp = Superproject(manifest, "test-super", remote, "main")
 
-        with mock.patch("git_superproject.GitCommand") as mock_git:
+        with mock.patch("kanon_cli.repo.git_superproject.GitCommand") as mock_git:
             mock_process = mock.Mock()
             mock_process.stdout = "abc123def456"
             mock_process.Wait.return_value = 0
@@ -104,7 +104,7 @@ class TestSuperprojectProperties:
         sp = Superproject(manifest, "test-super", remote, "main")
         sp._LogWarning = mock.Mock()
 
-        with mock.patch("git_superproject.GitCommand") as mock_git:
+        with mock.patch("kanon_cli.repo.git_superproject.GitCommand") as mock_git:
             mock_process = mock.Mock()
             mock_process.Wait.return_value = 1
             mock_process.stderr = "error message"
@@ -159,7 +159,7 @@ class TestSuperprojectProperties:
 
         sp = Superproject(manifest, "test-super", remote, "main")
 
-        with mock.patch("git_superproject.GitRefs") as mock_refs:
+        with mock.patch("kanon_cli.repo.git_superproject.GitRefs") as mock_refs:
             mock_refs.return_value.get.return_value = "commit123"
             result = sp.repo_id
             assert "android" in result
@@ -219,7 +219,7 @@ class TestSuperprojectInitMethod:
 
         with mock.patch("os.path.exists", return_value=False):
             with mock.patch("os.mkdir"):
-                with mock.patch("git_superproject.GitCommand") as mock_git:
+                with mock.patch("kanon_cli.repo.git_superproject.GitCommand") as mock_git:
                     mock_process = mock.Mock()
                     mock_process.Wait.return_value = 0
                     mock_git.return_value = mock_process
@@ -243,7 +243,7 @@ class TestSuperprojectInitMethod:
         sp._LogWarning = mock.Mock()
 
         with mock.patch("os.path.exists", return_value=True):
-            with mock.patch("git_superproject.GitCommand") as mock_git:
+            with mock.patch("kanon_cli.repo.git_superproject.GitCommand") as mock_git:
                 mock_process = mock.Mock()
                 mock_process.Wait.return_value = 1
                 mock_process.stderr = "init failed"
@@ -267,7 +267,7 @@ class TestSuperprojectInitMethod:
         sp._quiet = True
 
         with mock.patch("os.path.exists", side_effect=[True, True]):
-            with mock.patch("git_superproject.GitCommand") as mock_git:
+            with mock.patch("kanon_cli.repo.git_superproject.GitCommand") as mock_git:
                 mock_process = mock.Mock()
                 mock_process.Wait.return_value = 0
                 mock_git.return_value = mock_process
@@ -294,10 +294,10 @@ class TestSuperprojectFetch:
         sp = Superproject(manifest, "test-super", remote, "main")
 
         with mock.patch("os.path.exists", return_value=True):
-            with mock.patch("git_superproject.git_require", return_value=True):
-                with mock.patch("git_superproject.GitRefs") as mock_refs:
+            with mock.patch("kanon_cli.repo.git_superproject.git_require", return_value=True):
+                with mock.patch("kanon_cli.repo.git_superproject.GitRefs") as mock_refs:
                     mock_refs.return_value.get.return_value = "oldcommit"
-                    with mock.patch("git_superproject.GitCommand") as mock_git:
+                    with mock.patch("kanon_cli.repo.git_superproject.GitCommand") as mock_git:
                         mock_process = mock.Mock()
                         mock_process.Wait.return_value = 0
                         mock_git.return_value = mock_process
@@ -338,7 +338,7 @@ class TestSuperprojectFetch:
         sp._LogWarning = mock.Mock()
 
         with mock.patch("os.path.exists", return_value=True):
-            with mock.patch("git_superproject.git_require", return_value=False):
+            with mock.patch("kanon_cli.repo.git_superproject.git_require", return_value=False):
                 result = sp._Fetch()
                 assert result is False
 
@@ -357,10 +357,10 @@ class TestSuperprojectFetch:
         sp._LogWarning = mock.Mock()
 
         with mock.patch("os.path.exists", return_value=True):
-            with mock.patch("git_superproject.git_require", return_value=True):
-                with mock.patch("git_superproject.GitRefs") as mock_refs:
+            with mock.patch("kanon_cli.repo.git_superproject.git_require", return_value=True):
+                with mock.patch("kanon_cli.repo.git_superproject.GitRefs") as mock_refs:
                     mock_refs.return_value.get.return_value = None
-                    with mock.patch("git_superproject.GitCommand") as mock_git:
+                    with mock.patch("kanon_cli.repo.git_superproject.GitCommand") as mock_git:
                         mock_process = mock.Mock()
                         mock_process.Wait.return_value = 1
                         mock_process.stderr = "fetch failed"
@@ -390,7 +390,7 @@ class TestSuperprojectLsTree:
         ls_output = "160000 commit abc123\tproject1\x00"
 
         with mock.patch("os.path.exists", return_value=True):
-            with mock.patch("git_superproject.GitCommand") as mock_git:
+            with mock.patch("kanon_cli.repo.git_superproject.GitCommand") as mock_git:
                 mock_process = mock.Mock()
                 mock_process.Wait.return_value = 0
                 mock_process.stdout = ls_output
@@ -432,7 +432,7 @@ class TestSuperprojectLsTree:
         sp._LogWarning = mock.Mock()
 
         with mock.patch("os.path.exists", return_value=True):
-            with mock.patch("git_superproject.GitCommand") as mock_git:
+            with mock.patch("kanon_cli.repo.git_superproject.GitCommand") as mock_git:
                 mock_process = mock.Mock()
                 mock_process.Wait.return_value = 1
                 mock_process.stderr = "ls-tree failed"
@@ -829,7 +829,7 @@ class TestUseSuperprojectFromConfiguration:
 
     def test_user_value_not_expired(self):
         """Test with user value that is not expired."""
-        with mock.patch("git_superproject.RepoConfig") as mock_config:
+        with mock.patch("kanon_cli.repo.git_superproject.RepoConfig") as mock_config:
             user_cfg = mock.Mock()
             user_cfg.GetBoolean.return_value = True
             user_cfg.GetInt.return_value = 9999999999
@@ -843,7 +843,7 @@ class TestUseSuperprojectFromConfiguration:
 
     def test_system_value_true(self):
         """Test with system value set to true."""
-        with mock.patch("git_superproject.RepoConfig") as mock_config:
+        with mock.patch("kanon_cli.repo.git_superproject.RepoConfig") as mock_config:
             user_cfg = mock.Mock()
             user_cfg.GetBoolean.return_value = None
             user_cfg.SetString = mock.Mock()
@@ -923,7 +923,7 @@ class TestUseSuperproject:
         manifest.manifestProject.use_superproject = None
 
         with mock.patch(
-            "git_superproject._UseSuperprojectFromConfiguration",
+            "kanon_cli.repo.git_superproject._UseSuperprojectFromConfiguration",
             return_value=True,
         ):
             result = UseSuperproject(None, manifest)
