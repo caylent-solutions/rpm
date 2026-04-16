@@ -30,3 +30,7 @@ KANONENV_FILENAME = ".kanon"
 
 # -- Embedded repo tool --
 REPO_RESTART_RETRIES_DEFAULT = 3
+
+# -- Repo CLI --
+KANON_REPO_DIR_ENV = "KANON_REPO_DIR"
+KANONENV_REPO_DIR_DEFAULT = ".repo"
