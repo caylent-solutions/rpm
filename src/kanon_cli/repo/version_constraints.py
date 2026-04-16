@@ -14,9 +14,10 @@
 
 """PEP 440 version constraint detection and resolution.
 
-Provides functions to detect PEP 440 constraint syntax in revision strings
-and resolve constraints against available tags to find the highest matching
-version.
+Thin wrapper delegating all version constraint logic to ``kanon_cli.version``,
+which is the canonical implementation. This module preserves the function
+signatures required by the repo module (``is_version_constraint``,
+``resolve_version_constraint``) while eliminating duplicate logic.
 
 Pre-release version behavior:
     By default, PEP 440 constraint specifiers (such as >=1.0.0 or ~=2.0.0)
@@ -33,19 +34,15 @@ Spec references:
   resolve_version_constraint.
 """
 
-from packaging.specifiers import InvalidSpecifier, SpecifierSet
-from packaging.version import InvalidVersion, Version
+from kanon_cli import version as kanon_version
 
 from . import error
-
-# PEP 440 constraint operators that can appear at the start of a version
-# specifier. Order matters: two-character operators must be checked before
-# single-character operators to avoid partial matches.
-_PEP440_OPERATORS = ("~=", ">=", "<=", "!=", "==", ">", "<")
 
 
 def is_version_constraint(revision):
     """Detect PEP 440 constraint syntax in the last path component.
+
+    Delegates to ``kanon_cli.version.is_version_constraint``.
 
     Examines the last path component of a revision string and returns True
     when it contains PEP 440 constraint operators (~=, >=, <, <=, >, !=,
@@ -59,27 +56,14 @@ def is_version_constraint(revision):
         True if the last path component contains PEP 440 constraint syntax,
         False otherwise.
     """
-    last_component = revision.rsplit("/", 1)[-1]
-
-    # Wildcard is a constraint.
-    if last_component == "*":
-        return True
-
-    # Check for PEP 440 operators.
-    for op in _PEP440_OPERATORS:
-        if last_component.startswith(op):
-            return True
-
-    # Range constraints contain commas with operators (e.g., ">=1.0.0,<2.0.0").
-    if "," in last_component:
-        parts = last_component.split(",")
-        return any(part.lstrip().startswith(op) for part in parts for op in _PEP440_OPERATORS)
-
-    return False
+    return kanon_version.is_version_constraint(revision)
 
 
 def resolve_version_constraint(revision, available_tags):
     """Resolve a PEP 440 version constraint to the highest matching tag.
+
+    Delegates to ``kanon_cli.version._resolve_constraint_from_tags``,
+    converting ``ValueError`` to ``error.ManifestInvalidRevisionError``.
 
     Splits the revision into a prefix and constraint, filters available tags
     by the prefix, parses version suffixes with packaging.version.Version,
@@ -101,35 +85,7 @@ def resolve_version_constraint(revision, available_tags):
         error.ManifestInvalidRevisionError: If no available tag matches
             the constraint.
     """
-    # Split revision into prefix and constraint at the last '/'.
-    prefix, constraint_str = revision.rsplit("/", 1)
-
-    # Build the specifier. Wildcard matches all versions.
-    if constraint_str == "*":
-        specifier = SpecifierSet()
-    else:
-        try:
-            specifier = SpecifierSet(constraint_str)
-        except InvalidSpecifier:
-            raise error.ManifestInvalidRevisionError(f"invalid version constraint: {constraint_str}")
-
-    # Filter tags by prefix and parse their version suffixes.
-    tag_prefix = prefix + "/"
-    candidates = []
-    for tag in available_tags:
-        if not tag.startswith(tag_prefix):
-            continue
-        version_str = tag[len(tag_prefix) :]
-        try:
-            version = Version(version_str)
-        except InvalidVersion:
-            continue
-        if version in specifier:
-            candidates.append((version, tag))
-
-    if not candidates:
-        raise error.ManifestInvalidRevisionError(f"no tags match constraint '{constraint_str}' under '{prefix}'")
-
-    # Return the tag with the highest matching version.
-    candidates.sort(key=lambda pair: pair[0])
-    return candidates[-1][1]
+    try:
+        return kanon_version._resolve_constraint_from_tags(revision, available_tags)
+    except ValueError as exc:
+        raise error.ManifestInvalidRevisionError(str(exc)) from exc

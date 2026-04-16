@@ -1598,6 +1598,10 @@ class Project:
         without making any additional network requests. The flag is reset to
         False when revisionExpr is changed via SetRevision().
 
+        Constraint detection and resolution are delegated to
+        ``version_constraints``, which is a thin wrapper around the canonical
+        implementation in ``kanon_cli.version``.
+
         git ls-remote is retried up to KANON_GIT_RETRY_COUNT times on transient
         failures with exponential backoff. Authentication errors are not retried.
 
