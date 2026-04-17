@@ -151,9 +151,6 @@ if not REPO_REV:
 # URL to file bug reports for repo tool issues.
 BUG_URL = "https://github.com/caylent-solutions/rpm-git-repo/issues"
 
-# increment this whenever we make important changes to this script
-VERSION = (2, 54)
-
 # increment this if the MAINTAINER_KEYS block is modified
 KEYRING_VERSION = (2, 3)
 
@@ -1258,9 +1255,6 @@ class Requirements:
 
     def assert_all(self):
         """Assert all of the requirements are satisified."""
-        # See if we need a repo launcher upgrade first.
-        self.assert_ver("repo", VERSION)
-
         # Check python before we try to import the repo code.
         self.assert_ver("python", sys.version_info)
 
@@ -1308,7 +1302,6 @@ def _Version():
     """Show version information."""
     git_version = ParseGitVersion()
     print("<repo not installed>")
-    print(f"repo launcher version {'.'.join(str(x) for x in VERSION)}")
     print(f"       (from {__file__})")
     print(f"git {git_version.full}" if git_version else "git not installed")
     print(f"Python {sys.version}")
@@ -1435,13 +1428,10 @@ def main(orig_args):
     new_python_paths = [os.path.join(rel_repo_dir, S_repo)] + python_paths
     os.environ["PYTHONPATH"] = os.pathsep.join(new_python_paths)
 
-    ver_str = ".".join(map(str, VERSION))
     me = [
         sys.executable,
         repo_main,
         "--repo-dir=%s" % rel_repo_dir,
-        "--wrapper-version=%s" % ver_str,
-        "--wrapper-path=%s" % wrapper_path,
         "--",
     ]
     me.extend(orig_args)

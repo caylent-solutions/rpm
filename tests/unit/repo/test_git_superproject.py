@@ -140,7 +140,6 @@ class SuperprojectTestCase(unittest.TestCase):
         )
         self.assertIsNone(manifest.superproject)
 
-    @pytest.mark.skip_cq("TODO(b/266734831): Find out why this takes 8m+ in CQ")
     def test_superproject_get_superproject_invalid_url(self):
         """Test with an invalid url."""
         manifest = self.getXmlManifest(
@@ -162,7 +161,6 @@ class SuperprojectTestCase(unittest.TestCase):
         self.assertFalse(sync_result.success)
         self.assertTrue(sync_result.fatal)
 
-    @pytest.mark.skip_cq("TODO(b/266734831): Find out why this takes 8m+ in CQ")
     def test_superproject_get_superproject_invalid_branch(self):
         """Test with an invalid branch."""
         manifest = self.getXmlManifest(

@@ -22,7 +22,7 @@ from .error import HookError
 from .git_refs import HEAD
 
 
-# The API we've documented to hook authors.  Keep in sync with repo-hooks.md.
+# The API we've documented to hook authors. Keep in sync with docs/repo/repo-hooks.md.
 _API_ARGS = {
     "pre-upload": {"project_list", "worktree_list"},
     "post-sync": {"repo_topdir"},

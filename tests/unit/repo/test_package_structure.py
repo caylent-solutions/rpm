@@ -16,7 +16,6 @@ SRC_KANON_CLI = REPO_ROOT / "src" / "kanon_cli"
         "repo",
         "repo/subcmds",
         "repo/hooks",
-        "repo/docs",
     ],
 )
 def test_repo_package_structure_exists(directory: str) -> None:

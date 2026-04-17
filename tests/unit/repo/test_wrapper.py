@@ -48,14 +48,16 @@ class RepoWrapperUnitTest(RepoWrapperTestCase):
     """Tests helper functions in the repo wrapper"""
 
     def test_version(self):
-        """Make sure _Version works."""
+        """_Version() must exit cleanly and print environment metadata."""
         with self.assertRaises(SystemExit) as e:
             with mock.patch("sys.stdout", new_callable=io.StringIO) as stdout:
                 with mock.patch("sys.stderr", new_callable=io.StringIO) as stderr:
                     self.wrapper._Version()
         self.assertEqual(0, e.exception.code)
         self.assertEqual("", stderr.getvalue())
-        self.assertIn("repo launcher version", stdout.getvalue())
+        output = stdout.getvalue()
+        self.assertIn("Python", output)
+        self.assertIn("OS", output)
 
     def test_python_constraints(self):
         """The launcher should never require newer than main.py."""
@@ -234,17 +236,6 @@ class Requirements(RepoWrapperTestCase):
         """Check assert_all works with incompatible file."""
         reqs = self.wrapper.Requirements({})
         reqs.assert_all()
-
-    def test_assert_all_new_repo(self):
-        """Check assert_all accepts new enough repo."""
-        reqs = self.wrapper.Requirements({"repo": {"hard": [1, 0]}})
-        reqs.assert_all()
-
-    def test_assert_all_old_repo(self):
-        """Check assert_all rejects old repo."""
-        reqs = self.wrapper.Requirements({"repo": {"hard": [99999, 0]}})
-        with self.assertRaises(SystemExit):
-            reqs.assert_all()
 
     def test_assert_all_new_python(self):
         """Check assert_all accepts new enough python."""
@@ -516,38 +507,6 @@ class CheckRepoRev(GitCheckoutTestCase):
             rrev, lrev = self.wrapper.check_repo_rev(self.GIT_DIR, "stable", repo_verify=False)
         self.assertEqual("refs/heads/stable", rrev)
         self.assertEqual(self.REV_LIST[1], lrev)
-
-
-@pytest.mark.unit
-class TestMainEntryPoint:
-    """Verify the pipx/pip console_scripts entry point."""
-
-    def test_main_is_callable(self):
-        """main() must exist and be callable so pipx can install it."""
-        assert callable(main.main)
-
-    def test_main_injects_required_args(self):
-        """main() must inject --repo-dir, --wrapper-version, and --wrapper-path."""
-        with mock.patch("kanon_cli.repo.main._Main") as mock_Main:
-            with mock.patch("kanon_cli.repo.main._FindRepoDir", return_value="/fake/.repo"):
-                with mock.patch("sys.argv", ["repo", "version"]):
-                    main.main()
-        args = mock_Main.call_args[0][0]
-        assert any(a.startswith("--repo-dir=") for a in args)
-        assert any(a.startswith("--wrapper-version=") for a in args)
-        assert any(a.startswith("--wrapper-path=") for a in args)
-        assert "--" in args
-        assert "version" in args
-
-    def test_main_appends_user_args(self):
-        """main() must pass user argv after the injected sentinel --."""
-        with mock.patch("kanon_cli.repo.main._Main") as mock_Main:
-            with mock.patch("kanon_cli.repo.main._FindRepoDir", return_value="/fake/.repo"):
-                with mock.patch("sys.argv", ["repo", "init", "-u", "http://x"]):
-                    main.main()
-        args = mock_Main.call_args[0][0]
-        sep = args.index("--")
-        assert args[sep + 1 :] == ["init", "-u", "http://x"]
 
 
 @pytest.mark.unit

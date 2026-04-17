@@ -279,9 +279,6 @@ class TestLinkFile:
 
     def test_linkfile_simple_link(self, tmp_path):
         """Test creating a simple symlink."""
-        if not hasattr(os, "symlink"):
-            pytest.skip("Platform does not support symlinks")
-
         git_worktree = tmp_path / "git"
         git_worktree.mkdir()
         src_file = git_worktree / "source.txt"
@@ -298,9 +295,6 @@ class TestLinkFile:
 
     def test_linkfile_dot_source(self, tmp_path):
         """Test linking with . as source."""
-        if not hasattr(os, "symlink"):
-            pytest.skip("Platform does not support symlinks")
-
         git_worktree = tmp_path / "git"
         git_worktree.mkdir()
 
@@ -315,9 +309,6 @@ class TestLinkFile:
 
     def test_linkfile_absolute_dest(self, tmp_path):
         """Test linking with absolute destination."""
-        if not hasattr(os, "symlink"):
-            pytest.skip("Platform does not support symlinks")
-
         git_worktree = tmp_path / "git"
         git_worktree.mkdir()
         src_file = git_worktree / "source.txt"

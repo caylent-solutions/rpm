@@ -1,10 +1,11 @@
-"""Import smoke tests for all 53 kanon_cli.repo modules.
+"""Import smoke tests for kanon_cli.repo modules.
 
-Each test attempts to import a specific module from the kanon_cli.repo package.
-All tests are marked xfail because the copied source files still use their
-original relative imports (e.g., ``import command`` instead of
-``from kanon_cli.repo import command``). These tests define the target state
-for Sprint 2: every module must be importable from the kanon_cli.repo namespace.
+Each test imports a specific module from the kanon_cli.repo package and
+asserts it resolves to the expected fully-qualified name. Platform-specific
+modules (``platform_utils_win32``) are exercised by a separate Windows-only
+test module when the test environment supports them; they are not listed
+here because this suite runs on the Linux development environment where
+those modules cannot be imported.
 """
 
 import importlib
@@ -29,7 +30,6 @@ ROOT_MODULES = [
     "manifest_xml",
     "pager",
     "platform_utils",
-    "platform_utils_win32",
     "progress",
     "project",
     "repo_logging",
@@ -67,12 +67,10 @@ SUBCMD_MODULES = [
     "subcmds.status",
     "subcmds.sync",
     "subcmds.upload",
-    "subcmds.version",
 ]
 
 
 @pytest.mark.unit
-@pytest.mark.xfail(reason="imports not yet fixed -- Sprint 2 T3/T4/T5 will resolve broken relative imports")
 @pytest.mark.parametrize("module_suffix", ROOT_MODULES)
 def test_root_module_import(module_suffix: str) -> None:
     """Verify kanon_cli.repo.<module> is importable for each root module.
@@ -87,7 +85,6 @@ def test_root_module_import(module_suffix: str) -> None:
 
 
 @pytest.mark.unit
-@pytest.mark.xfail(reason="imports not yet fixed -- Sprint 2 T2/T3/T4/T5 will resolve broken relative imports")
 @pytest.mark.parametrize("module_suffix", SUBCMD_MODULES)
 def test_subcmd_module_import(module_suffix: str) -> None:
     """Verify kanon_cli.repo.<module> is importable for each subcmd module.

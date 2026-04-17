@@ -1,4 +1,4 @@
-"""Package for the embedded repo tool.
+"""Kanon repo subsystem -- manifest-driven sync of git projects.
 
 Public API
 ----------
@@ -129,7 +129,7 @@ def repo_envsubst(repo_dir: str, env_vars: dict[str, str]) -> None:
 
     Substitutes ${VAR} placeholders in all XML files under
     <repo_dir>/.repo/manifests/ using the supplied env_vars dict. The
-    substitution is delegated to the embedded ``repo envsubst`` subcommand.
+    substitution is delegated to the ``envsubst`` repo subcommand.
 
     Fails fast if repo_dir does not contain a .repo/ subdirectory -- this
     indicates repo init has not been run in repo_dir and the envsubst command

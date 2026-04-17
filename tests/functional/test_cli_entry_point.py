@@ -141,8 +141,3 @@ class TestKanonRepo:
         result = _run_kanon("repo", "--help")
         assert result.returncode == 0
         assert len(result.stdout) > 0
-
-    def test_repo_version_exits_zero(self) -> None:
-        """'kanon repo version' must exit with code 0."""
-        result = _run_kanon("repo", "version")
-        assert result.returncode == 0

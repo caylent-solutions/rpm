@@ -367,10 +367,10 @@ def test_output_multiple_manifests():
 
 @pytest.mark.unit
 def test_help_description_property():
-    """Test helpDescription property loads manifest-format.md."""
+    """helpDescription property returns the base description plus a pointer to docs/repo/manifest-format.md."""
     cmd = _make_cmd()
+    desc = cmd.helpDescription
 
-    with mock.patch("builtins.open", mock.mock_open(read_data="# Format\nDetails")):
-        desc = cmd.helpDescription
-
-        assert "# Format" in desc or "Details" in desc
+    assert "docs/repo/manifest-format.md" in desc, (
+        f"helpDescription must reference the docs/repo/manifest-format.md reference, got:\n{desc!r}"
+    )

@@ -2,18 +2,17 @@
 
 Technical deep-dive into Kanon internals. For a high-level overview, see the [README](../README.md).
 
-Kanon uses an embedded fork of the Gerrit repo tool to orchestrate dependencies. The repo tool
-is a Python package (`kanon_cli.repo`) shipped inside the kanon distribution -- there is no
-separate installation step. All repo operations invoke `kanon_cli.repo` directly as Python API
-calls; no external binaries are invoked and no PATH lookups are performed.
+Kanon's `kanon_cli.repo` subsystem orchestrates dependencies across git repositories using a
+manifest-driven sync. All repo operations are in-process Python API calls -- no external
+binaries are invoked and no PATH lookups are performed.
 
 ## Package Structure
 
-The repo tool is embedded as a sub-package of `kanon_cli`:
+The `kanon_cli.repo` subsystem is structured as:
 
 ```
 kanon_cli/
-  repo/           # Embedded repo tool (fork of Gerrit repo)
+  repo/           # kanon repo subsystem
     __init__.py   # Public Python API: repo_init, repo_envsubst, repo_sync, repo_run
     main.py       # Core run_from_args() entry point
     subcmds/      # repo subcommands (init, sync, envsubst, ...)

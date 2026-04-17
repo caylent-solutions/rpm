@@ -126,14 +126,6 @@ These variables control runtime behavior of the kanon library API.
 
 ## Testing
 
-### Environment Variables for Tests
-
-Some tests require environment variables to enable optional test scenarios.
-
-| Variable | Purpose | Format | Required |
-|----------|---------|--------|----------|
-| `RPM_GIT_REPO_PATH` | Absolute path to the `rpm-git-repo` source directory used by content-match tests to verify that copied source files match their originals. Used by `tests/unit/repo/test_root_file_copy.py` (25 content-match tests), `tests/unit/repo/test_subcmd_file_copy.py` (28 content-match tests), and `tests/unit/repo/test_non_python_file_copy.py` (12 content-match tests). When not set, all 65 parametrized content-match tests are skipped via `pytest.skip()` and all other tests still pass. | Absolute filesystem path, e.g. `/workspaces/rpm-migration/rpm-git-repo` | Optional -- content-match tests skip when absent |
-
 ### Unit Tests
 
 Unit tests are located in the `tests/unit` directory. They test individual components in isolation.

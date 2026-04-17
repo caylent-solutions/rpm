@@ -53,7 +53,7 @@ def _make_repo_dir(tmp_path: pathlib.Path) -> str:
     used by run_from_args() which expects repo_dir to be the .repo path.
 
     Also creates .repo/repo/ as a minimal git repository with one tagged
-    commit, which is required by the 'version' subcommand to run git describe.
+    commit, which is required by the 'help' subcommand to run git describe.
     """
     repo_dot_dir = tmp_path / ".repo"
     manifests_dir = repo_dot_dir / "manifests"
@@ -72,8 +72,8 @@ def _make_repo_dir(tmp_path: pathlib.Path) -> str:
     manifest_link = repo_dot_dir / "manifest.xml"
     manifest_link.symlink_to(manifest_path)
 
-    # The 'version' subcommand calls git describe HEAD inside .repo/repo/,
-    # so .repo/repo/ must be a git repository with at least one tagged commit.
+    # Some subcommands probe git metadata inside .repo/repo/, so seed the
+    # directory as a git repository with at least one tagged commit.
     repo_tool_dir = repo_dot_dir / "repo"
     repo_tool_dir.mkdir(parents=True, exist_ok=True)
     _git(["init", "-b", "main"], cwd=repo_tool_dir)
@@ -101,7 +101,7 @@ def test_repo_run_dispatches_subcommand_via_argv(tmp_path: pathlib.Path) -> None
 
     Once implemented, repo_run() must accept an argv list and a repo_dir
     keyword argument, then dispatch the given subcommand by passing the argv
-    list to run_from_args(). The "version" subcommand is used here because it
+    list to run_from_args(). The "help" subcommand is used here because it
     does not require network access or a full .repo checkout.
 
     The test verifies that repo_run() is exported from the package and callable.
@@ -113,9 +113,9 @@ def test_repo_run_dispatches_subcommand_via_argv(tmp_path: pathlib.Path) -> None
 
     repo_dot_dir = _make_repo_dir(tmp_path)
 
-    # "version" subcommand succeeds without network access and exits 0.
-    result = repo_pkg.repo_run(["version"], repo_dir=repo_dot_dir)
-    assert result == 0, f"repo_run(['version'], repo_dir=...) must return 0 on success, got {result!r}"
+    # "help" subcommand succeeds without network access and exits 0.
+    result = repo_pkg.repo_run(["help"], repo_dir=repo_dot_dir)
+    assert result == 0, f"repo_run(['help'], repo_dir=...) must return 0 on success, got {result!r}"
 
 
 # ---------------------------------------------------------------------------
@@ -146,12 +146,12 @@ def test_repo_run_returns_exit_code_from_subcommand(tmp_path: pathlib.Path) -> N
     assert "repo_dir" in params, f"repo_run() must accept a 'repo_dir' parameter. Actual parameters: {params!r}"
 
     repo_dot_dir = _make_repo_dir(tmp_path)
-    exit_code = repo_pkg.repo_run(["version"], repo_dir=repo_dot_dir)
+    exit_code = repo_pkg.repo_run(["help"], repo_dir=repo_dot_dir)
 
     assert isinstance(exit_code, int), (
         f"repo_run() must return an int exit code. Got {type(exit_code).__name__!r}: {exit_code!r}"
     )
-    assert exit_code == 0, f"repo_run(['version'], ...) must return 0 for a successful invocation. Got {exit_code!r}"
+    assert exit_code == 0, f"repo_run(['help'], ...) must return 0 for a successful invocation. Got {exit_code!r}"
 
 
 # ---------------------------------------------------------------------------
@@ -219,7 +219,7 @@ def test_repo_run_does_not_call_os_execv(tmp_path: pathlib.Path, monkeypatch: py
 
     repo_dot_dir = _make_repo_dir(tmp_path)
     try:
-        repo_pkg.repo_run(["version"], repo_dir=repo_dot_dir)
+        repo_pkg.repo_run(["help"], repo_dir=repo_dot_dir)
     except RepoCommandError:
         pass
     except SystemExit as exc:
@@ -260,9 +260,9 @@ def test_repo_run_catches_system_exit_and_converts(tmp_path: pathlib.Path) -> No
     # Successful subcommand -- SystemExit(0) must become return value 0, not propagate.
     raised_system_exit = False
     try:
-        result = repo_pkg.repo_run(["version"], repo_dir=repo_dot_dir)
+        result = repo_pkg.repo_run(["help"], repo_dir=repo_dot_dir)
         assert result == 0, (
-            f"repo_run(['version'], ...) must return 0 for a successful command, not raise or return {result!r}"
+            f"repo_run(['help'], ...) must return 0 for a successful command, not raise or return {result!r}"
         )
     except SystemExit as exc:
         raised_system_exit = True
@@ -310,7 +310,7 @@ def test_repo_run_does_not_mutate_sys_argv(tmp_path: pathlib.Path) -> None:
 
     # Successful call -- must not mutate sys.argv.
     try:
-        repo_pkg.repo_run(["version"], repo_dir=repo_dot_dir)
+        repo_pkg.repo_run(["help"], repo_dir=repo_dot_dir)
     except RepoCommandError:
         pass
 

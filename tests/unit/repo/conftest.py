@@ -1,16 +1,10 @@
 """Shared test helpers for tests/unit/repo/.
 
-Provides reusable utilities for content-match tests that verify copied
-rpm-git-repo source files against their originals.
+Configures sys.path so that the verbatim test files (which use relative bare
+imports like ``from test_manifest_xml import ...``) can locate sibling test
+modules during collection.
 
-Also configures sys.path so that the verbatim-copied rpm-git-repo test files
-(which use relative bare imports like ``from test_manifest_xml import ...``)
-can locate sibling test modules during collection.  Import fixes for these
-files happen in E0-F5-S1-T3; this path entry is the minimal change needed to
-prevent collection errors while those files are still unmodified.
-
-Also provides pytest fixtures adapted from rpm-git-repo's conftest.py for
-use by the repo test suite:
+Provides pytest fixtures used across the repo test suite:
 
 - reset_color_default
 - disable_repo_trace
@@ -27,8 +21,6 @@ Additional fixtures loaded from tests/unit/repo/fixtures/:
 import json
 import os
 import pathlib
-import re
-import subprocess
 import sys
 
 import pytest
@@ -43,80 +35,48 @@ REPO_ROOT = pathlib.Path(__file__).parents[3]
 """Root of the kanon repository (3 levels up from tests/unit/repo/)."""
 
 TARGET_DIR = REPO_ROOT / "src" / "kanon_cli" / "repo"
-"""Target directory where rpm-git-repo source files are copied."""
+"""Package directory for the kanon_cli.repo subsystem."""
 
 _THIS_DIR = str(pathlib.Path(__file__).parent)
 if _THIS_DIR not in sys.path:
     sys.path.insert(0, _THIS_DIR)
 
 
-def get_rpm_source_dir(subdirectory: str | None = None) -> pathlib.Path:
-    """Return the rpm-git-repo source directory from the RPM_GIT_REPO_PATH env var.
-
-    Skips the calling test via pytest.skip() if RPM_GIT_REPO_PATH is not set,
-    so tests are skipped gracefully rather than erroring when the env var is absent.
-
-    Args:
-        subdirectory: Optional subdirectory name to append to the source root
-            (e.g. ``"subcmds"`` to get the subcmds directory).
-
-    Returns:
-        The resolved source directory path.
-
-    Raises:
-        RuntimeError: If RPM_GIT_REPO_PATH is set but does not point to an
-            existing directory, or if the requested subdirectory does not exist.
-    """
-    raw = os.environ.get("RPM_GIT_REPO_PATH")
-    if not raw:
-        pytest.skip("RPM_GIT_REPO_PATH is not set -- skipping content-match tests")
-    source_root = pathlib.Path(raw)
-    if not source_root.is_dir():
-        raise RuntimeError(f"RPM_GIT_REPO_PATH={raw!r} does not point to an existing directory.")
-    if subdirectory is None:
-        return source_root
-    source_dir = source_root / subdirectory
-    if not source_dir.is_dir():
-        raise RuntimeError(f"Expected {subdirectory!r} directory at {source_dir} but it does not exist.")
-    return source_dir
+# ---------------------------------------------------------------------------
+# Auto-apply the unit marker to every test in this directory.
+#
+# The upstream files under tests/unit/repo/ were copied from the Gerrit repo
+# test suite, which predates the project-level pytest marker conventions
+# (unit / integration / functional). This hook applies @pytest.mark.unit to
+# any test collected from tests/unit/repo/** that does not already carry one
+# of the three registered markers, so every test runs under exactly one of
+# the three make targets (make test-unit / test-integration / test-functional)
+# and nothing is orphaned.
+# ---------------------------------------------------------------------------
 
 
-def ruff_format_source(content: bytes) -> str:
-    """Run ruff format on the given source bytes and return the formatted string.
-
-    Args:
-        content: Raw Python source bytes to format.
-
-    Returns:
-        The formatted source as a UTF-8 string.
-
-    Raises:
-        subprocess.CalledProcessError: If ruff format exits with a non-zero code.
-    """
-    result = subprocess.run(
-        [sys.executable, "-m", "ruff", "format", "--quiet", "-"],
-        input=content,
-        capture_output=True,
-        check=True,
-    )
-    return result.stdout.decode("utf-8")
+_MARKERS = {"unit", "integration", "functional"}
 
 
-def strip_noqa_annotations(source: str) -> str:
-    """Strip inline ruff lint-suppression annotations from formatted source.
-
-    Args:
-        source: Formatted Python source string.
-
-    Returns:
-        Source with all ``# noqa`` inline comments removed.
-    """
-    return re.sub(r"[ \t]+#[ \t]*noqa[^\n]*", "", source)
+def pytest_collection_modifyitems(config, items):
+    """Apply @pytest.mark.unit to unmarked items collected under tests/unit/repo/."""
+    this_dir = pathlib.Path(__file__).resolve().parent
+    for item in items:
+        try:
+            item_path = pathlib.Path(str(item.fspath)).resolve()
+        except (AttributeError, OSError):
+            continue
+        try:
+            item_path.relative_to(this_dir)
+        except ValueError:
+            continue
+        if any(mark.name in _MARKERS for mark in item.iter_markers()):
+            continue
+        item.add_marker(pytest.mark.unit)
 
 
 # ---------------------------------------------------------------------------
-# Fixtures adapted from rpm-git-repo tests/conftest.py
-# All imports use kanon_cli.repo.* package paths.
+# Shared pytest fixtures for the repo test suite.
 # ---------------------------------------------------------------------------
 
 
@@ -187,25 +147,6 @@ def setup_user_identity(monkeysession, scope="session"):
     monkeysession.setenv("GIT_COMMITTER_NAME", "Foo Bar")
     monkeysession.setenv("GIT_AUTHOR_EMAIL", "foo@bar.baz")
     monkeysession.setenv("GIT_COMMITTER_EMAIL", "foo@bar.baz")
-
-
-def pytest_collection_modifyitems(config, items):
-    """Apply xfail markers to known upstream test failures.
-
-    The upstream test test_subcmds_forall.py::AllCommands::
-    test_forall_all_projects_called_once fails in devcontainer
-    environments because it requires a real git remote that is not
-    available. Rather than silently deselecting it, mark it as
-    xfail with a clear reason so it is visible in test reports.
-    """
-    for item in items:
-        if item.nodeid.endswith("test_subcmds_forall.py::AllCommands::test_forall_all_projects_called_once"):
-            item.add_marker(
-                pytest.mark.xfail(
-                    reason=("Upstream test requires git remote not available in devcontainer environment"),
-                    strict=False,
-                )
-            )
 
 
 @pytest.fixture

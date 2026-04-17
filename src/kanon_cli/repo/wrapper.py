@@ -34,12 +34,3 @@ def Wrapper():
     module = importlib.util.module_from_spec(spec)
     loader.exec_module(module)
     return module
-
-
-# Version string used as --wrapper-version when running in embedded mode.
-# In embedded mode there is no launcher shell script, so we cannot derive
-# the version from the script itself. This constant provides a stable,
-# well-known version that satisfies _CheckWrapperVersion's minimum check.
-# The check is skipped entirely in embedded mode, but the version is still
-# injected into argv so that Version.wrapper_version is populated correctly.
-EMBEDDED_WRAPPER_VERSION: str = ".".join(str(x) for x in Wrapper().VERSION)

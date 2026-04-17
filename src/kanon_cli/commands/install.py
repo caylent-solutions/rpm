@@ -19,7 +19,7 @@ def register(subparsers) -> None:
     """
     parser = subparsers.add_parser(
         "install",
-        help="Full lifecycle: install repo, multi-source sync",
+        help="Full install lifecycle: multi-source manifest sync and marketplace setup",
         description=(
             "Execute the full Kanon install lifecycle.\n\n"
             "Parses the .kanon configuration file, then runs repo init/envsubst/sync\n"
@@ -42,9 +42,11 @@ def register(subparsers) -> None:
 def _run(args) -> None:
     """Execute the install command.
 
-    Parses the .kanon configuration file and calls core.install() directly.
-    Emits a deprecation warning to stderr if REPO_URL or REPO_REV are present
-    in the globals section (these keys are no longer used).
+    Resolves the .kanon path (walking up from cwd when not provided), parses
+    and validates the configuration, then delegates to core.install().
+
+    Parse/validate failures are converted to a non-zero exit with a clear
+    stderr message so the CLI boundary preserves fail-fast semantics.
 
     Args:
         args: Parsed arguments with kanonenv_path.
@@ -59,21 +61,20 @@ def _run(args) -> None:
             sys.exit(1)
         print(f"kanon install: found {args.kanonenv_path}")
 
+    # The downstream repo manifest parser enforces an absolute `manifest_file`
+    # at src/kanon_cli/repo/manifest_xml.py:410. Resolve here at the CLI
+    # boundary so `kanon install .kanon` (relative argument) behaves identically
+    # to auto-discovery, and fail-fast with a clear message if the file is
+    # missing.
+    args.kanonenv_path = args.kanonenv_path.resolve()
+    if not args.kanonenv_path.is_file():
+        print(f"Error: .kanon file not found: {args.kanonenv_path}", file=sys.stderr)
+        sys.exit(1)
+
     try:
-        config = parse_kanonenv(args.kanonenv_path)
+        parse_kanonenv(args.kanonenv_path)
     except (FileNotFoundError, ValueError) as exc:
         print(f"Error: {exc}", file=sys.stderr)
         sys.exit(1)
-
-    globals_dict = config["globals"]
-
-    for deprecated_key in ("REPO_URL", "REPO_REV"):
-        if globals_dict.get(deprecated_key):
-            print(
-                f"Deprecation warning: {deprecated_key} is no longer used by kanon install. "
-                f"This key has no effect and will be ignored. "
-                f"Remove {deprecated_key} from your .kanon file.",
-                file=sys.stderr,
-            )
 
     install(args.kanonenv_path)

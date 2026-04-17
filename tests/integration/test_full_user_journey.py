@@ -17,8 +17,6 @@ Tests marked @pytest.mark.integration exercise:
   - deprecation warnings for legacy REPO_URL / REPO_REV keys
 """
 
-import contextlib
-import io
 import json
 import os
 import pathlib
@@ -29,7 +27,6 @@ from unittest.mock import patch
 
 import pytest
 
-from kanon_cli.cli import main as _kanon_main
 from kanon_cli.core.clean import clean
 from kanon_cli.core.discover import find_kanonenv
 from kanon_cli.core.install import install
@@ -1078,62 +1075,3 @@ class TestFullJourneyErrorRecovery:
         assert not (project_dir / ".kanon-data").exists(), (
             ".kanon-data/ must be absent after clean (even after partial install)"
         )
-
-
-# ---------------------------------------------------------------------------
-# AC-TEST-010: test_full_journey_deprecated_repo_url_warning
-# ---------------------------------------------------------------------------
-
-
-@pytest.mark.integration
-class TestFullJourneyDeprecatedRepoUrlWarning:
-    """AC-TEST-010: .kanon with REPO_URL and REPO_REV triggers deprecation warning."""
-
-    def test_full_journey_deprecated_repo_url_warning(self, tmp_path: pathlib.Path) -> None:
-        """install emits deprecation warning for REPO_URL and REPO_REV but still succeeds.
-
-        Steps:
-        1. Create .kanon with REPO_URL and REPO_REV set alongside a valid source.
-        2. Invoke the CLI main() in-process with mocked repo operations.
-        3. Capture stderr and verify the deprecation warning appears.
-        4. Verify .kanon-data/ was created (install did not abort).
-        5. Run kanon clean via the API.
-        """
-        project_dir = tmp_path / "project"
-        project_dir.mkdir()
-
-        kanonenv_path = project_dir / ".kanon"
-        kanonenv_path.write_text(
-            "REPO_URL=https://github.com/example-org/repo-tool.git\n"
-            "REPO_REV=main\n"
-            "KANON_SOURCE_main_URL=https://example.com/main.git\n"
-            "KANON_SOURCE_main_REVISION=main\n"
-            "KANON_SOURCE_main_PATH=default.xml\n",
-            encoding="utf-8",
-        )
-
-        stderr_buf = io.StringIO()
-        with (
-            patch("kanon_cli.repo.repo_init"),
-            patch("kanon_cli.repo.repo_envsubst"),
-            patch("kanon_cli.repo.repo_sync"),
-            contextlib.redirect_stderr(stderr_buf),
-        ):
-            _kanon_main(["install", str(kanonenv_path)])
-
-        stderr_output = stderr_buf.getvalue()
-        assert "Deprecation warning" in stderr_output, (
-            f"Expected 'Deprecation warning' in stderr from kanon install, got: {stderr_output!r}"
-        )
-        assert "REPO_URL" in stderr_output, (
-            f"Expected 'REPO_URL' mentioned in deprecation warning, got: {stderr_output!r}"
-        )
-
-        assert (project_dir / ".kanon-data").is_dir(), (
-            ".kanon-data/ must be created (install must not abort on deprecation warning)"
-        )
-
-        clean(kanonenv_path)
-
-        assert not (project_dir / ".packages").exists(), ".packages/ must be absent after clean"
-        assert not (project_dir / ".kanon-data").exists(), ".kanon-data/ must be absent after clean"

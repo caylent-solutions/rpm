@@ -15,7 +15,6 @@
 import enum
 import json
 import optparse
-import pathlib
 import sys
 
 from ..command import PagedCommand
@@ -62,12 +61,10 @@ human-readable variations.
 
     @property
     def helpDescription(self):
-        helptext = self._helpDescription + "\n"
-        docs_file = pathlib.Path(__file__).resolve().parent.parent / "docs" / "manifest-format.md"
-        with open(docs_file) as fd:
-            for line in fd:
-                helptext += line
-        return helptext
+        return (
+            self._helpDescription + "\nFor the full manifest XML schema, see docs/repo/manifest-format.md"
+            " (https://github.com/caylent-solutions/kanon/blob/main/docs/repo/manifest-format.md).\n"
+        )
 
     def _Options(self, p):
         p.add_option(

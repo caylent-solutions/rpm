@@ -17,9 +17,9 @@ in that module:
 - `kanon_cli.version.resolve_version(url, rev_spec)` -- fetches tags via `git ls-remote` and
   returns the highest tag satisfying the constraint
 
-The embedded repo tool's `version_constraints.py` module at
-`kanon_cli/repo/version_constraints.py` delegates to `kanon_cli.version` rather than maintaining
-its own independent implementation. Specifically:
+The `kanon_cli.repo.version_constraints` module at `kanon_cli/repo/version_constraints.py`
+delegates to `kanon_cli.version` rather than maintaining its own independent implementation.
+Specifically:
 
 - `repo/version_constraints.is_version_constraint` delegates to
   `kanon_cli.version.is_version_constraint`

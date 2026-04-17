@@ -85,9 +85,14 @@ class Trace(contextlib.ContextDecorator):
             first_trace: Whether this is the first trace of a `repo` invocation.
             quiet: Whether to suppress notification of trace file location.
         """
+        # Always format the trace message so __enter__/__exit__ can rely on
+        # self._trace_msg existing. When Trace is used as a decorator with
+        # tracing disabled at decoration time, tracing may be enabled by the
+        # time the decorated function runs; self._trace_msg must be set so the
+        # resulting __enter__ does not raise AttributeError.
+        self._trace_msg = fmt % args
         if not IsTrace():
             return
-        self._trace_msg = fmt % args
 
         if not _TRACE_FILE:
             _SetTraceFile(quiet)

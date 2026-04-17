@@ -17,6 +17,7 @@ AC-TEST-003: test_wheel_repo_non_python_files_present
 """
 
 import pathlib
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -97,7 +98,6 @@ _SUBCMD_PYTHON_FILES = [
     "status.py",
     "sync.py",
     "upload.py",
-    "version.py",
 ]
 
 # Non-Python runtime files relative to kanon_cli/repo/
@@ -107,17 +107,6 @@ _NON_PYTHON_RUNTIME_FILES = [
     "hooks/commit-msg",
     "hooks/pre-auto-gc",
     "requirements.json",
-]
-
-# Documentation files relative to kanon_cli/repo/
-_DOCS_FILES = [
-    "docs/integration-testing.md",
-    "docs/internal-fs-layout.md",
-    "docs/manifest-format.md",
-    "docs/python-support.md",
-    "docs/repo-hooks.md",
-    "docs/smart-sync.md",
-    "docs/windows.md",
 ]
 
 
@@ -155,7 +144,10 @@ def _run_subprocess(args: list[str], cwd: pathlib.Path) -> subprocess.CompletedP
 
 
 def _build_wheel(tmp_dir: pathlib.Path) -> pathlib.Path:
-    """Build the kanon-cli wheel into tmp_dir and return the wheel path.
+    """Build the kanon-cli wheel into tmp_dir via ``uv build --wheel``.
+
+    Uses ``uv`` as the PEP 517 build driver so the test is independent of the
+    interpreter or virtualenv running pytest. Only ``uv`` on PATH is required.
 
     Args:
         tmp_dir: Temporary directory to write the wheel into.
@@ -164,10 +156,17 @@ def _build_wheel(tmp_dir: pathlib.Path) -> pathlib.Path:
         Path to the built .whl file.
 
     Raises:
-        RuntimeError: If the build command fails or produces no .whl file.
+        RuntimeError: If ``uv`` is not on PATH, if ``uv build`` exits non-zero,
+            or if no ``.whl`` file is produced on successful exit.
     """
+    uv_executable = shutil.which("uv")
+    if uv_executable is None:
+        raise RuntimeError(
+            "The 'uv' executable is required to build the kanon-cli wheel but was not found on PATH. "
+            "Install uv (https://docs.astral.sh/uv/) and ensure it is reachable from the test runner's PATH."
+        )
     _run_subprocess(
-        [sys.executable, "-m", "build", "--wheel", "--outdir", str(tmp_dir)],
+        [uv_executable, "build", "--wheel", "--out-dir", str(tmp_dir)],
         cwd=REPO_ROOT,
     )
     wheels = list(tmp_dir.glob("*.whl"))
@@ -464,8 +463,8 @@ def test_wheel_repo_non_python_files_present(built_wheel_path: pathlib.Path) -> 
     """Verify the built wheel includes non-Python runtime files from kanon_cli/repo/.
 
     Inspects the wheel archive and confirms that the required non-Python
-    runtime files (git hooks, git_ssh script, requirements.json) and
-    documentation files are all bundled inside the wheel.
+    runtime files (git hooks, git_ssh script, requirements.json) are bundled
+    inside the wheel.
 
     AC-TEST-003
     """
@@ -481,16 +480,4 @@ def test_wheel_repo_non_python_files_present(built_wheel_path: pathlib.Path) -> 
         f"  {missing_runtime}\n"
         f"Check [tool.hatch.build.targets.wheel] include list in pyproject.toml "
         f"contains patterns for 'repo', 'git_ssh', 'hooks/*', 'requirements.json'."
-    )
-
-    missing_docs = [
-        f"{_REPO_PREFIX}{relative_path}"
-        for relative_path in _DOCS_FILES
-        if f"{_REPO_PREFIX}{relative_path}" not in entry_names
-    ]
-    assert not missing_docs, (
-        f"The following documentation files are missing from the wheel:\n"
-        f"  {missing_docs}\n"
-        f"Check [tool.hatch.build.targets.wheel] include list in pyproject.toml "
-        f"contains 'docs/*'."
     )

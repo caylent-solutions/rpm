@@ -1,6 +1,7 @@
 """Tests for the install command handler."""
 
 import argparse
+import pathlib
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -34,125 +35,6 @@ class TestRunNoPipx:
 
 
 @pytest.mark.unit
-class TestDeprecationWarnings:
-    """Tests for REPO_URL and REPO_REV deprecation warnings."""
-
-    _BASE_CONFIG = (
-        "GITBASE=https://example.com/\n"
-        "KANON_MARKETPLACE_INSTALL=false\n"
-        "KANON_SOURCE_test_URL=https://example.com/manifest.git\n"
-        "KANON_SOURCE_test_REVISION=main\n"
-        "KANON_SOURCE_test_PATH=repo-specs/test.xml\n"
-    )
-
-    def test_repo_url_in_globals_emits_deprecation_warning_to_stderr(self, tmp_path, capsys) -> None:
-        """When only REPO_URL is present, _run() emits a per-key deprecation warning mentioning REPO_URL."""
-        from kanon_cli.commands.install import _run
-
-        kanonenv = tmp_path / ".kanon"
-        kanonenv.write_text("REPO_URL=https://example.com/repo.git\n" + self._BASE_CONFIG)
-        args = MagicMock()
-        args.kanonenv_path = kanonenv
-
-        with patch("kanon_cli.commands.install.install"):
-            _run(args)
-
-        captured = capsys.readouterr()
-        assert "REPO_URL" in captured.err, (
-            f"Expected REPO_URL mentioned in deprecation warning to stderr, got: {captured.err!r}"
-        )
-        assert "deprecated" in captured.err.lower() or "deprecation" in captured.err.lower(), (
-            f"Expected a deprecation warning in stderr when REPO_URL is set, got: {captured.err!r}"
-        )
-        assert "REPO_REV" not in captured.err, (
-            f"Expected REPO_REV NOT mentioned when only REPO_URL is set, got: {captured.err!r}"
-        )
-
-    def test_repo_rev_in_globals_emits_deprecation_warning_to_stderr(self, tmp_path, capsys) -> None:
-        """When only REPO_REV is present, _run() emits a per-key deprecation warning mentioning REPO_REV."""
-        from kanon_cli.commands.install import _run
-
-        kanonenv = tmp_path / ".kanon"
-        kanonenv.write_text("REPO_REV=main\n" + self._BASE_CONFIG)
-        args = MagicMock()
-        args.kanonenv_path = kanonenv
-
-        with patch("kanon_cli.commands.install.install"):
-            _run(args)
-
-        captured = capsys.readouterr()
-        assert "REPO_REV" in captured.err, (
-            f"Expected REPO_REV mentioned in deprecation warning to stderr, got: {captured.err!r}"
-        )
-        assert "deprecated" in captured.err.lower() or "deprecation" in captured.err.lower(), (
-            f"Expected a deprecation warning in stderr when REPO_REV is set, got: {captured.err!r}"
-        )
-        assert "REPO_URL" not in captured.err, (
-            f"Expected REPO_URL NOT mentioned when only REPO_REV is set, got: {captured.err!r}"
-        )
-
-    def test_both_keys_in_globals_emit_warnings_for_each(self, tmp_path, capsys) -> None:
-        """When both REPO_URL and REPO_REV are present, a separate warning is emitted for each key."""
-        from kanon_cli.commands.install import _run
-
-        kanonenv = tmp_path / ".kanon"
-        kanonenv.write_text("REPO_URL=https://example.com/repo.git\nREPO_REV=main\n" + self._BASE_CONFIG)
-        args = MagicMock()
-        args.kanonenv_path = kanonenv
-
-        with patch("kanon_cli.commands.install.install"):
-            _run(args)
-
-        captured = capsys.readouterr()
-        assert "REPO_URL" in captured.err, (
-            f"Expected REPO_URL mentioned in deprecation warning to stderr, got: {captured.err!r}"
-        )
-        assert "REPO_REV" in captured.err, (
-            f"Expected REPO_REV mentioned in deprecation warning to stderr, got: {captured.err!r}"
-        )
-
-    def test_neither_key_in_globals_emits_no_warning(self, tmp_path, capsys) -> None:
-        """When neither REPO_URL nor REPO_REV are present in .kanon globals, no warning is emitted."""
-        from kanon_cli.commands.install import _run
-
-        kanonenv = tmp_path / ".kanon"
-        kanonenv.write_text(self._BASE_CONFIG)
-        args = MagicMock()
-        args.kanonenv_path = kanonenv
-
-        with patch("kanon_cli.commands.install.install"):
-            _run(args)
-
-        captured = capsys.readouterr()
-        assert "deprecated" not in captured.err.lower(), (
-            f"Expected no deprecation warning when REPO_URL and REPO_REV are absent, got: {captured.err!r}"
-        )
-
-    @pytest.mark.parametrize(
-        "extra_config",
-        [
-            "REPO_URL=https://example.com/repo.git\n",
-            "REPO_REV=main\n",
-            "REPO_URL=https://example.com/repo.git\nREPO_REV=main\n",
-        ],
-    )
-    def test_command_succeeds_when_deprecated_keys_present(self, tmp_path, extra_config) -> None:
-        """The install command must not fail when REPO_URL or REPO_REV are present -- warn and continue."""
-        from kanon_cli.commands.install import _run
-
-        kanonenv = tmp_path / ".kanon"
-        kanonenv.write_text(extra_config + self._BASE_CONFIG)
-        args = MagicMock()
-        args.kanonenv_path = kanonenv
-
-        mock_install = MagicMock()
-        with patch("kanon_cli.commands.install.install", mock_install):
-            _run(args)
-
-        mock_install.assert_called_once_with(kanonenv)
-
-
-@pytest.mark.unit
 class TestRunPartialConfig:
     def test_missing_kanonenv_file_exits(self, tmp_path) -> None:
         from kanon_cli.commands.install import _run
@@ -173,6 +55,95 @@ class TestRunPartialConfig:
 
         with pytest.raises(SystemExit):
             _run(args)
+
+
+_VALID_KANONENV = (
+    "GITBASE=https://example.com/\n"
+    "KANON_MARKETPLACE_INSTALL=false\n"
+    "KANON_SOURCE_test_URL=https://example.com/manifest.git\n"
+    "KANON_SOURCE_test_REVISION=main\n"
+    "KANON_SOURCE_test_PATH=repo-specs/test.xml\n"
+)
+
+
+@pytest.mark.unit
+class TestRunResolvesExplicitPath:
+    """``_run`` must resolve an explicit ``kanonenv_path`` to an absolute path.
+
+    The downstream repo manifest parser at
+    ``src/kanon_cli/repo/manifest_xml.py:410`` enforces
+    ``manifest_file == os.path.abspath(manifest_file)``. When a user invokes
+    ``kanon install .kanon`` from the containing directory, argparse stores
+    ``pathlib.Path('.kanon')`` as-is (relative) and the repo parser later
+    raises ``ManifestParseError: manifest_file must be abspath``. ``_run`` must
+    normalize the argument at the CLI boundary -- matching the resolution
+    behavior of ``find_kanonenv()`` used by auto-discovery -- and fail-fast
+    with a clear message if the file does not exist.
+    """
+
+    def test_relative_kanonenv_path_is_resolved_to_abspath(self, tmp_path, monkeypatch) -> None:
+        """``_run`` must resolve ``PosixPath('.kanon')`` to an absolute path before install()."""
+        from kanon_cli.commands.install import _run
+
+        kanonenv = tmp_path / ".kanon"
+        kanonenv.write_text(_VALID_KANONENV)
+        monkeypatch.chdir(tmp_path)
+
+        args = MagicMock()
+        args.kanonenv_path = pathlib.Path(".kanon")
+
+        received: list[pathlib.Path] = []
+
+        def _capture_install(path):
+            received.append(path)
+
+        with patch("kanon_cli.commands.install.install", side_effect=_capture_install):
+            _run(args)
+
+        assert len(received) == 1, f"install() must be called exactly once, got {len(received)} calls"
+        resolved = received[0]
+        assert resolved.is_absolute(), f"install() must receive an absolute path, got {resolved!r}"
+        assert resolved == kanonenv.resolve(), (
+            f"install() must receive the resolved .kanon path {kanonenv.resolve()!r}, got {resolved!r}"
+        )
+
+    def test_absolute_kanonenv_path_is_unchanged(self, tmp_path) -> None:
+        """``_run`` must pass an already-absolute path through to install() unchanged."""
+        from kanon_cli.commands.install import _run
+
+        kanonenv = tmp_path / ".kanon"
+        kanonenv.write_text(_VALID_KANONENV)
+        args = MagicMock()
+        args.kanonenv_path = kanonenv
+
+        received: list[pathlib.Path] = []
+
+        def _capture_install(path):
+            received.append(path)
+
+        with patch("kanon_cli.commands.install.install", side_effect=_capture_install):
+            _run(args)
+
+        assert received == [kanonenv.resolve()], f"install() must receive the resolved absolute path, got {received!r}"
+
+    def test_missing_relative_kanonenv_fails_fast_with_clear_message(self, tmp_path, monkeypatch, capsys) -> None:
+        """``_run`` must fail-fast with an actionable message when the .kanon file does not exist."""
+        from kanon_cli.commands.install import _run
+
+        monkeypatch.chdir(tmp_path)
+        args = MagicMock()
+        args.kanonenv_path = pathlib.Path(".kanon")
+
+        with patch("kanon_cli.commands.install.install") as mock_install:
+            with pytest.raises(SystemExit) as exc_info:
+                _run(args)
+
+        assert exc_info.value.code == 1, f"missing .kanon must exit 1, got {exc_info.value.code!r}"
+        mock_install.assert_not_called()
+        captured = capsys.readouterr()
+        assert ".kanon file not found" in captured.err, (
+            f"stderr must mention '.kanon file not found', got {captured.err!r}"
+        )
 
 
 @pytest.mark.unit

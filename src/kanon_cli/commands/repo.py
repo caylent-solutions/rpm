@@ -1,8 +1,8 @@
-"""Repo subcommand: passthrough to the embedded repo tool.
+"""Repo subcommand: passthrough to kanon's repo subsystem.
 
 Delegates all trailing arguments to repo_run() from the Python API layer.
-Supports the full repo subcommand surface (init, sync, version, etc.) by
-forwarding arbitrary argv to the embedded repo tool without interpretation.
+Supports the full repo subcommand surface (init, sync, envsubst, etc.) by
+forwarding arbitrary argv to the repo dispatcher without interpretation.
 """
 
 import argparse
@@ -17,23 +17,23 @@ def register(subparsers) -> None:
     """Register the repo subcommand.
 
     Adds a ``repo`` sub-parser that captures all trailing arguments using
-    argparse.REMAINDER and passes them to the embedded repo tool.
+    argparse.REMAINDER and passes them to the repo dispatcher.
 
     Args:
         subparsers: The subparsers object from the parent parser.
     """
     parser = subparsers.add_parser(
         "repo",
-        help="Passthrough to the embedded repo tool",
+        help="Run a kanon repo subcommand (manifest-driven sync)",
         description=(
-            "Forward commands to the embedded repo tool.\n\n"
+            "Run kanon's repo subcommands.\n\n"
             "All trailing arguments after 'kanon repo' are passed verbatim to\n"
-            "the embedded repo tool. Use 'kanon repo --help' to see this help,\n"
-            "or 'kanon repo help' to see repo's own help.\n\n"
+            "the repo dispatcher. Use 'kanon repo --help' to see this help,\n"
+            "or 'kanon repo help' to see the per-subcommand help.\n\n"
             "Examples:\n"
-            "  kanon repo version\n"
             "  kanon repo init -u <url> -b <branch> -m <manifest>\n"
             "  kanon repo sync --jobs=4\n"
+            "  kanon repo status\n"
             "  kanon repo help"
         ),
         formatter_class=argparse.RawDescriptionHelpFormatter,

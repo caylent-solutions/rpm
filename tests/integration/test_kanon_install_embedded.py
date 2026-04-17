@@ -6,12 +6,14 @@ handles version constraints, deprecation warnings, subdirectory auto-discovery,
 and KANON_MARKETPLACE_INSTALL=false correctly.
 """
 
+import os
+import subprocess
+import sys
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest
 
-from kanon_cli.commands.install import _run as install_run
 from kanon_cli.core.install import install
 
 
@@ -160,68 +162,6 @@ class TestInstallVersionConstraintResolution:
 
 
 @pytest.mark.integration
-class TestInstallDeprecationWarnings:
-    """AC-FUNC-012: Install with REPO_URL or REPO_REV emits deprecation warning to stderr."""
-
-    def test_install_repo_url_emits_deprecation_warning(self, tmp_path: Path, capsys: pytest.CaptureFixture) -> None:
-        """Verify that REPO_URL in .kanon produces a deprecation warning on stderr."""
-        kanonenv = _write_kanonenv(
-            tmp_path,
-            (
-                "REPO_URL=https://example.com/old.git\n"
-                "KANON_SOURCE_primary_URL=https://example.com/repo.git\n"
-                "KANON_SOURCE_primary_REVISION=main\n"
-                "KANON_SOURCE_primary_PATH=meta.xml\n"
-            ),
-        )
-
-        args = MagicMock()
-        args.kanonenv_path = kanonenv
-
-        with (
-            patch("kanon_cli.repo.repo_init"),
-            patch("kanon_cli.repo.repo_envsubst"),
-            patch("kanon_cli.repo.repo_sync"),
-        ):
-            install_run(args)
-
-        captured = capsys.readouterr()
-        assert "REPO_URL" in captured.err, (
-            f"Expected deprecation warning mentioning 'REPO_URL' in stderr, but got: {captured.err!r}"
-        )
-        assert "Deprecation" in captured.err or "deprecated" in captured.err.lower(), (
-            f"Expected 'Deprecation' in stderr warning, got: {captured.err!r}"
-        )
-
-    def test_install_repo_rev_emits_deprecation_warning(self, tmp_path: Path, capsys: pytest.CaptureFixture) -> None:
-        """Verify that REPO_REV in .kanon produces a deprecation warning on stderr."""
-        kanonenv = _write_kanonenv(
-            tmp_path,
-            (
-                "REPO_REV=v2.0.0\n"
-                "KANON_SOURCE_primary_URL=https://example.com/repo.git\n"
-                "KANON_SOURCE_primary_REVISION=main\n"
-                "KANON_SOURCE_primary_PATH=meta.xml\n"
-            ),
-        )
-
-        args = MagicMock()
-        args.kanonenv_path = kanonenv
-
-        with (
-            patch("kanon_cli.repo.repo_init"),
-            patch("kanon_cli.repo.repo_envsubst"),
-            patch("kanon_cli.repo.repo_sync"),
-        ):
-            install_run(args)
-
-        captured = capsys.readouterr()
-        assert "REPO_REV" in captured.err, (
-            f"Expected deprecation warning mentioning 'REPO_REV' in stderr, but got: {captured.err!r}"
-        )
-
-
-@pytest.mark.integration
 class TestInstallSubdirectoryAutoDiscovery:
     """AC-FUNC-013: Install from subdirectory auto-discovers .kanon in parent and installs there."""
 
@@ -297,4 +237,127 @@ class TestInstallMarketplaceDisabled:
 
         assert len(claude_calls) == 0, (
             f"Expected no claude CLI subprocess calls when KANON_MARKETPLACE_INSTALL=false, but got: {claude_calls}"
+        )
+
+
+# ---------------------------------------------------------------------------
+# Regression test for the relative .kanon path bug.
+#
+# `kanon install .kanon` (relative positional argument) previously crashed
+# with `ManifestParseError: manifest_file must be abspath` because the CLI
+# handler passed `pathlib.Path('.kanon')` straight through to the repo
+# manifest parser. This regression test exercises the full end-to-end CLI
+# path (subprocess, file:// manifest, real repo_init/envsubst/sync) with a
+# relative argument to confirm the CLI boundary normalizes the path.
+# ---------------------------------------------------------------------------
+
+
+def _git_relpath(args: list[str], cwd: Path) -> None:
+    result = subprocess.run(["git"] + args, cwd=str(cwd), capture_output=True, text=True)
+    if result.returncode != 0:
+        raise RuntimeError(f"git {args!r} failed in {cwd!r}:\n  stdout: {result.stdout!r}\n  stderr: {result.stderr!r}")
+
+
+def _build_file_url_manifest_fixture(base: Path) -> tuple[str, str]:
+    """Build a minimal file:// content + manifest bare repo pair for install.
+
+    Returns (manifest_url, fetch_base_url) suitable for a `.kanon` file's
+    KANON_SOURCE_<name>_URL and a manifest's <remote fetch=...>.
+    """
+    # Content repo: a single project with a README, then a bare clone.
+    content_work = base / "content-work"
+    content_work.mkdir(parents=True)
+    _git_relpath(["init", "-b", "main"], cwd=content_work)
+    _git_relpath(["config", "user.name", "Test"], cwd=content_work)
+    _git_relpath(["config", "user.email", "test@example.com"], cwd=content_work)
+    (content_work / "README.md").write_text("# content\n", encoding="utf-8")
+    _git_relpath(["add", "README.md"], cwd=content_work)
+    _git_relpath(["commit", "-m", "Initial commit"], cwd=content_work)
+    content_bare = base / "content-bare"
+    _git_relpath(["clone", "--bare", str(content_work), str(content_bare)], cwd=base)
+
+    # Manifest repo referencing content-bare via a file:// fetch URL.
+    manifest_work = base / "manifest-work"
+    manifest_work.mkdir(parents=True)
+    _git_relpath(["init", "-b", "main"], cwd=manifest_work)
+    _git_relpath(["config", "user.name", "Test"], cwd=manifest_work)
+    _git_relpath(["config", "user.email", "test@example.com"], cwd=manifest_work)
+    fetch_base_url = f"file://{base}"
+    manifest_xml = (
+        '<?xml version="1.0" encoding="UTF-8"?>\n'
+        "<manifest>\n"
+        f'  <remote name="origin" fetch="{fetch_base_url}" />\n'
+        '  <default revision="main" remote="origin" />\n'
+        '  <project name="content-bare" path="project-content" />\n'
+        "</manifest>\n"
+    )
+    (manifest_work / "default.xml").write_text(manifest_xml, encoding="utf-8")
+    _git_relpath(["add", "default.xml"], cwd=manifest_work)
+    _git_relpath(["commit", "-m", "Add manifest"], cwd=manifest_work)
+    manifest_bare = base / "manifest-bare"
+    _git_relpath(["clone", "--bare", str(manifest_work), str(manifest_bare)], cwd=base)
+
+    return f"file://{manifest_bare}", fetch_base_url
+
+
+@pytest.mark.integration
+class TestInstallRelativeKanonPath:
+    """Regression: `kanon install .kanon` (relative path) must succeed end-to-end."""
+
+    def test_install_relative_kanon_path_succeeds_end_to_end(self, tmp_path: Path) -> None:
+        """Invoke the CLI via subprocess from the workspace directory with a
+        bare relative `.kanon` argument, and assert returncode == 0.
+
+        Before the CLI-boundary resolve fix this invocation failed with
+        ``ManifestParseError: manifest_file must be abspath`` (exit 1) because
+        ``pathlib.Path('.kanon')`` was passed unresolved to the repo manifest
+        parser. Auto-discovery (``kanon install`` with no argument) and
+        absolute-path invocation (``kanon install /abs/.kanon``) both worked
+        because both produce an absolute path; only the explicit relative
+        argument tripped the bug.
+
+        Uses a file:// manifest + content bare-repo pair so no network is
+        required.
+        """
+        fixture_base = tmp_path / "fixtures"
+        fixture_base.mkdir()
+        manifest_url, _ = _build_file_url_manifest_fixture(fixture_base)
+
+        workspace = tmp_path / "workspace"
+        workspace.mkdir()
+        kanonenv = workspace / ".kanon"
+        kanonenv.write_text(
+            "GITBASE=https://example.com/\n"
+            "KANON_MARKETPLACE_INSTALL=false\n"
+            f"KANON_SOURCE_primary_URL={manifest_url}\n"
+            "KANON_SOURCE_primary_REVISION=main\n"
+            "KANON_SOURCE_primary_PATH=default.xml\n",
+            encoding="utf-8",
+        )
+
+        env = dict(os.environ)
+
+        result = subprocess.run(
+            [sys.executable, "-m", "kanon_cli", "install", ".kanon"],
+            cwd=str(workspace),
+            capture_output=True,
+            text=True,
+            check=False,
+            env=env,
+        )
+
+        assert result.returncode == 0, (
+            f"'kanon install .kanon' (relative argument) must exit 0 after the CLI-boundary resolve fix.\n"
+            f"  returncode: {result.returncode}\n"
+            f"  stdout: {result.stdout!r}\n"
+            f"  stderr: {result.stderr!r}"
+        )
+        assert "manifest_file must be abspath" not in result.stderr, (
+            f"ManifestParseError must not appear in stderr; got: {result.stderr!r}"
+        )
+        # The install lifecycle creates .kanon-data/sources/<name>/ with .repo/ inside.
+        source_dir = workspace / ".kanon-data" / "sources" / "primary" / ".repo"
+        assert source_dir.is_dir(), (
+            f"Expected {source_dir} to exist after install; contents of workspace: "
+            f"{sorted(p.name for p in workspace.iterdir())!r}"
         )

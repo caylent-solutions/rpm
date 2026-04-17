@@ -301,7 +301,7 @@ class XmlManifestTests(ManifestParseTestCase):
         self.assertEqual(manifest.repo_hooks_project.enabled_repo_hooks, ["a", "b"])
 
     def test_repo_hooks_unordered(self):
-        """Check repo-hooks settings work even if the project def comes second."""  # noqa: E501
+        """Check repo-hooks settings work even if the project def comes second."""
         manifest = self.getXmlManifest(
             """
 <manifest>
@@ -584,7 +584,7 @@ class ProjectElementTests(ManifestParseTestCase):
             '<?xml version="1.0" ?><manifest>'
             '<remote fetch="http://localhost" name="default-remote"/>'
             '<default remote="default-remote" revision="refs/heads/main"/>'
-            '<project name="test-name" revision="ABCDEF" upstream="refs/heads/main"/>'  # noqa: E501
+            '<project name="test-name" revision="ABCDEF" upstream="refs/heads/main"/>'
             "</manifest>",
         )
 
@@ -783,7 +783,7 @@ class SuperProjectElementTests(ManifestParseTestCase):
   <default remote="test-remote" />
   <superproject name="superproject" revision="refs/heads/stable" />
 </manifest>
-"""  # noqa: E501
+"""
         )
         self.assertEqual(manifest.superproject.name, "superproject")
         self.assertEqual(manifest.superproject.remote.name, "test-remote")
@@ -792,7 +792,7 @@ class SuperProjectElementTests(ManifestParseTestCase):
         self.assertEqual(
             sort_attributes(manifest.ToXml().toxml()),
             '<?xml version="1.0" ?><manifest>'
-            '<remote fetch="http://localhost" name="test-remote" revision="refs/heads/main"/>'  # noqa: E501
+            '<remote fetch="http://localhost" name="test-remote" revision="refs/heads/main"/>'
             '<default remote="test-remote"/>'
             '<superproject name="superproject" revision="refs/heads/stable"/>'
             "</manifest>",
@@ -823,7 +823,7 @@ class SuperProjectElementTests(ManifestParseTestCase):
             '<remote fetch="http://localhost" name="default-remote"/>'
             '<remote fetch="http://localhost" name="superproject-remote"/>'
             '<default remote="default-remote" revision="refs/heads/main"/>'
-            '<superproject name="platform/superproject" remote="superproject-remote"/>'  # noqa: E501
+            '<superproject name="platform/superproject" remote="superproject-remote"/>'
             "</manifest>",
         )
 
@@ -1151,7 +1151,7 @@ class ExtendProjectElementTests(ManifestParseTestCase):
   <project name="myproject" />
   <extend-project name="myproject" dest-branch="bar" />
 </manifest>
-"""  # noqa: E501
+"""
         )
         self.assertEqual(len(manifest.projects), 1)
         self.assertEqual(manifest.projects[0].dest_branch, "bar")

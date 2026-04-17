@@ -13,8 +13,6 @@ import pytest
 REPO_ROOT = pathlib.Path(__file__).parents[2]
 PYPROJECT_PATH = REPO_ROOT / "pyproject.toml"
 
-EXPECTED_VERSION = "2.0.0"
-
 REQUIRED_PACKAGES = [
     "src/kanon_cli",
     "src/kanon_cli/repo",
@@ -29,7 +27,6 @@ REQUIRED_ARTIFACTS = [
 
 REQUIRED_ARTIFACT_GLOBS = [
     "hooks/*",
-    "docs/*",
 ]
 
 
@@ -48,16 +45,20 @@ def _load_pyproject() -> dict:
 
 
 @pytest.mark.unit
-def test_project_version_is_2_0_0() -> None:
-    """Verify that the project version is set to 2.0.0.
+def test_project_version_is_valid_semver() -> None:
+    """Verify that the project version in pyproject.toml is a valid SemVer string.
 
     Given: pyproject.toml exists at the repo root
     When: the [project] version field is read
-    Then: it equals '2.0.0'
+    Then: it matches MAJOR.MINOR.PATCH (no v-prefix)
     """
+    import re
+
     data = _load_pyproject()
     actual = data["project"]["version"]
-    assert actual == EXPECTED_VERSION, f"Expected [project] version to be '{EXPECTED_VERSION}', got '{actual}'"
+    assert re.fullmatch(r"\d+\.\d+\.\d+(?:[.\-+].+)?", actual), (
+        f"[project] version must be a valid SemVer string (MAJOR.MINOR.PATCH), got {actual!r}"
+    )
 
 
 @pytest.mark.unit

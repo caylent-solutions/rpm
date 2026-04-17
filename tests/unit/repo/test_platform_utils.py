@@ -135,17 +135,6 @@ class WinpathIsValidTests(unittest.TestCase):
             result = platform_utils._winpath_is_valid("C:\\foo")
             self.assertTrue(result)
 
-    def test_unc_path_is_invalid(self):
-        """UNC paths without drive should be invalid."""
-        import platform
-
-        if platform.system() == "Windows":
-            result = platform_utils._winpath_is_valid("\\\\server\\share")
-            self.assertFalse(result)
-        else:
-            # Skip on non-Windows - function asserts isWindows()
-            self.skipTest("Windows-only test")
-
 
 @pytest.mark.unit
 class MakelongpathTests(unittest.TestCase):

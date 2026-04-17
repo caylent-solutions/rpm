@@ -485,8 +485,8 @@ If you want to use a different manifest, use `repo init -m <file>` instead.
 If you want to customize your checkout by overriding manifest settings, use
 the local_manifests/ directory instead.
 
-For more information on repo manifests, check out:
-https://gerrit.googlesource.com/git-repo/+/HEAD/docs/manifest-format.md
+For more information on manifests, check out:
+https://github.com/caylent-solutions/kanon/blob/main/docs/repo/manifest-format.md
 -->
 <manifest>
   <include name="%s" />

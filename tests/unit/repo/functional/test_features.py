@@ -46,7 +46,7 @@ class TestEnvsubstFeature:
         monkeypatch.setenv("GITBASE", "https://github.com/testorg")
         monkeypatch.setenv("GITREV", "main")
 
-        from subcmds.envsubst import Envsubst
+        from kanon_cli.repo.subcmds.envsubst import Envsubst
 
         cmd = Envsubst.__new__(Envsubst)
         cmd.path = str(manifests_dir / "**" / "*.xml")
@@ -75,7 +75,7 @@ class TestEnvsubstFeature:
         env = os.environ.copy()
         env["MYVAR"] = "replaced_value"
 
-        from subcmds.envsubst import Envsubst
+        from kanon_cli.repo.subcmds.envsubst import Envsubst
 
         cmd = Envsubst.__new__(Envsubst)
         cmd.path = str(manifests_dir / "**" / "*.xml")
@@ -108,7 +108,7 @@ class TestVersionConstraints:
 
     def test_version_constraint_detection(self):
         """is_version_constraint should detect PEP 440 syntax."""
-        from version_constraints import is_version_constraint
+        from kanon_cli.repo.version_constraints import is_version_constraint
 
         assert is_version_constraint("refs/tags/dev/python/agent/~=1.2.0")
         assert is_version_constraint("refs/tags/dev/python/agent/>=1.0.0,<2.0.0")
@@ -118,7 +118,7 @@ class TestVersionConstraints:
 
     def test_version_constraint_resolves_to_highest_match(self):
         """resolve_version_constraint should return highest matching tag."""
-        from version_constraints import resolve_version_constraint
+        from kanon_cli.repo.version_constraints import resolve_version_constraint
 
         tags = [
             "refs/tags/dev/python/agent/1.2.0",
@@ -132,7 +132,7 @@ class TestVersionConstraints:
 
     def test_version_constraint_wildcard_matches_all(self):
         """Wildcard '*' should match all versions and return highest."""
-        from version_constraints import resolve_version_constraint
+        from kanon_cli.repo.version_constraints import resolve_version_constraint
 
         tags = [
             "refs/tags/dev/python/lib/0.1.0",
@@ -144,9 +144,9 @@ class TestVersionConstraints:
 
     def test_version_constraint_error_on_no_match(self):
         """Should raise ManifestInvalidRevisionError when no tags match."""
-        from version_constraints import resolve_version_constraint
+        from kanon_cli.repo.version_constraints import resolve_version_constraint
 
-        import error
+        from kanon_cli.repo import error
 
         tags = [
             "refs/tags/dev/python/agent/0.1.0",
@@ -157,7 +157,7 @@ class TestVersionConstraints:
 
     def test_version_constraint_range(self):
         """Range constraints (>=X,<Y) should filter correctly."""
-        from version_constraints import resolve_version_constraint
+        from kanon_cli.repo.version_constraints import resolve_version_constraint
 
         tags = [
             "refs/tags/dev/python/lib/0.9.0",
@@ -176,14 +176,14 @@ class TestAbsolutePathLinkfile:
 
     def test_check_local_path_allows_absolute_with_abs_ok(self):
         """_CheckLocalPath should allow absolute paths when abs_ok=True."""
-        import manifest_xml
+        from kanon_cli.repo import manifest_xml
 
         # Should NOT raise
         manifest_xml.XmlManifest._CheckLocalPath("/etc/myapp/config.yml", abs_ok=True)
 
     def test_check_local_path_rejects_traversal_even_with_abs_ok(self):
         """Path traversal should be rejected even with abs_ok=True."""
-        import manifest_xml
+        from kanon_cli.repo import manifest_xml
 
         msg = manifest_xml.XmlManifest._CheckLocalPath("/etc/../secret", abs_ok=True)
         assert msg is not None, "_CheckLocalPath should reject path traversal even with abs_ok"
@@ -195,7 +195,7 @@ class TestMandatorySSH:
 
     def test_ssh_version_callable(self):
         """ssh.version() should return a tuple or exit cleanly."""
-        import ssh
+        from kanon_cli.repo import ssh
 
         ssh.version.cache_clear()
         try:
@@ -209,34 +209,12 @@ class TestMandatorySSH:
 
 
 @pytest.mark.functional
-class TestVersionOutput:
-    """Functional tests for CLI version output."""
-
-    def test_version_matches_pyproject(self):
-        """__version__ in main.py should match pyproject.toml."""
-        import tomllib
-        from pathlib import Path
-
-        from kanon_cli.repo import main
-
-        # This file is at tests/unit/repo/functional/test_features.py;
-        # parents[4] reaches the kanon repo root where pyproject.toml lives.
-        pyproject_path = Path(__file__).resolve().parents[4] / "pyproject.toml"
-        with open(pyproject_path, "rb") as f:
-            pyproject = tomllib.load(f)
-        expected_version = pyproject["project"]["version"]
-
-        assert hasattr(main, "__version__")
-        assert main.__version__ == expected_version
-
-
-@pytest.mark.functional
 class TestLinkFileExclude:
     """Functional tests for the linkfile exclude attribute."""
 
     def test_linkfile_exclude_creates_individual_symlinks(self, tmp_path):
         """End-to-end: exclude creates real dir with per-child symlinks."""
-        import project
+        from kanon_cli.repo import project
 
         worktree = tmp_path / "worktree"
         topdir = tmp_path / "checkout"
@@ -264,7 +242,7 @@ class TestLinkFileExclude:
 
     def test_linkfile_exclude_with_absolute_dest(self, tmp_path):
         """End-to-end: exclude works with absolute dest path (spec 17.1)."""
-        import project
+        from kanon_cli.repo import project
 
         worktree = tmp_path / "worktree"
         topdir = tmp_path / "checkout"

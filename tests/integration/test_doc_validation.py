@@ -1,15 +1,13 @@
 """Integration tests that validate documentation completeness and accuracy.
 
-These tests scan documentation files for stale references, incorrect command
-usage, and missing entries introduced during the 2.0.0 migration.
+These tests scan documentation files for stale references and incorrect
+command usage.
 
 Covered acceptance criteria:
   - AC-TEST-001: test_no_stale_pipx_references -- zero occurrences of
     "pipx install rpm-git-repo" across all doc files
   - AC-TEST-002: test_no_standalone_repo_references -- no doc file code blocks
     reference "repo" as a standalone CLI command without the "kanon" prefix
-  - AC-TEST-003: test_changelog_has_2_0_0 -- CHANGELOG.md contains a "2.0.0"
-    version entry
   - AC-TEST-004: test_docs_use_auto_discover -- primary onboarding doc files
     that reference "kanon install" or "kanon clean" in code blocks do NOT pass
     ".kanon" as a positional argument in those invocations
@@ -100,9 +98,8 @@ class TestNoStalePipxReferences:
     """AC-TEST-001: All doc files must have zero occurrences of
     'pipx install rpm-git-repo'.
 
-    This string was the installation command for the old standalone repo tool.
-    Since 2.0.0 the repo tool is embedded inside kanon-cli and no longer
-    installed via pipx.
+    Kanon's repo subsystem is part of the kanon-cli package -- there is no
+    separate rpm-git-repo install step.
     """
 
     def test_no_stale_pipx_references(self) -> None:
@@ -147,8 +144,6 @@ class TestNoStandaloneRepoReferences:
     CLI command without the "kanon" prefix.
 
     Code examples must use "kanon repo <subcommand>" for all repo operations.
-    Bare "repo <subcommand>" invocations in code blocks indicate stale content
-    from before the embedded-repo migration.
     """
 
     def test_no_standalone_repo_references(self) -> None:
@@ -183,37 +178,6 @@ class TestNoStandaloneRepoReferences:
         assert not violations, (
             f"{doc_path.name} code blocks contain standalone 'repo' commands: {violations!r}\n"
             "Use 'kanon repo <subcommand>' instead."
-        )
-
-
-# ---------------------------------------------------------------------------
-# AC-TEST-003: CHANGELOG contains a 2.0.0 entry
-# ---------------------------------------------------------------------------
-
-
-@pytest.mark.integration
-class TestChangelogHas200:
-    """AC-TEST-003: CHANGELOG.md must contain a '2.0.0' version entry."""
-
-    def test_changelog_exists(self) -> None:
-        """CHANGELOG.md must be present in the repository root."""
-        assert _CHANGELOG.is_file(), f"CHANGELOG.md not found at {_CHANGELOG}"
-
-    def test_changelog_has_2_0_0(self) -> None:
-        """CHANGELOG.md must contain a '2.0.0' version entry header."""
-        text = _CHANGELOG.read_text(encoding="utf-8")
-        assert re.search(r"2\.0\.0", text), (
-            "CHANGELOG.md does not contain a '2.0.0' version entry.\n"
-            "Add a 2.0.0 section documenting the embedded-repo migration."
-        )
-
-    def test_changelog_2_0_0_section_header(self) -> None:
-        """CHANGELOG.md must have a proper section header for 2.0.0."""
-        text = _CHANGELOG.read_text(encoding="utf-8")
-        # Accept both '## v2.0.0' and '## 2.0.0' formats.
-        assert re.search(r"^##\s+v?2\.0\.0", text, re.MULTILINE), (
-            "CHANGELOG.md does not contain a '## v2.0.0' (or '## 2.0.0') section header.\n"
-            "The 2.0.0 entry must be a top-level section following the existing format."
         )
 
 
@@ -264,10 +228,8 @@ class TestCatalogNoRepoUrl:
     """AC-TEST-005: The bundled catalog/.kanon template must not contain any
     active (uncommented) REPO_URL or REPO_REV lines.
 
-    These variables controlled the old pipx-based repo tool installation.
-    Since 2.0.0 the repo tool is embedded in kanon-cli and these variables
-    are deprecated -- they must not appear as active configuration in the
-    catalog template.
+    `REPO_URL` and `REPO_REV` are not recognized by kanon and must not appear
+    as active configuration in the catalog template.
     """
 
     def test_catalog_kanonenv_exists(self) -> None:
@@ -286,6 +248,6 @@ class TestCatalogNoRepoUrl:
         ]
         assert not uncommented, (
             f"Found uncommented {keyword} line(s) in {_CATALOG_KANONENV}.\n"
-            "REPO_URL and REPO_REV are deprecated since 2.0.0 -- comment them out\n"
-            "or remove them from the catalog template:\n" + "\n".join(uncommented)
+            f"{keyword} is not recognized by kanon -- remove the line from the catalog template:\n"
+            + "\n".join(uncommented)
         )

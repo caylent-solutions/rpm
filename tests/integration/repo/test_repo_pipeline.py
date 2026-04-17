@@ -382,10 +382,10 @@ def test_pipeline_with_variable_substitution(tmp_path: pathlib.Path) -> None:
 def test_pipeline_init_failure_bad_url(tmp_path: pathlib.Path) -> None:
     """Pipeline fails fast at the init stage when the manifest URL does not exist.
 
-    A nonexistent file:// URL is given to _repo_init(). The underlying repo
-    command should exit with a non-zero code, which run_from_args() must
-    surface as a RepoCommandError. Verifies that no .repo/ directory is
-    created on failure.
+    A nonexistent file:// URL is given to _repo_init(). run_from_args() must
+    surface the failure as RepoCommandError with a non-zero exit code. The
+    workspace must not contain an initialized manifest checkout
+    (.repo/manifests/) after the failed init.
 
     AC-FUNC-006
     """
@@ -394,15 +394,17 @@ def test_pipeline_init_failure_bad_url(tmp_path: pathlib.Path) -> None:
 
     bad_manifest_url = f"file://{tmp_path}/does-not-exist.git"
 
-    with pytest.raises((RepoCommandError, SystemExit, Exception)) as exc_info:
+    with pytest.raises(RepoCommandError) as exc_info:
         _repo_init(workspace, bad_manifest_url)
 
-    assert not (workspace / ".repo").is_dir() or True, (
-        "A .repo/ directory should not be created when init fails with a bad URL. "
-        f"Raised: {exc_info.type.__name__}: {exc_info.value!r}"
+    assert exc_info.value.exit_code not in (0, None), (
+        f"RepoCommandError from a bad manifest URL must carry a non-zero exit_code, got {exc_info.value.exit_code!r}"
     )
-    # The key assertion: an exception was raised, not a silent success.
-    assert exc_info.value is not None, "Expected an exception to be raised for a bad manifest URL, but none was raised."
+    manifests_dir = workspace / ".repo" / "manifests"
+    assert not manifests_dir.is_dir(), (
+        f"repo init must not leave a populated .repo/manifests/ checkout on failure, but {manifests_dir} exists. "
+        f"Raised: {exc_info.value!r}"
+    )
 
 
 @pytest.mark.integration

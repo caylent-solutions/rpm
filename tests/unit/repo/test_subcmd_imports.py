@@ -76,7 +76,6 @@ SUBCMD_FILENAMES = [
     "status.py",
     "sync.py",
     "upload.py",
-    "version.py",
 ]
 
 

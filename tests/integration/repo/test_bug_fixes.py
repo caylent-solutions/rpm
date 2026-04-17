@@ -508,7 +508,7 @@ def test_bug7_ls_remote_retried_on_transient_failure(monkeypatch: pytest.MonkeyP
 
     call_count = [0]
 
-    def _fake_run(cmd_args, **kwargs):  # noqa: ANN001
+    def _fake_run(cmd_args, **kwargs):
         call_count[0] += 1
         result = mock.MagicMock()
         if call_count[0] == 1:
@@ -558,7 +558,7 @@ def test_bug8_stderr_included_in_error_message_for_ls_remote_failure(
 
     distinctive_stderr = "ERROR: Repository not found -- check SSH key and repo URL"
 
-    def _fake_run_always_fails(cmd_args, **kwargs):  # noqa: ANN001
+    def _fake_run_always_fails(cmd_args, **kwargs):
         result = mock.MagicMock()
         result.returncode = 128
         result.stdout = ""
@@ -596,7 +596,7 @@ def test_bug9_constraint_resolved_only_once_across_two_calls(monkeypatch: pytest
 
     call_count = [0]
 
-    def _fake_run(cmd_args, **kwargs):  # noqa: ANN001
+    def _fake_run(cmd_args, **kwargs):
         call_count[0] += 1
         result = mock.MagicMock()
         result.returncode = 0
@@ -722,7 +722,7 @@ def test_bug11_race_condition_retry_on_transient_failure(monkeypatch: pytest.Mon
     ]
     call_idx = [0]
 
-    def _fake_run(cmd_args, **kwargs):  # noqa: ANN001
+    def _fake_run(cmd_args, **kwargs):
         idx = call_idx[0]
         call_idx[0] += 1
         rc, stdout, stderr = call_results[idx] if idx < len(call_results) else call_results[-1]

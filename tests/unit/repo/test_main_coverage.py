@@ -51,40 +51,6 @@ class TestCheckRepoDir:
         main._CheckRepoDir("/valid/path")
 
 
-class TestCheckWrapperVersion:
-    """Test _CheckWrapperVersion function."""
-
-    @pytest.mark.unit
-    def test_wrapper_version_none(self):
-        """Test _CheckWrapperVersion with no version raises SystemExit."""
-        with pytest.raises(SystemExit) as exc_info:
-            main._CheckWrapperVersion(None, "/path/to/repo")
-        assert exc_info.value.code == 1
-
-    @pytest.mark.unit
-    def test_wrapper_version_too_old(self):
-        """Test _CheckWrapperVersion with old version raises SystemExit."""
-        with pytest.raises(SystemExit) as exc_info:
-            main._CheckWrapperVersion("1.0", "/path/to/repo")
-        assert exc_info.value.code == 1
-
-    @pytest.mark.unit
-    @mock.patch("kanon_cli.repo.main.Wrapper")
-    def test_wrapper_version_older_than_current(self, mock_wrapper):
-        """Test _CheckWrapperVersion with older version shows warning."""
-        mock_wrapper.return_value.VERSION = (2, 0)
-        # Should not raise but should warn
-        main._CheckWrapperVersion("1.20", "/path/to/repo")
-
-    @pytest.mark.unit
-    @mock.patch("kanon_cli.repo.main.Wrapper")
-    def test_wrapper_version_current(self, mock_wrapper):
-        """Test _CheckWrapperVersion with current version."""
-        mock_wrapper.return_value.VERSION = (2, 0)
-        # Should not raise or warn
-        main._CheckWrapperVersion("2.0", "/path/to/repo")
-
-
 class TestRepoClass:
     """Test _Repo class."""
 

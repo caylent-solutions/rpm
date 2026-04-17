@@ -19,7 +19,7 @@ from kanon_cli.repo.subcmds import all_commands
 # The minimum number of entries expected in all_commands.
 # 27 command .py files produce 27 named entries, and subcmds/__init__.py adds
 # one alias ("branch" -> "branches"), yielding 28 total dictionary entries.
-MIN_COMMAND_COUNT = 28
+MIN_COMMAND_COUNT = 27
 
 # The subcommand key used to retrieve the Init command class from all_commands.
 INIT_COMMAND_KEY = "init"
@@ -56,7 +56,7 @@ def test_all_commands_loaded() -> None:
     actual_count = len(all_commands)
     assert actual_count >= MIN_COMMAND_COUNT, (
         f"Expected all_commands to contain at least {MIN_COMMAND_COUNT} entries "
-        f"(27 subcommand files + 1 'branch' alias), but found {actual_count}. "
+        f"(26 subcommand files + 1 'branch' alias), but found {actual_count}. "
         f"Loaded keys: {sorted(all_commands.keys())!r}. "
         f"Ensure all 27 subcmd .py files were copied to src/kanon_cli/repo/subcmds/."
     )

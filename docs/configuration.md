@@ -34,23 +34,6 @@ Every `.kanon` variable can be overridden by an environment variable of the same
 KANON_SOURCE_build_REVISION=refs/tags/~=2.0.0 kanon install .kanon
 ```
 
-## Deprecated Variables: REPO_URL and REPO_REV
-
-> **Deprecated:** `REPO_URL` and `REPO_REV` are no longer needed and will be ignored in a future
-> release. The `repo` tool is now embedded directly in `kanon-cli` as `kanon_cli.repo` and does
-> not require separate installation or configuration. Remove these variables from your `.kanon`
-> files.
-
-Previously, these variables configured a standalone `repo` tool installed separately via `pipx`:
-
-| Variable | Description |
-|----------|-------------|
-| `REPO_URL` | (Deprecated) URL of the git repository containing the `repo` tool source |
-| `REPO_REV` | (Deprecated) Branch, tag, or PEP 440 version constraint for the `repo` tool version |
-
-Because the `repo` tool is now embedded in `kanon-cli`, neither variable serves a purpose. Any
-`.kanon` files that still define `REPO_URL` or `REPO_REV` should have those lines removed.
-
 ## Multi-Source Groups
 
 Sources are auto-discovered from `KANON_SOURCE_<name>_URL` variable patterns and processed in alphabetical order by name:
@@ -78,7 +61,7 @@ When `false` (default), marketplace lifecycle is skipped entirely.
 
 ## kanon repo Subcommand
 
-The `kanon repo` subcommand provides a passthrough to the embedded `repo` tool, allowing direct
+The `kanon repo` subcommand exposes kanon's repo subsystem for direct manifest operations, allowing direct
 invocation of any `repo` subcommand (such as `init`, `sync`, `version`, `help`) without requiring
 a separate `repo` installation.
 
@@ -86,7 +69,7 @@ a separate `repo` installation.
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `KANON_REPO_DIR` | `.repo` | Path to the `.repo` working directory used by the embedded repo tool |
+| `KANON_REPO_DIR` | `.repo` | Path to the `.repo` working directory used by `kanon repo` |
 
 This variable controls where `kanon repo` looks for (or creates) the `.repo` directory. It
 corresponds to the `--repo-dir` flag on the `kanon repo` subcommand.
@@ -94,18 +77,18 @@ corresponds to the `--repo-dir` flag on the `kanon repo` subcommand.
 ### Usage
 
 ```bash
-# Show the embedded repo tool version
-kanon repo version
-
 # Initialize a manifest repository
 kanon repo init -u <url> -b <branch> -m <manifest>
 
 # Sync all projects
 kanon repo sync --jobs=4
 
+# Show the status of checked-out projects
+kanon repo status
+
 # Use a custom .repo directory
-KANON_REPO_DIR=/path/to/workspace/.repo kanon repo version
+KANON_REPO_DIR=/path/to/workspace/.repo kanon repo status
 
 # Equivalent via flag
-kanon repo --repo-dir /path/to/workspace/.repo version
+kanon repo --repo-dir /path/to/workspace/.repo status
 ```

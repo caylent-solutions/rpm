@@ -26,6 +26,31 @@ from kanon_cli.repo import repo_trace
 class TraceTests(unittest.TestCase):
     """Check Trace behavior."""
 
+    def setUp(self):
+        """Enable tracing and point _TRACE_FILE at a fresh per-test temp file.
+
+        The conftest autouse fixture ``disable_repo_trace`` assigns a path to
+        ``_TRACE_FILE`` but does not create it; the test suite's default is
+        tracing off (``REPO_TRACE=0``). Tests in this class exercise the trace
+        file rotation logic itself, so they must temporarily enable tracing
+        and start from a known empty trace file.
+        """
+        import tempfile
+
+        self._saved_trace = repo_trace._TRACE
+        self._tmp = tempfile.TemporaryDirectory(prefix="repo_trace_test_")
+        self._trace_path = os.path.join(self._tmp.name, "TRACE_FILE")
+        # Seed an empty trace file so the rotation logic has something to read.
+        open(self._trace_path, "w").close()
+        repo_trace._TRACE = True
+        repo_trace._TRACE_FILE = self._trace_path
+
+    def tearDown(self):
+        """Restore tracing state and clean up the per-test trace file."""
+        repo_trace._TRACE = self._saved_trace
+        repo_trace._TRACE_FILE = None
+        self._tmp.cleanup()
+
     def testTrace_MaxSizeEnforced(self):
         content = "git chicken"
 

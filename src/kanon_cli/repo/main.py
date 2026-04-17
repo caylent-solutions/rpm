@@ -20,8 +20,6 @@ People shouldn't run this directly; instead, they should use the `repo` wrapper
 which takes care of execing this entry point.
 """
 
-__version__ = "2.0.0"
-
 import getpass
 import json
 import netrc
@@ -69,10 +67,7 @@ from .repo_trace import SetTrace
 from .repo_trace import SetTraceToStderr
 from .repo_trace import Trace
 from .subcmds import all_commands
-from .subcmds.version import Version
-from .wrapper import EMBEDDED_WRAPPER_VERSION
 from .wrapper import Wrapper
-from .wrapper import WrapperPath
 
 
 logger = RepoLogger(__file__)
@@ -483,75 +478,6 @@ class _Repo:
         return result
 
 
-def _CheckWrapperVersion(ver_str, repo_path):
-    """Verify the repo launcher is new enough for this checkout.
-
-    Args:
-        ver_str: The version string passed from the repo launcher when it ran
-            us.
-        repo_path: The path to the repo launcher that loaded us.
-    """
-    # Refuse to work with really old wrapper versions.  We don't test these,
-    # so might as well require a somewhat recent sane version.
-    # v1.15 of the repo launcher was released in ~Mar 2012.
-    MIN_REPO_VERSION = (1, 15)
-    min_str = ".".join(str(x) for x in MIN_REPO_VERSION)
-
-    if not repo_path:
-        repo_path = "~/bin/repo"
-
-    if not ver_str:
-        logger.error("no --wrapper-version argument")
-        sys.exit(1)
-
-    # Pull out the version of the repo launcher we know about to compare.
-    exp = Wrapper().VERSION
-    ver = tuple(map(int, ver_str.split(".")))
-
-    exp_str = ".".join(map(str, exp))
-    if ver < MIN_REPO_VERSION:
-        logger.error(
-            """
-repo: error:
-!!! Your version of repo %s is too old.
-!!! We need at least version %s.
-!!! A new version of repo (%s) is available.
-!!! You must upgrade before you can continue:
-
-    cp %s %s
-""",
-            ver_str,
-            min_str,
-            exp_str,
-            WrapperPath(),
-            repo_path,
-        )
-        sys.exit(1)
-
-    if exp > ver:
-        logger.warning("\n... A new version of repo (%s) is available.", exp_str)
-        if os.access(repo_path, os.W_OK):
-            logger.warning(
-                """\
-... You should upgrade soon:
-    cp %s %s
-""",
-                WrapperPath(),
-                repo_path,
-            )
-        else:
-            logger.warning(
-                """\
-... New version is available at: %s
-... The launcher is run from: %s
-!!! The launcher is not writable.  Please talk to your sysadmin or distro
-!!! to get an update installed.
-""",
-                WrapperPath(),
-                repo_path,
-            )
-
-
 def _CheckRepoDir(repo_dir):
     if not repo_dir:
         logger.error("no --repo-dir argument")
@@ -765,25 +691,10 @@ def _Main(argv):
 
     opt = optparse.OptionParser(usage="repo wrapperinfo -- ...")
     opt.add_option("--repo-dir", dest="repodir", help="path to .repo/")
-    opt.add_option(
-        "--wrapper-version",
-        dest="wrapper_version",
-        help="version of the wrapper script",
-    )
-    opt.add_option(
-        "--wrapper-path",
-        dest="wrapper_path",
-        help="location of the wrapper script",
-    )
     _PruneOptions(argv, opt)
     opt, argv = opt.parse_args(argv)
 
-    if not _pager_module.EMBEDDED:
-        _CheckWrapperVersion(opt.wrapper_version, opt.wrapper_path)
     _CheckRepoDir(opt.repodir)
-
-    Version.wrapper_version = opt.wrapper_version
-    Version.wrapper_path = opt.wrapper_path
 
     repo = _Repo(opt.repodir)
 
@@ -831,23 +742,6 @@ def _FindRepoDir():
         olddir = curdir
         curdir = os.path.dirname(curdir)
     return os.path.join(os.getcwd(), ".repo")
-
-
-def main():
-    """Entry point for pipx/pip installation.
-
-    Injects --repo-dir and --wrapper-version so _Main behaves the same
-    as when invoked via the repo launcher script.
-    """
-    wrapper_version = ".".join(str(x) for x in Wrapper().VERSION)
-    repo_dir = _FindRepoDir()
-    argv = [
-        f"--repo-dir={repo_dir}",
-        f"--wrapper-version={wrapper_version}",
-        f"--wrapper-path={__file__}",
-        "--",
-    ] + sys.argv[1:]
-    _Main(argv)
 
 
 class RepoCommandError(Exception):
@@ -948,8 +842,6 @@ def run_from_args(argv: list[str], *, repo_dir: str) -> None:
 
     internal_argv = [
         f"--repo-dir={repo_dir_str}",
-        f"--wrapper-version={EMBEDDED_WRAPPER_VERSION}",
-        f"--wrapper-path={__file__}",
         "--",
     ] + user_argv
 
